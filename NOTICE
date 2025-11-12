@@ -1,0 +1,7 @@
+my_aws_tools plugin (fork)
+Copyright (c) 2025 r3-yamauchi
+
+This product includes software developed by LangGenius, Inc.
+Derived from https://github.com/langgenius/dify-official-plugins/tree/main/tools/aws (version 0.0.15).
+
+Licensed under the Apache License, Version 2.0.

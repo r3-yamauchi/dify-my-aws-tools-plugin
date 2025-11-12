@@ -1,0 +1,130 @@
+identity:
+  name: "agentcore_code_interpreter"
+  author: "aws"
+  label:
+    en_US: "AgentCore Code Interpreter"
+    zh_Hans: "AgentCore 代码执行器"
+    pt_BR: "AgentCore Code Interpreter"
+    ja_JP: "AgentCore コードインタープリター"
+description:
+  human: 
+    en_US: > 
+      This tool offers an isolated code execution sandbox based on AWS Bedrock AgentCore that allows you to perform various code interpreter actions.
+      Supported actions include:
+      (1) execute python, javascript, or typescript code,
+      (2) execute terminal commands.
+      The tool can automatically create code interpreters and sessions if not provided.
+    ja_JP: >
+      AWS Bedrock AgentCore 上のサンドボックスでコードやコマンドを安全に実行できるツールです。
+      対応機能:
+      (1) Python / JavaScript / TypeScript コードの実行
+      (2) ターミナルコマンドの実行
+      コードインタープリター ID やセッション ID が無い場合は自動的に作成します。
+  llm: agentcore code interpreter is a sandbox to execute command and code
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: language
+    type: select
+    required: true
+    options:
+      - value: python
+        label:
+          en_US: python
+          ja_JP: Python
+      - value: javascript
+        label:
+          en_US: javascript
+          ja_JP: JavaScript
+      - value: typescript
+        label:
+          en_US: typescript 
+          ja_JP: TypeScript
+    label:
+      en_US: language
+      ja_JP: 言語
+    human_description:
+      en_US: programming language of the code (required if code is provided)
+      ja_JP: 実行するコードのプログラミング言語（code を指定する場合は必須）
+    llm_description: The programming language of the code to execute. Available values include python, javascript, typescript. Required if code parameter is provided.
+    form: llm
+  - name: code
+    type: string
+    required: true
+    label:
+      en_US: code
+      ja_JP: コード
+    human_description:
+      en_US: code to be executed
+      ja_JP: 実行したいソースコード
+    llm_description: The code to execute in a code interpreter session. This is the source code in the specified programming language that will be executed by the code interpreter.
+    form: llm
+  - name: command
+    type: string
+    required: false
+    label:
+      en_US: command
+      ja_JP: コマンド
+    human_description:
+      en_US: command to be executed
+      ja_JP: 実行したいターミナルコマンド
+    llm_description: The terminal command to execute in a code interpreter session.
+    form: llm
+  - name: session_id
+    type: string
+    required: false
+    label:
+      en_US: session id
+      ja_JP: セッション ID
+    human_description:
+      en_US: The unique identifier of the code interpreter session to use.
+      ja_JP: 既存のコードインタープリターセッションを指定するための ID
+    llm_description: The unique ID of the code interpreter session to use. If you want to use a existing or past code interpreter session, please specify the session ID. If you do not specify the session ID, the tool will initiate a new session for you.
+    form: form
+  - name: code_interpreter_id
+    type: string
+    required: false
+    label:
+      en_US: code_interpreter_id
+      ja_JP: コードインタープリター ID
+    human_description:
+      en_US: ID of the Amazon Bedrock AgentCore code interpreter to use
+      ja_JP: 利用する Amazon Bedrock AgentCore コードインタープリターの ID
+    llm_description: The ID of the code interpreter to use.
+    form: form 
+
+
+extra:
+  python:
+    source: tools/agentcore_code_interpreter.py

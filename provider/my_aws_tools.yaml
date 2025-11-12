@@ -1,0 +1,66 @@
+identity:
+  author: aws
+  name: my_aws_tools
+  label:
+    en_US: AWS Tools
+    zh_Hans: 亚马逊云科技工具集
+    pt_BR: AWS Tools
+  description:
+    en_US: the tools based on the aws services
+    zh_Hans: the tools based on the aws services
+    pt_BR: the tools based on the aws services
+  icon: icon.svg
+  tags:
+    - productivity
+credentials_schema:
+  - name: aws_access_key_id
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    type: secret-input
+    required: false
+    description:
+      en_US: Optional Access Key ID used when invoking AWS APIs.
+      ja_JP: AWS API 呼び出し時に使用する任意の Access Key ID。
+  - name: aws_secret_access_key
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    type: secret-input
+    required: false
+    description:
+      en_US: Optional Secret Access Key paired with the Access Key ID.
+      ja_JP: Access Key ID とペアで使用する任意のシークレットキー。
+  - name: aws_region
+    label:
+      en_US: Default AWS Region
+      ja_JP: デフォルト AWS リージョン
+    type: text-input
+    required: false
+    description:
+      en_US: Region used by tools when a tool-specific region is not provided.
+      ja_JP: 各ツールでリージョンが指定されない場合に用いるデフォルト値。
+tools:
+  - tools/bedrock_retrieve.yaml
+  - tools/bedrock_retrieve_and_generate.yaml
+  - tools/opensearch_knn_search.yaml
+  - tools/s3_operator.yaml
+  - tools/apply_guardrail.yaml
+  - tools/nova_canvas.yaml
+  - tools/transcribe_asr.yaml
+  - tools/lambda_translate_utils.yaml
+  - tools/sagemaker_text_rerank.yaml
+  - tools/sagemaker_tts.yaml
+  - tools/translation_evaluator.yaml
+  - tools/sagemaker_chinese_toxicity_detector.yaml
+  - tools/lambda_yaml_to_json.yaml
+  - tools/extract_frame.yaml
+  - tools/agentcore_memory.yaml
+  - tools/agentcore_memory_search.yaml
+  - tools/agentcore-browser-tool.yaml
+  - tools/agentcore-browser-session-manager.yaml
+  - tools/agentcore_code_interpreter.yaml
+  - tools/dynamodb_manager.yaml
+extra:
+  python:
+    source: provider/my_aws_tools.py

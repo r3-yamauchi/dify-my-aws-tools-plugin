@@ -1,0 +1,195 @@
+identity:
+  name: sagemaker_tts
+  author: AWS
+  label:
+    en_US: SagemakerTTS
+    zh_Hans: Sagemaker语音合成
+    pt_BR: SagemakerTTS
+    ja_JP: SageMaker 音声合成
+  icon: icon.svg
+description:
+  human:
+    en_US: A tool for Speech synthesis - https://github.com/aws-samples/dify-aws-tool
+    zh_Hans: Sagemaker语音合成工具, 请参考 Github Repo - https://github.com/aws-samples/dify-aws-tool上的部署脚本
+    pt_BR: A tool for Speech synthesis.
+    ja_JP: SageMaker エンドポイントを利用して音声合成を行うツールです。展開手順は https://github.com/aws-samples/dify-aws-tool を参照してください。
+  llm: A tool for Speech synthesis. You can find deploy notebook on Github Repo - https://github.com/aws-samples/dify-aws-tool
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: sagemaker_endpoint
+    type: string
+    required: true
+    label:
+      en_US: sagemaker endpoint for tts
+      zh_Hans: 语音生成的SageMaker端点
+      pt_BR: sagemaker endpoint for tts
+      ja_JP: 音声合成用 SageMaker エンドポイント
+    human_description:
+      en_US: sagemaker endpoint for tts
+      zh_Hans: 语音生成的SageMaker端点
+      pt_BR: sagemaker endpoint for tts
+      ja_JP: 音声合成を実行する SageMaker エンドポイント名
+    llm_description: sagemaker endpoint for tts
+    form: form
+  - name: tts_text
+    type: string
+    required: true
+    label:
+      en_US: tts text
+      zh_Hans: 语音合成原文
+      pt_BR: tts text
+      ja_JP: 音声化するテキスト
+    human_description:
+      en_US: tts text
+      zh_Hans: 语音合成原文
+      pt_BR: tts text
+      ja_JP: 音声に変換するテキスト本文
+    llm_description: tts text
+    form: llm
+  - name: tts_infer_type
+    type: select
+    required: false
+    label:
+      en_US: tts infer type
+      zh_Hans: 合成方式
+      pt_BR: tts infer type
+      ja_JP: 推論タイプ
+    human_description:
+      en_US: tts infer type
+      zh_Hans: 合成方式
+      pt_BR: tts infer type
+      ja_JP: 使用する音声生成モード
+    llm_description: tts infer type
+    options:
+      - value: PresetVoice
+        label:
+          en_US: preset voice
+          zh_Hans: 预置音色
+          ja_JP: プリセット音声
+      - value: CloneVoice
+        label:
+          en_US: clone voice
+          zh_Hans: 克隆音色
+          ja_JP: ボイスクローン
+      - value: CloneVoice_CrossLingual
+        label:
+          en_US: clone crossLingual voice
+          zh_Hans: 克隆音色(跨语言)
+          ja_JP: クロスリンガルクローン
+      - value: InstructVoice
+        label:
+          en_US: instruct voice
+          zh_Hans: 指令音色
+          ja_JP: Instruct Voice
+    form: form
+  - name: voice
+    type: select
+    required: false
+    label:
+      en_US: preset voice
+      zh_Hans: 预置音色
+      pt_BR: preset voice
+      ja_JP: プリセット音声
+    human_description:
+      en_US: preset voice
+      zh_Hans: 预置音色
+      pt_BR: preset voice
+      ja_JP: 利用したいプリセット音声
+    llm_description: preset voice
+    options:
+      - value: 中文男
+        label:
+          en_US: zh-cn male
+          zh_Hans: 中文男
+          ja_JP: 中国語男性
+      - value: 中文女
+        label:
+          en_US: zh-cn female
+          zh_Hans: 中文女
+          ja_JP: 中国語女性
+      - value: 粤语女
+        label:
+          en_US: zh-TW female
+          zh_Hans: 粤语女
+          ja_JP: 広東語女性
+    form: form
+  - name: mock_voice_audio
+    type: string
+    required: false
+    label:
+      en_US: clone voice link
+      zh_Hans: 克隆音频链接
+      pt_BR: clone voice link
+      ja_JP: クローン音声のリンク
+    human_description:
+      en_US: clone voice link
+      zh_Hans: 克隆音频链接
+      pt_BR: clone voice link
+      ja_JP: 参照するクローン音声の S3/URL
+    llm_description: clone voice link
+    form: llm
+  - name: mock_voice_text
+    type: string
+    required: false
+    label:
+      en_US: text of clone voice
+      zh_Hans: 克隆音频对应文本
+      pt_BR: text of clone voice
+      ja_JP: クローン音声の台本
+    human_description:
+      en_US: text of clone voice
+      zh_Hans: 克隆音频对应文本
+      pt_BR: text of clone voice
+      ja_JP: クローン音声に対応するテキスト
+    llm_description: text of clone voice
+    form: llm
+  - name: voice_instruct_prompt
+    type: string
+    required: false
+    label:
+      en_US: instruct prompt for voice
+      zh_Hans: 音色指令文本
+      pt_BR: instruct prompt for voice
+      ja_JP: 音声指示プロンプト
+    human_description:
+      en_US: instruct prompt for voice
+      zh_Hans: 音色指令文本
+      pt_BR: instruct prompt for voice
+      ja_JP: InstructVoice モードで使用する音色指示
+    llm_description: instruct prompt for voice
+    form: llm
+extra:
+  python:
+    source: tools/sagemaker_tts.py

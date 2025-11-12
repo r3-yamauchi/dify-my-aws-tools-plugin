@@ -1,0 +1,115 @@
+identity:
+  name: sagemaker_text_rerank
+  author: AWS
+  label:
+    en_US: SagemakerRerank
+    zh_Hans: Sagemaker重排序
+    pt_BR: SagemakerRerank
+    ja_JP: SageMaker リランク
+  icon: icon.svg
+description:
+  human:
+    en_US: A tool for performing text similarity ranking. You can find deploy notebook on Github Repo - https://github.com/aws-samples/dify-aws-tool
+    zh_Hans: Sagemaker重排序工具, 请参考 Github Repo - https://github.com/aws-samples/dify-aws-tool上的部署脚本
+    pt_BR: A tool for performing text similarity ranking.
+    ja_JP: テキスト候補を SageMaker エンドポイントでスコアリングし、関連度順に並べ替えるツールです。デプロイ手順は https://github.com/aws-samples/dify-aws-tool を参照してください。
+  llm: A tool for performing text similarity ranking. You can find deploy notebook on Github Repo - https://github.com/aws-samples/dify-aws-tool
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: sagemaker_endpoint
+    type: string
+    required: true
+    label:
+      en_US: sagemaker endpoint for reranking
+      zh_Hans: 重排序的SageMaker 端点
+      pt_BR: sagemaker endpoint for reranking
+      ja_JP: リランク用 SageMaker エンドポイント
+    human_description:
+      en_US: sagemaker endpoint for reranking
+      zh_Hans: 重排序的SageMaker 端点
+      pt_BR: sagemaker endpoint for reranking
+      ja_JP: リランク推論を提供する SageMaker エンドポイント名
+    llm_description: sagemaker endpoint for reranking
+    form: form
+  - name: query
+    type: string
+    required: true
+    label:
+      en_US: Query string
+      zh_Hans: 查询语句
+      pt_BR: Query string
+      ja_JP: クエリ文字列
+    human_description:
+      en_US: key words for searching
+      zh_Hans: 查询关键词
+      pt_BR: key words for searching
+      ja_JP: リランク対象を決定する検索キーワード
+    llm_description: key words for searching
+    form: llm
+  - name: candidate_texts
+    type: string
+    required: true
+    label:
+      en_US: text candidates
+      zh_Hans: 候选文本
+      pt_BR: text candidates
+      ja_JP: 候補テキスト
+    human_description:
+      en_US: searched candidates by query
+      zh_Hans: 查询文本搜到候选文本
+      pt_BR: searched candidates by query
+      ja_JP: クエリから取得した候補ドキュメント（JSON 配列）
+    llm_description: searched candidates by query
+    form: llm
+  - name: topk
+    type: number
+    required: false
+    form: form
+    label:
+      en_US: Limit for results count
+      zh_Hans: 返回个数限制
+      pt_BR: Limit for results count
+      ja_JP: 返却件数の上限
+    human_description:
+      en_US: Limit for results count
+      zh_Hans: 返回个数限制
+      pt_BR: Limit for results count
+      ja_JP: 返却する上位件数
+    min: 1
+    max: 10
+    default: 5
+extra:
+  python:
+    source: tools/sagemaker_text_rerank.py

@@ -1,0 +1,134 @@
+identity:
+  name: s3_operator
+  author: AWS
+  label:
+    en_US: AWS S3 Operator
+    zh_Hans: AWS S3 读写器
+    pt_BR: AWS S3 Operator
+    ja_JP: AWS S3 オペレーター
+description:
+  human:
+    en_US: AWS S3 Writer and Reader
+    zh_Hans: 读写S3 bucket中的文件
+    pt_BR: AWS S3 Writer and Reader
+    ja_JP: AWS S3 バケットへの読み書きを行うツールです
+  llm: AWS S3 Writer and Reader
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: text_content
+    type: string
+    required: false
+    label:
+      en_US: The text to write
+      zh_Hans: 待写入的文本
+      pt_BR: The text to write
+      ja_JP: 書き込むテキスト
+    human_description:
+      en_US: The text to write
+      zh_Hans: 待写入的文本
+      pt_BR: The text to write
+      ja_JP: S3 に保存するテキスト本文
+    llm_description: The text to write
+    form: llm
+  - name: s3_uri
+    type: string
+    required: true
+    label:
+      en_US: s3 uri
+      zh_Hans: s3 uri
+      pt_BR: s3 uri
+      ja_JP: S3 URI
+    human_description:
+      en_US: s3 uri
+      zh_Hans: s3 uri
+      pt_BR: s3 uri
+      ja_JP: 操作対象の `s3://bucket/key` 形式の URI
+    llm_description: s3 uri
+    form: llm
+  - name: operation_type
+    type: select
+    required: true
+    label:
+      en_US: operation type
+      zh_Hans: 操作类型
+      pt_BR: operation type
+      ja_JP: 操作種別
+    human_description:
+      en_US: operation type
+      zh_Hans: 操作类型
+      pt_BR: operation type
+      ja_JP: 読み込みか書き込みかを選択します
+    default: read
+    options:
+      - value: read
+        label:
+          en_US: read
+          zh_Hans: 读
+          ja_JP: 読み込み
+      - value: write
+        label:
+          en_US: write
+          zh_Hans: 写
+          ja_JP: 書き込み
+    form: form
+  - name: generate_presign_url
+    type: boolean
+    required: false
+    label:
+      en_US: Generate presigned URL
+      zh_Hans: 生成预签名URL
+      ja_JP: 署名付き URL を生成
+    human_description:
+      en_US: Whether to generate a presigned URL for the S3 object
+      zh_Hans: 是否生成S3对象的预签名URL
+      ja_JP: S3 オブジェクトの署名付き URL を生成するか
+    default: false
+    form: form
+  - name: presign_expiry
+    type: number
+    required: false
+    label:
+      en_US: Presigned URL expiration time
+      zh_Hans: 预签名URL有效期
+      ja_JP: 署名付き URL の有効期限
+    human_description:
+      en_US: Expiration time in seconds for the presigned URL
+      zh_Hans: 预签名URL的有效期（秒）
+      ja_JP: 署名付き URL の有効期限（秒）
+    default: 3600
+    form: form
+extra:
+  python:
+    source: tools/s3_operator.py
