@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi
-**Version:** 1.0.1
+**Version:** 1.0.2  
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
@@ -24,8 +24,13 @@ Included tools:
 - Apply Guardrail
 - Bedrock Retrieve
 - Bedrock Retrieve and Generate
+- Bedrock KB List
+- Bedrock KB Data Sources
+- Bedrock KB Sync
 - Lambda Translate Utils
 - Lambda YAML to JSON
+- Lambda Invoker
+- Step Functions Start Execution
 - Nova Canvas
 - Nova Reel
 - S3 Operator
@@ -61,6 +66,9 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 - **SageMaker Chinese Toxicity Detector** – Sends Chinese text to a SageMaker endpoint and normalizes the prediction to SAFE or NO_SAFE, handling both direct and `body.prediction` response formats.
 
 ### Data Search & RAG Support
+- **Bedrock KB List** – Calls `list_knowledge_bases` to enumerate available knowledge bases, returning summaries (status, creation date, vector store) and pagination tokens for downstream filtering.
+- **Bedrock KB Data Sources** – Invokes `list_data_sources` for a given knowledge base, returning connector information, synchronization state, and pagination tokens so you can select the correct source before running ingestion jobs.
+- **Bedrock KB Sync** – Calls `StartIngestionJob` for a given knowledge base/data source pair so you can synchronize documents on demand, optionally setting a client token or deletion policy.
 - **OpenSearch kNN Search** – Generates embeddings for text or S3-hosted images via Bedrock and queries Amazon OpenSearch (Serverless/Managed) using kNN, returning only the selected metadata fields plus scores.
 - **SageMaker Text Rerank** – Reranks JSON candidates through a SageMaker endpoint, appends `score` to each item, and returns the top K entries for RAG pipelines.
 
@@ -79,6 +87,8 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 
 ### Other Notes
 - **Lambda Translate Utils / Lambda YAML to JSON** – Lightweight wrappers for reusing your Lambda workloads from workflows.
+- **Lambda Invoker** – Calls any Lambda function name or ARN with a JSON payload, optional qualifier, per-call credentials, and tail logs for quick serverless utilities.
+- **Step Functions Start Execution** – Starts a state machine by ARN, passing execution input, optional name, trace header, and tags so agents can fan out or orchestrate long-running jobs.
 - **Transcribe ASR / Nova Canvas / Nova Reel** – Provide the audio, image, and video pipelines described above for immediate invocation as Dify tools.
 
 ## Privacy Policy

@@ -1,0 +1,131 @@
+identity:
+  name: lambda_invoker
+  author: r3-yamauchi
+  label:
+    en_US: Lambda Invoker
+    ja_JP: Lambda Invoker
+  icon: icon.svg
+description:
+  human:
+    en_US: Invoke any AWS Lambda function by name with a JSON payload and optional qualifier/log capture.
+    ja_JP: Lambda 関数名と JSON ペイロードを指定して同期/非同期呼び出しやログ取得を行うツールです。
+  llm: Invoke an arbitrary AWS Lambda function with JSON payload.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: lambda_name
+    type: string
+    required: true
+    label:
+      en_US: Lambda function name or ARN
+      ja_JP: Lambda 関数名または ARN
+    human_description:
+      en_US: Provide the exact name or full ARN of the Lambda function to invoke.
+      ja_JP: 呼び出したい Lambda 関数の名前または ARN を入力してください。
+    llm_description: Name or ARN of the Lambda function to invoke.
+    form: llm
+
+  - name: payload_json
+    type: string
+    required: false
+    label:
+      en_US: JSON payload
+      ja_JP: JSON ペイロード
+    human_description:
+      en_US: JSON string that will be passed as the Lambda event body. Defaults to an empty object.
+      ja_JP: Lambda へ渡すイベント本文の JSON 文字列。未指定時は空のオブジェクトになります。
+    llm_description: JSON payload passed to the Lambda function.
+    form: llm
+
+  - name: invocation_type
+    type: select
+    required: false
+    default: RequestResponse
+    label:
+      en_US: Invocation type
+      ja_JP: 呼び出しタイプ
+    human_description:
+      en_US: Choose synchronous RequestResponse or asynchronous Event/DryRun.
+      ja_JP: 同期 (RequestResponse) か非同期 (Event/DryRun) を選択してください。
+    options:
+      - value: RequestResponse
+        label:
+          en_US: RequestResponse (synchronous)
+          ja_JP: RequestResponse (同期)
+      - value: Event
+        label:
+          en_US: Event (asynchronous)
+          ja_JP: Event (非同期)
+      - value: DryRun
+        label:
+          en_US: DryRun (permission check only)
+          ja_JP: DryRun (権限チェックのみ)
+    form: form
+
+  - name: qualifier
+    type: string
+    required: false
+    label:
+      en_US: Version or alias qualifier
+      ja_JP: バージョン/エイリアス修飾子
+    human_description:
+      en_US: Optional version or alias to target when invoking the function.
+      ja_JP: 呼び出し対象となるバージョンやエイリアスを指定します。
+    form: form
+
+  - name: client_context_json
+    type: string
+    required: false
+    label:
+      en_US: Client context JSON
+      ja_JP: クライアントコンテキスト JSON
+    human_description:
+      en_US: JSON metadata that will be base64-encoded and sent as ClientContext.
+      ja_JP: ClientContext として送信するメタデータを JSON で指定します。
+    form: form
+
+  - name: include_logs
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Include tail logs
+      ja_JP: 末尾ログを含める
+    human_description:
+      en_US: When enabled, return the last 4 KB of execution logs.
+      ja_JP: 有効にすると実行ログ（最大 4 KB）をレスポンスへ含めます。
+    form: form
+extra:
+  python:
+    source: tools/lambda_invoker.py

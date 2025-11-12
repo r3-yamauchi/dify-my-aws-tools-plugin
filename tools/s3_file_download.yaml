@@ -8,11 +8,11 @@ identity:
     ja_JP: AWS S3 ファイルダウンロード
 description:
   human:
-    en_US: Download objects from Amazon S3 into Dify workflows and optionally return a presigned URL.
-    zh_Hans: 将 Amazon S3 的对象下载到 Dify 工作流，或生成预签名 URL。
-    pt_BR: Baixe objetos do Amazon S3 no workflow do Dify ou gere uma URL pré-assinada.
-    ja_JP: Amazon S3 からファイルを取得し、ワークフロー内でバイナリや署名付き URL として扱えるようにします。
-  llm: Download S3 objects for workflows, returning either a presigned URL or the binary plus metadata variables.
+    en_US: Download files from Amazon S3.
+    zh_Hans: 从 Amazon S3 下载文件。
+    pt_BR: Faça download de arquivos do Amazon S3.
+    ja_JP: Amazon S3 からファイルをダウンロードします。
+  llm: Download files from Amazon S3 so workflows can access the binary and metadata directly.
 parameters:
   - name: aws_access_key_id
     type: string

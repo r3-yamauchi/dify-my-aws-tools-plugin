@@ -1,0 +1,82 @@
+identity:
+  name: bedrock_kb_list_data_sources
+  author: r3-yamauchi
+  label:
+    en_US: Bedrock KB Data Sources
+    ja_JP: Bedrock データソース一覧
+  icon: icon.svg
+description:
+  human:
+    en_US: List data sources attached to an Amazon Bedrock Knowledge Base.
+    ja_JP: 指定した Bedrock Knowledge Base に接続されているデータソースを列挙します。
+  llm: List data sources for a Bedrock knowledge base.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override provider-level Access Key ID for this call if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override provider-level Secret Access Key for this call if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region for the Bedrock Agent client when different from the provider default.
+      ja_JP: プロバイダー設定と異なるリージョンで実行する場合に指定します。
+    form: form
+
+  - name: knowledge_base_id
+    type: string
+    required: true
+    label:
+      en_US: Knowledge base ID
+      ja_JP: ナレッジベース ID
+    human_description:
+      en_US: ID of the knowledge base whose data sources you want to list.
+      ja_JP: データソースを取得したいナレッジベースの ID。
+    llm_description: Bedrock Knowledge Base identifier.
+    form: llm
+
+  - name: max_results
+    type: number
+    required: false
+    label:
+      en_US: Max results
+      ja_JP: 最大取得数
+    human_description:
+      en_US: Limit the number of data sources returned (1-50).
+      ja_JP: 返却されるデータソース件数の上限 (1-50)。
+    form: form
+
+  - name: next_token
+    type: string
+    required: false
+    label:
+      en_US: Next token
+      ja_JP: 次のトークン
+    human_description:
+      en_US: Pagination token from a previous list operation.
+      ja_JP: 以前の一覧結果で取得した nextToken。
+    form: form
+extra:
+  python:
+    source: tools/bedrock_kb_list_data_sources.py

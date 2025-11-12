@@ -1,0 +1,103 @@
+identity:
+  name: bedrock_kb_start_ingestion_job
+  author: r3-yamauchi
+  label:
+    en_US: Bedrock KB Sync
+    ja_JP: Bedrock データソース 同期
+  icon: icon.svg
+description:
+  human:
+    en_US: Trigger StartIngestionJob for an Amazon Bedrock Knowledge Base data source.
+    ja_JP: Amazon Bedrock Knowledge Base のデータソースに対して StartIngestionJob を実行し、同期を開始します。
+  llm: Start an ingestion job for a Bedrock Knowledge Base data source.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool call.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool call.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region for the Bedrock Agent client when different from the provider default.
+      ja_JP: プロバイダー設定と異なるリージョンで実行する場合に指定します。
+    form: form
+
+  - name: knowledge_base_id
+    type: string
+    required: true
+    label:
+      en_US: Knowledge base ID
+      ja_JP: ナレッジベース ID
+    human_description:
+      en_US: ID of the Bedrock Knowledge Base that owns the data source.
+      ja_JP: 対象となる Bedrock ナレッジベースの ID。
+    llm_description: Bedrock Knowledge Base identifier.
+    form: llm
+
+  - name: data_source_id
+    type: string
+    required: true
+    label:
+      en_US: Data source ID
+      ja_JP: データソース ID
+    human_description:
+      en_US: ID of the data source to sync.
+      ja_JP: 同期したいデータソースの ID。
+    llm_description: Identifier of the data source attached to the knowledge base.
+    form: llm
+
+  - name: client_token
+    type: string
+    required: false
+    label:
+      en_US: Client token
+      ja_JP: クライアントトークン
+    human_description:
+      en_US: Optional idempotency token for StartIngestionJob.
+      ja_JP: StartIngestionJob の冪等性を担保するトークン。
+    form: form
+
+  - name: data_deletion_policy
+    type: select
+    required: false
+    label:
+      en_US: Data deletion policy
+      ja_JP: データ削除ポリシー
+    human_description:
+      en_US: RETAIN keeps existing vectors; DELETE removes documents that disappeared from the source.
+      ja_JP: RETAIN は既存ベクトルを保持し、DELETE はデータソースから消えたドキュメントを削除します。
+    options:
+      - value: RETAIN
+        label:
+          en_US: RETAIN
+          ja_JP: RETAIN (保持)
+      - value: DELETE
+        label:
+          en_US: DELETE
+          ja_JP: DELETE (削除)
+    form: form
+extra:
+  python:
+    source: tools/bedrock_kb_start_ingestion_job.py

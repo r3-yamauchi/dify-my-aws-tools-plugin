@@ -1,0 +1,70 @@
+identity:
+  name: bedrock_kb_list
+  author: r3-yamauchi
+  label:
+    en_US: Bedrock KB List
+    ja_JP: Bedrock ナレッジベース 一覧
+  icon: icon.svg
+description:
+  human:
+    en_US: List Amazon Bedrock Knowledge Bases and return their summaries.
+    ja_JP: Amazon Bedrock Knowledge Base を列挙してサマリーを返します。
+  llm: List Bedrock knowledge bases with optional pagination.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override provider-level Access Key ID for this call if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override provider-level Secret Access Key for this call if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region for the Bedrock Agent client when different from the provider default.
+      ja_JP: プロバイダー設定と異なるリージョンで実行したい場合に指定します。
+    form: form
+
+  - name: max_results
+    type: number
+    required: false
+    label:
+      en_US: Max results
+      ja_JP: 最大取得数
+    human_description:
+      en_US: Limit the number of knowledge bases returned (1-50, default per service limit).
+      ja_JP: 返却するナレッジベース件数の上限 (1-50, 省略時はサービス既定)。
+    form: form
+
+  - name: next_token
+    type: string
+    required: false
+    label:
+      en_US: Next token
+      ja_JP: 次のトークン
+    human_description:
+      en_US: Pagination token from a previous response.
+      ja_JP: 前回レスポンスに含まれていた次ページトークン。
+    form: form
+extra:
+  python:
+    source: tools/bedrock_kb_list.py

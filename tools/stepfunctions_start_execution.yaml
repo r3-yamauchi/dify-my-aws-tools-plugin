@@ -1,0 +1,105 @@
+identity:
+  name: stepfunctions_start_execution
+  author: r3-yamauchi
+  label:
+    en_US: Step Functions Starter
+    ja_JP: Step Functions 実行
+  icon: icon.svg
+description:
+  human:
+    en_US: Start an AWS Step Functions state machine by ARN with optional payload, execution name, and X-Ray trace header.
+    ja_JP: ステートマシン ARN・入力 JSON・実行名・トレースヘッダーを指定して Step Functions を起動します。
+  llm: Start an AWS Step Functions state machine execution.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override provider-level Access Key ID for this tool call.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override provider-level Secret Access Key for this tool call.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region for the Step Functions client when different from the provider default.
+      ja_JP: プロバイダー設定と異なるリージョンで実行したい場合に指定します。
+    form: form
+
+  - name: state_machine_arn
+    type: string
+    required: true
+    label:
+      en_US: State machine ARN
+      ja_JP: ステートマシン ARN
+    human_description:
+      en_US: ARN of the state machine to start.
+      ja_JP: 起動したい Step Functions ステートマシンの ARN。
+    llm_description: ARN of the state machine to start.
+    form: llm
+
+  - name: input_json
+    type: string
+    required: false
+    label:
+      en_US: Execution input JSON
+      ja_JP: 実行入力 JSON
+    human_description:
+      en_US: JSON payload passed to the execution. Defaults to an empty object.
+      ja_JP: 実行時に渡す JSON ペイロード。未指定時は空のオブジェクトになります。
+    llm_description: JSON payload passed to the Step Functions execution.
+    form: llm
+
+  - name: execution_name
+    type: string
+    required: false
+    label:
+      en_US: Execution name
+      ja_JP: 実行名
+    human_description:
+      en_US: Optional unique execution name. Leave blank to let Step Functions generate one.
+      ja_JP: 一意な実行名。未指定の場合は Step Functions が自動生成します。
+    form: form
+
+  - name: trace_header
+    type: string
+    required: false
+    label:
+      en_US: X-Ray trace header
+      ja_JP: X-Ray トレースヘッダー
+    human_description:
+      en_US: Value to pass as traceHeader for AWS X-Ray tracing.
+      ja_JP: AWS X-Ray へ伝播する traceHeader の値。
+    form: form
+
+  - name: tags_json
+    type: string
+    required: false
+    label:
+      en_US: Tags JSON array
+      ja_JP: タグ JSON 配列
+    human_description:
+      en_US: "JSON array of {\"key\": \"TagKey\", \"value\": \"TagValue\"} objects attached to the execution."
+      ja_JP: "実行へ付与する {\"key\": \"タグ名\", \"value\": \"値\"} 形式の JSON 配列。"
+    form: form
+extra:
+  python:
+    source: tools/stepfunctions_start_execution.py

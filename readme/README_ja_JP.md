@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.1  
+**Version:** 1.0.2  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -20,8 +20,13 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - Apply Guardrail
 - Bedrock Retrieve
 - Bedrock Retrieve and Generate
+- Bedrock KB List
+- Bedrock KB Data Sources
+- Bedrock KB Sync
 - Lambda Translate Utils
 - Lambda YAML to JSON
+- Lambda Invoker
+- Step Functions Start Execution
 - Nova Canvas
 - Nova Reel
 - S3 Operator
@@ -57,6 +62,9 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - **SageMaker Chinese Toxicity Detector**: 中国語テキストを SageMaker エンドポイントに送信し、SAFE/NO_SAFE を返します。ネストされた `body.prediction` 形式にも対応して単一ラベルに正規化します。
 
 ### データ検索・RAG 補助
+- **Bedrock KB List**: `list_knowledge_bases` API を呼び出してナレッジベースサマリーを取得し、ステータスや作成日時、ベクトルストア設定、nextToken を返します。
+- **Bedrock KB Data Sources**: `list_data_sources` で指定 knowledgeBaseId の接続データソースを列挙し、同期状態・コネクター種別・nextToken を返すため、後続の同期ジョブ選択が容易になります。
+- **Bedrock KB Sync**: knowledgeBaseId と dataSourceId を渡して `StartIngestionJob` を呼び出し、必要に応じて clientToken や dataDeletionPolicy を指定しながらオンデマンド同期を開始します。
 - **OpenSearch kNN Search**: Bedrock の埋め込みモデルでテキストと任意の S3 画像をベクトル化し、Amazon OpenSearch (Serverless/Managed) の kNN クエリで上位ドキュメントを検索します。取得した `_source` から指定メタデータフィールドのみを抽出し、スコア付き JSON を返します。
 - **SageMaker Text Rerank**: 既存の候補 (`candidate_texts` の JSON) を SageMaker エンドポイントで再スコアリングし、score フィールドを付与したうえでトップ K を返します。RAG パイプラインの再ランキング段に組み込めます。
 
@@ -72,5 +80,7 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - **Agentcore Code Interpreter**: Bedrock AgentCore Code Interpreter を起動し、code_interpreter_id や session_id が無ければ自動生成します。Shell コマンド (`command`) とサポート言語のコード (`language`＋`code`) を順番に実行し、結果や ID を JSON で返します。
 
 ### そのほか
+- **Lambda Invoker**: FunctionName/ARN、JSON ペイロード、Qualifier、InvocationType（RequestResponse/Event/DryRun）を指定して任意の Lambda を実行します。Tail ログを含める設定を有効にすると、最大 4 KB の実行ログを結果 JSON に同梱します。
+- **Step Functions Start Execution**: ステートマシン ARN と入力 JSON、必要に応じて execution name／trace header／タグを渡して `start_execution` を呼び出します。戻り値には executionArn・開始時刻が含まれ、後続ノードでポーリングやモニタリングに利用できます。
 - **Lambda Translate Utils／Lambda YAML to JSON**: ワークフローから任意の Lambda ワークロードを安全に再利用するための薄いラッパーです。
 - **Transcribe ASR／Nova Canvas／Nova Reel など**: 上記の通り、音声・画像・動画のバッチ処理を Dify ツールとして即座に呼び出せます。
