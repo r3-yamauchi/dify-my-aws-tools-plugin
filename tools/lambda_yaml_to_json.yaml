@@ -1,0 +1,82 @@
+identity:
+  name: lambda_yaml_to_json
+  author: r3-yamauchi
+  label:
+    en_US: LambdaYamlToJson
+    zh_Hans: LambdaYamlToJson
+    pt_BR: LambdaYamlToJson
+    ja_JP: Lambda YAML→JSON
+  icon: icon.svg
+description:
+  human:
+    en_US: A tool to convert yaml to json using AWS Lambda.
+    zh_Hans: 将 YAML 转为 JSON 的工具（通过AWS Lambda）。
+    pt_BR: A tool to convert yaml to json using AWS Lambda.
+    ja_JP: AWS Lambda を介して YAML を JSON に変換するツールです。
+  llm: A tool to convert yaml to json.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: yaml_content
+    type: string
+    required: true
+    label:
+      en_US: YAML content to convert for
+      zh_Hans: YAML 内容
+      pt_BR: YAML content to convert for
+      ja_JP: 変換対象の YAML コンテンツ
+    human_description:
+      en_US: YAML content to convert for
+      zh_Hans: YAML 内容
+      pt_BR: YAML content to convert for
+      ja_JP: JSON 化したい YAML テキスト全体
+    llm_description: YAML content to convert for
+    form: llm
+  - name: lambda_name
+    type: string
+    required: false
+    label:
+      en_US: name of lambda
+      zh_Hans: Lambda 名称
+      pt_BR: name of lambda
+      ja_JP: Lambda 名
+    human_description:
+      en_US: name of lambda
+      zh_Hans: Lambda 名称
+      pt_BR: name of lambda
+      ja_JP: 呼び出す AWS Lambda 関数名
+    form: form
+extra:
+  python:
+    source: tools/lambda_yaml_to_json.py

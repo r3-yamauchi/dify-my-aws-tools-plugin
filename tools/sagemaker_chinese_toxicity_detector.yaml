@@ -1,0 +1,77 @@
+identity:
+  name: chinese_toxicity_detector
+  author: r3-yamauchi
+  label:
+    en_US: Chinese Toxicity Detector
+    zh_Hans: 中文有害内容检测
+    ja_JP: 中国語トキシシティ検出
+  icon: icon.svg
+description:
+  human:
+    en_US: A tool to detect Chinese toxicity
+    zh_Hans: 检测中文有害内容的工具
+    ja_JP: 中国語テキストの有害性を判定するツールです
+  llm: A tool that checks if Chinese content is safe for work
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: sagemaker_endpoint
+    type: string
+    required: true
+    label:
+      en_US: sagemaker endpoint for moderation
+      zh_Hans: 内容审核的SageMaker端点
+      ja_JP: モデレーション用 SageMaker エンドポイント
+    human_description:
+      en_US: sagemaker endpoint for content moderation
+      zh_Hans: 内容审核的SageMaker端点
+      ja_JP: 有害判定を行う SageMaker エンドポイント名
+    llm_description: sagemaker endpoint for content moderation
+    form: form
+  - name: content_text
+    type: string
+    required: true
+    label:
+      en_US: content text
+      zh_Hans: 待审核文本
+      ja_JP: 審査対象テキスト
+    human_description:
+      en_US: text content to be moderated
+      zh_Hans: 需要审核的文本内容
+      ja_JP: 判定したい中国語テキスト
+    llm_description: text content to be moderated
+    form: llm
+extra:
+  python:
+    source: tools/sagemaker_chinese_toxicity_detector.py

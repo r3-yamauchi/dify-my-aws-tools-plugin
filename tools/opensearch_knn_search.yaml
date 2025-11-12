@@ -1,0 +1,266 @@
+identity:
+  name: opensearch_retrieve
+  author: r3-yamauchi
+  label:
+    en_US: OpenSearch Retrieve
+    zh_Hans: OpenSearch检索
+    pt_BR: OpenSearch Retrieve
+    ja_JP: OpenSearch 検索
+  icon: _assets/icon.svg
+description:
+  human:
+    en_US: A tool for retrieving relevant information from Amazon OpenSearch.
+    zh_Hans: Amazon OpenSearch 检索工具
+    pt_BR: A tool for retrieving relevant information from Amazon OpenSearch.
+    ja_JP: Amazon OpenSearch から関連ドキュメントを検索するツールです。
+  llm: A tool for retrieving relevant information from Amazon OpenSearch.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: opensearch_endpoint
+    type: string
+    required: true
+    label:
+      en_US: OpenSearch Endpoint
+      zh_Hans: OpenSearch 端点
+      pt_BR: OpenSearch Endpoint
+      ja_JP: OpenSearch エンドポイント
+    human_description:
+      en_US: OpenSearch Endpoint
+      zh_Hans: OpenSearch 端点
+      pt_BR: OpenSearch Endpoint
+      ja_JP: 接続先の OpenSearch エンドポイント URL
+    llm_description: OpenSearch Endpoint to retrieve from
+    form: form
+  - name: index_name
+    type: string
+    required: true
+    label:
+      en_US: Target Index Name
+      zh_Hans: 目标索引名称
+      pt_BR: Target Index Name
+      ja_JP: 対象インデックス名
+    human_description:
+      en_US: Target Index Name
+      zh_Hans: 目标索引名称
+      pt_BR: Target Index Name
+      ja_JP: 検索対象となるインデックス名
+    llm_description: The target of index name
+    form: form
+  - name: image_s3_path
+    type: string
+    required: false
+    label:
+      en_US: Image S3 Path
+      zh_Hans: 图像s3路径
+      pt_BR: Image S3 Path
+      ja_JP: 画像の S3 パス
+    human_description:
+      en_US: Image S3 Path
+      zh_Hans: 图像s3路径
+      pt_BR: Image S3 Path
+      ja_JP: クエリに含める画像の S3 パス（任意）
+    llm_description: s3 path of image
+    form: llm
+  - name: query_text
+    type: string
+    required: false
+    label:
+      en_US: Query Text
+      zh_Hans: 查询文本
+      pt_BR: Query Text
+      ja_JP: クエリテキスト
+    human_description:
+      en_US: Query Text
+      zh_Hans: 查询文本
+      pt_BR: Query Text
+      ja_JP: テキスト検索に使うクエリ
+    llm_description: query text
+    form: llm
+  - name: embedding_field
+    type: string
+    required: true
+    default: pic_emb
+    label:
+      en_US: Embedding Field Name
+      zh_Hans: 向量字段名称
+      pt_BR: Embedding Field Name
+      ja_JP: 埋め込みフィールド名
+    human_description:
+      en_US: Embedding Field Name
+      zh_Hans: 向量字段名称
+      pt_BR: Embedding Field Name
+      ja_JP: ベクトルを保存しているフィールド名
+    llm_description: embedding field name
+    form: llm
+  - name: metadata_fields
+    type: string
+    required: true
+    default: s3_uri,pic_name
+    label:
+      en_US: Metadata Fields
+      zh_Hans: 元信息字段列表
+      pt_BR: Metadata Fields
+      ja_JP: メタデータフィールド
+    human_description:
+      en_US: metadata fields
+      zh_Hans: 元信息字段列表
+      pt_BR: metadata fields
+      ja_JP: 取得したい `_source` フィールド名（カンマ区切り）
+    llm_description: metadata fields
+    form: llm
+  - name: topk
+    type: number
+    required: false
+    form: form
+    label:
+      en_US: Results Count
+      zh_Hans: 结果数量
+      pt_BR: Results Count
+      ja_JP: 取得件数
+    human_description:
+      en_US: Results Count
+      zh_Hans: 结果数量
+      pt_BR: Results Count
+      ja_JP: 返却する結果の件数
+    min: 1
+    max: 10
+    default: 5
+  - name: vector_size
+    type: select
+    required: true
+    label:
+      en_US: embedding size
+      zh_Hans: 纬度 
+      pt_BR: embedding size
+      ja_JP: 埋め込み次元数
+    human_description:
+      en_US: embedding size
+      zh_Hans: 纬度
+      pt_BR: embedding size
+      ja_JP: 埋め込みベクトルの次元
+    llm_description: embedding size
+    options:
+      - value: '1024'
+        label:
+          en_US: '1024'
+          zh_Hans: '1024'
+          ja_JP: '1024'
+      - value: '512'
+        label:
+          en_US: '512'
+          zh_Hans: '512'
+          ja_JP: '512'
+      - value: '384'
+        label:
+          en_US: '384'
+          zh_Hans: '384'
+          ja_JP: '384'
+      - value: '256'
+        label:
+          en_US: '256'
+          zh_Hans: '256'
+          ja_JP: '256'
+    form: form
+  - name: search_type
+    type: select
+    required: false
+    label:
+      en_US: search type
+      zh_Hans: 搜索类型
+      pt_BR: search type
+      ja_JP: 検索タイプ
+    human_description:
+      en_US: search type
+      zh_Hans: 搜索类型
+      pt_BR: search type
+      ja_JP: 検索方式
+    llm_description: search type
+    default: SEMANTIC
+    options:
+      - value: SEMANTIC
+        label:
+          en_US: SEMANTIC
+          zh_Hans: 语义搜索
+          ja_JP: セマンティック
+    form: form
+  - name: embedding_model_id
+    type: select
+    required: true
+    label:
+      en_US: Model Id
+      zh_Hans: 向量模型ID
+      pt_BR: Model Id
+      ja_JP: モデル ID
+    human_description:
+      en_US: Model Id
+      zh_Hans: 向量模型ID
+      pt_BR: Model Id
+      ja_JP: 使用する埋め込みモデル ID
+    llm_description: embedding model id
+    options:
+      - value: amazon.titan-embed-image-v1
+        label:
+          en_US: amazon.titan-embed-image-v1
+          zh_Hans: amazon.titan-embed-image-v1
+          ja_JP: amazon.titan-embed-image-v1
+      - value: amazon.titan-embed-text-v1
+        label:
+          en_US: amazon.titan-embed-text-v1
+          zh_Hans: amazon.titan-embed-text-v1
+          ja_JP: amazon.titan-embed-text-v1
+      - value: amazon.titan-embed-text-v2:0
+        label:
+          en_US: amazon.titan-embed-text-v2:0
+          zh_Hans: amazon.titan-embed-text-v2:0
+          ja_JP: amazon.titan-embed-text-v2:0
+      - value: amazon.titan-embed-text-v2:0
+        label:
+          en_US: amazon.titan-embed-text-v2:0
+          zh_Hans: amazon.titan-embed-text-v2:0
+          ja_JP: amazon.titan-embed-text-v2:0
+      - value: cohere.embed-english-v3
+        label:
+          en_US: cohere.embed-english-v3
+          zh_Hans: cohere.embed-english-v3
+          ja_JP: cohere.embed-english-v3
+      - value: cohere.embed-multilingual-v3
+        label:
+          en_US: cohere.embed-multilingual-v3
+          zh_Hans: cohere.embed-multilingual-v3
+          ja_JP: cohere.embed-multilingual-v3
+    form: form
+extra:
+  python:
+    source: tools/opensearch_knn_search.py

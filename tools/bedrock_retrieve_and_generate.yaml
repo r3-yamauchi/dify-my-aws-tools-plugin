@@ -1,0 +1,178 @@
+identity:
+  name: bedrock_retrieve_and_generate
+  author: r3-yamauchi
+  label:
+    en_US: Bedrock RetrieveAndGenerate
+    zh_Hans: Bedrock检索和生成
+    ja_JP: Bedrock RetrieveAndGenerate
+  icon: icon.svg
+
+description:
+  human:
+    en_US: "This is an advanced usage of Bedrock Retrieve. Please refer to the API documentation for detailed parameters and paste them into the corresponding Knowledge Base Configuration or External Sources Configuration"
+    zh_Hans: "这个工具为Bedrock Retrieve的高级用法，请参考API设置详细的参数，并粘贴到对应的知识库配置或者外部源配置"
+    ja_JP: "Amazon Bedrock Knowledge Base 内のドキュメントの検索からLLMによる回答生成までを行います。"
+  llm: A tool for retrieving and generating information using Amazon Bedrock Knowledge Base
+
+parameters:
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for the Bedrock service
+      zh_Hans: Bedrock服务的AWS区域
+      ja_JP: Bedrock サービスを利用する AWS リージョン
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      ja_JP: 認証に使う AWS アクセスキー ID（任意）
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      ja_JP: 認証に使う AWS シークレットアクセスキー（任意）
+    form: form
+
+  - name: result_type
+    type: select
+    required: true
+    label:
+      en_US: result type
+      zh_Hans: 结果类型
+      ja_JP: 返却形式
+    human_description:
+      en_US: return a list of json or texts
+      zh_Hans: 返回一个列表，内容是json还是纯文本
+      ja_JP: JSON / テキスト / 引用付きテキストのいずれで返すか
+    default: text
+    options:
+      - value: json
+        label:
+          en_US: JSON
+          zh_Hans: JSON
+          ja_JP: JSON
+      - value: text
+        label:
+          en_US: Text
+          zh_Hans: 文本
+          ja_JP: テキスト
+      - value: text-with-citations
+        label:
+          en_US: Text With Citations
+          zh_Hans: 文本（包含引用）
+          ja_JP: テキスト（引用付き）
+    form: form
+
+  - name: input
+    type: string
+    required: true
+    label:
+      en_US: Input Text
+      zh_Hans: 输入文本
+      ja_JP: 入力テキスト
+    human_description:
+      en_US: The text query to retrieve information
+      zh_Hans: 用于检索信息的文本查询
+      ja_JP: 検索・生成を行う際の入力テキスト
+    form: llm
+
+  - name: type
+    type: select
+    required: true
+    label:
+      en_US: Configuration Type
+      zh_Hans: 配置类型
+      ja_JP: 設定タイプ
+    human_description:
+      en_US: Type of retrieve and generate configuration
+      zh_Hans: 检索和生成配置的类型
+      ja_JP: Retrieve & Generate の構成種別
+    options:
+      - value: KNOWLEDGE_BASE
+        label:
+          en_US: Knowledge Base
+          zh_Hans: 知识库
+          ja_JP: ナレッジベース
+      - value: EXTERNAL_SOURCES
+        label:
+          en_US: External Sources
+          zh_Hans: 外部源
+          ja_JP: 外部ソース
+    form: form
+
+  - name: knowledge_base_configuration
+    type: string
+    required: false
+    label:
+      en_US: Knowledge Base Configuration
+      zh_Hans: 知识库配置
+      ja_JP: ナレッジベース設定
+    human_description:
+      en_US: Please refer to @https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate for complete parameters and paste them here
+      zh_Hans: 请参考 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate 配置完整的参数并粘贴到这里
+      ja_JP: 'knowledgeBaseConfiguration JSON を入れてください。例: {"knowledgeBaseId":"1ABCDEFGHI","modelArn":"arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0","retrievalConfiguration":{"vectorSearchConfiguration":{"numberOfResults":5}}}'
+    form: form
+
+  - name: external_sources_configuration
+    type: string
+    required: false
+    label:
+      en_US: External Sources Configuration
+      zh_Hans: 外部源配置
+      ja_JP: 外部ソース設定
+    human_description:
+      en_US: Please refer to https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate for complete parameters and paste them here
+      zh_Hans: 请参考 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate 配置完整的参数并粘贴到这里
+      ja_JP: 'externalSourcesConfiguration JSON を入れてください。'
+    form: form
+
+  - name: session_configuration
+    type: string
+    required: false
+    label:
+      en_US: Session Configuration
+      zh_Hans: 会话配置
+      ja_JP: セッション設定
+    human_description:
+      en_US: JSON formatted session configuration
+      zh_Hans: JSON格式的会话配置
+      ja_JP: JSON 形式のセッション設定
+    default: ""
+    form: form
+
+  - name: session_id
+    type: string
+    required: false
+    label:
+      en_US: Session ID
+      zh_Hans: 会话ID
+      ja_JP: セッション ID
+    human_description:
+      en_US: Session ID for continuous conversations
+      zh_Hans: 用于连续对话的会话ID
+      ja_JP: 連続会話を識別するセッション ID
+    form: form
+extra:
+  python:
+    source: tools/bedrock_retrieve_and_generate.py
