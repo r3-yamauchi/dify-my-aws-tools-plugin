@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi
-**Version:** 1.0.0
+**Version:** 1.0.1
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
@@ -29,6 +29,8 @@ Included tools:
 - Nova Canvas
 - Nova Reel
 - S3 Operator
+- S3 File Uploader
+- S3 File Download
 - SageMaker Chinese Toxicity Detector
 - SageMaker Text Rerank
 - SageMaker TTS
@@ -64,6 +66,8 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 
 ### Storage & Database Operations
 - **S3 Operator** – Reads or writes text content to `s3://` URIs and optionally produces presigned URLs. `write` uploads UTF-8 text; `read` returns either the text body or a presigned link.
+- **S3 File Uploader** – Accepts a file emitted by an upstream workflow node, uploads it to the specified bucket/key prefix, and can optionally return a presigned URL so later nodes can fetch the object without AWS credentials.
+- **S3 File Download** – Fetches objects from S3; either returns a presigned URL or streams the binary into the workflow along with a variable containing bucket/key metadata for downstream nodes.
 - **DynamoDB Manager** – Offers PAY_PER_REQUEST table creation plus `put_item`, `get_item`, and `delete_item`, supporting custom partition/sort keys and JSON `item_data` payloads.
 
 ### AgentCore Integrations

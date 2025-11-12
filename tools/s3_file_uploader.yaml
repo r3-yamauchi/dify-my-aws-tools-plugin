@@ -1,0 +1,119 @@
+identity:
+  name: s3_file_uploader
+  author: r3-yamauchi
+  label:
+    en_US: AWS S3 File Uploader
+    zh_Hans: AWS S3 文件上传器
+    pt_BR: AWS S3 File Uploader
+    ja_JP: AWS S3 ファイルアップローダー
+description:
+  human:
+    en_US: Upload a file received from a prior workflow node to Amazon S3.
+    zh_Hans: 将前序工作流节点生成的文件上传到 Amazon S3。
+    pt_BR: Faça upload do arquivo recebido do nó anterior do workflow para o Amazon S3.
+    ja_JP: 先行ノードから渡されたファイルを Amazon S3 にアップロードするツールです。
+  llm: Upload workflow files to S3 and optionally return a presigned URL.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: bucket_name
+    type: string
+    required: true
+    label:
+      en_US: S3 bucket name
+      ja_JP: S3 バケット名
+    human_description:
+      en_US: The bucket where the workflow file should be uploaded. Do not include s3://.
+      ja_JP: "アップロード先のバケット名です（s3:// は付けないでください）。"
+    form: form
+
+  - name: key_prefix
+    type: string
+    required: false
+    label:
+      en_US: Key prefix
+      ja_JP: オブジェクトキーのプレフィックス
+    human_description:
+      en_US: Optional folder-style prefix such as workflow-outputs/.
+      ja_JP: "任意のフォルダ風プレフィックス（例: workflow-outputs/）。"
+    form: form
+
+  - name: object_key
+    type: string
+    required: false
+    label:
+      en_US: Object key
+      ja_JP: オブジェクトキー
+    human_description:
+      en_US: Override the final object key. Defaults to the incoming file name.
+      ja_JP: "保存時のオブジェクトキー。指定しない場合は入力ファイル名になります。"
+    form: form
+
+  - name: input_file
+    type: file
+    required: true
+    label:
+      en_US: File to upload
+      ja_JP: アップロードするファイル
+    human_description:
+      en_US: Specify the file that should be uploaded to S3.
+      ja_JP: S3へアップロードするファイルを指定します。
+    form: form
+
+  - name: generate_presign_url
+    type: boolean
+    required: false
+    label:
+      en_US: Generate presigned URL
+      ja_JP: 署名付き URL を生成
+    human_description:
+      en_US: Whether to return a presigned URL for the uploaded object.
+      ja_JP: アップロード後のオブジェクトに署名付き URL を発行するかを選びます。
+    default: false
+    form: form
+
+  - name: presign_expiry
+    type: number
+    required: false
+    label:
+      en_US: Presigned URL expiration time
+      ja_JP: 署名付き URL の有効期限
+    human_description:
+      en_US: Expiration time in seconds for the optional presigned URL.
+      ja_JP: "署名付き URL を発行する場合の有効期限（秒）です。"
+    default: 3600
+    form: form
+extra:
+  python:
+    source: tools/s3_file_uploader.py

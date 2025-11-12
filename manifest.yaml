@@ -1,4 +1,4 @@
-version: 1.0.0
+version: 1.0.1
 type: plugin
 author: r3-yamauchi
 name: my_aws_tools
@@ -9,7 +9,7 @@ label:
   pt_BR: AWS Tools
 description:
   en_US: The tools based on the AWS Services
-  ja_JP: The tools based on the AWS Services
+  ja_JP: "AWSサービスを使用するツール集"
   zh_Hans: The tools based on the AWS Services
   pt_BR: The tools based on the AWS Services
 icon: icon.svg

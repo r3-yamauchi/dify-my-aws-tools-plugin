@@ -1,0 +1,64 @@
+identity:
+  name: s3_file_download
+  author: r3-yamauchi
+  label:
+    en_US: AWS S3 File Download
+    zh_Hans: AWS S3 文件下载
+    pt_BR: AWS S3 File Download
+    ja_JP: AWS S3 ファイルダウンロード
+description:
+  human:
+    en_US: Download objects from Amazon S3 into Dify workflows and optionally return a presigned URL.
+    zh_Hans: 将 Amazon S3 的对象下载到 Dify 工作流，或生成预签名 URL。
+    pt_BR: Baixe objetos do Amazon S3 no workflow do Dify ou gere uma URL pré-assinada.
+    ja_JP: Amazon S3 からファイルを取得し、ワークフロー内でバイナリや署名付き URL として扱えるようにします。
+  llm: Download S3 objects for workflows, returning either a presigned URL or the binary plus metadata variables.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+
+  - name: s3_uri
+    type: string
+    required: true
+    label:
+      en_US: S3 URI
+      ja_JP: S3 URI
+    human_description:
+      en_US: Target object in s3://bucket/key format.
+      ja_JP: "`s3://bucket/key` 形式でダウンロード対象を指定します。"
+    llm_description: S3 URI of the object to read.
+    form: llm
+
+extra:
+  python:
+    source: tools/s3_file_download.py

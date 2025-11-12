@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.0  
+**Version:** 1.0.1  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -25,6 +25,8 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - Nova Canvas
 - Nova Reel
 - S3 Operator
+- S3 File Uploader
+- S3 File Download
 - SageMaker Chinese Toxicity Detector
 - SageMaker Text Rerank
 - SageMaker TTS

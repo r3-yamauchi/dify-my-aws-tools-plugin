@@ -3,10 +3,12 @@ identity:
   name: my_aws_tools
   label:
     en_US: AWS Tools
+    ja_JP: AWS Tools
     zh_Hans: 亚马逊云科技工具集
     pt_BR: AWS Tools
   description:
     en_US: the tools based on the aws services
+    ja_JP: "AWSサービスを使用するツール集"
     zh_Hans: the tools based on the aws services
     pt_BR: the tools based on the aws services
   icon: icon.svg
@@ -45,6 +47,8 @@ tools:
   - tools/bedrock_retrieve_and_generate.yaml
   - tools/opensearch_knn_search.yaml
   - tools/s3_operator.yaml
+  - tools/s3_file_uploader.yaml
+  - tools/s3_file_download.yaml
   - tools/apply_guardrail.yaml
   - tools/nova_canvas.yaml
   - tools/transcribe_asr.yaml
