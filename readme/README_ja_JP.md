@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.2  
+**Version:** 1.0.3  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -32,6 +32,9 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - S3 Operator
 - S3 File Uploader
 - S3 File Download
+- S3 List Buckets
+- S3 Create Bucket
+- S3 List Objects
 - SageMaker Chinese Toxicity Detector
 - SageMaker Text Rerank
 - SageMaker TTS

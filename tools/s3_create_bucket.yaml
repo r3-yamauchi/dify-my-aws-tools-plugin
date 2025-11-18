@@ -1,0 +1,73 @@
+identity:
+  name: s3_create_bucket
+  author: r3-yamauchi
+  label:
+    en_US: AWS S3 Create Bucket
+    zh_Hans: AWS S3 创建存储桶
+    pt_BR: AWS S3 Criar Bucket
+    ja_JP: AWS S3 バケット作成
+description:
+  human:
+    en_US: Create a new Amazon S3 bucket in the selected region.
+    zh_Hans: 在指定的区域创建新的 Amazon S3 存储桶。
+    pt_BR: Crie um novo bucket do Amazon S3 na região selecionada.
+    ja_JP: 指定したリージョンに新しい Amazon S3 バケットを作成します。
+  llm: Provision a fresh S3 bucket so that subsequent workflow nodes can store data there.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region where the new bucket will be created. Defaults to us-east-1.
+      ja_JP: 新規バケットを作成するリージョン (未指定時は us-east-1)。
+    form: form
+
+  - name: bucket_name
+    type: string
+    required: true
+    label:
+      en_US: Bucket name
+      ja_JP: バケット名
+    human_description:
+      en_US: Globally unique S3 bucket name to create.
+      ja_JP: 作成するグローバル一意な S3 バケット名。
+    form: form
+
+  - name: acl
+    type: string
+    required: false
+    label:
+      en_US: ACL (optional)
+      ja_JP: ACL (任意)
+    human_description:
+      en_US: Optional canned ACL such as private, public-read, or authenticated-read.
+      ja_JP: private / public-read などの定義済み ACL を指定できます。省略時は private。
+    form: form
+extra:
+  python:
+    source: tools/s3_create_bucket.py

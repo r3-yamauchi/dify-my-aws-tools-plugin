@@ -1,0 +1,96 @@
+identity:
+  name: s3_list_objects
+  author: r3-yamauchi
+  label:
+    en_US: AWS S3 List Objects
+    zh_Hans: AWS S3 列出对象
+    pt_BR: AWS S3 Listar Objetos
+    ja_JP: AWS S3 オブジェクト一覧
+description:
+  human:
+    en_US: List the objects stored inside a specific S3 bucket with optional prefix filters.
+    zh_Hans: 列出指定 S3 存储桶内的对象，可按前缀筛选。
+    pt_BR: Liste os objetos dentro de um bucket S3 específico com filtros opcionais.
+    ja_JP: 指定した S3 バケット内のオブジェクトを取得し、プレフィックスやトークンで絞り込みます。
+  llm: Enumerate S3 object keys so that later workflow steps can download or inspect them.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region used when calling S3. Defaults to the provider setting.
+      ja_JP: 呼び出しに使用する AWS リージョン。既定はプロバイダー設定です。
+    form: form
+
+  - name: bucket_name
+    type: string
+    required: true
+    label:
+      en_US: Bucket name
+      ja_JP: バケット名
+    human_description:
+      en_US: Name of the bucket to inspect (without s3:// prefix).
+      ja_JP: 一覧対象のバケット名（s3:// を含めない）。
+    form: form
+
+  - name: prefix
+    type: string
+    required: false
+    label:
+      en_US: Key prefix filter
+      ja_JP: オブジェクトキーのプレフィックス
+    human_description:
+      en_US: Return only the objects whose keys start with this prefix.
+      ja_JP: この文字列で始まるオブジェクトのみを対象にします。
+    form: form
+
+  - name: max_keys
+    type: number
+    required: false
+    label:
+      en_US: Max keys per request
+      ja_JP: 取得件数 (MaxKeys)
+    human_description:
+      en_US: Limit the number of objects returned (1-1000). Defaults to 100.
+      ja_JP: 取得件数の上限 (1-1000)。既定値は 100。
+    default: 100
+    form: form
+
+  - name: continuation_token
+    type: string
+    required: false
+    label:
+      en_US: Continuation token
+      ja_JP: 継続トークン
+    human_description:
+      en_US: Supply the NextContinuationToken from a prior call to fetch the next page.
+      ja_JP: 前回レスポンスの NextContinuationToken を指定して次ページを取得します。
+    form: form
+extra:
+  python:
+    source: tools/s3_list_objects.py

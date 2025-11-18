@@ -1,0 +1,74 @@
+identity:
+  name: s3_list_buckets
+  author: r3-yamauchi
+  label:
+    en_US: AWS S3 List Buckets
+    zh_Hans: AWS S3 列出存储桶
+    pt_BR: AWS S3 Listar Buckets
+    ja_JP: AWS S3 バケット一覧
+description:
+  human:
+    en_US: Retrieve the list of S3 buckets and optionally include each region.
+    zh_Hans: 获取 S3 存储桶列表，并可选返回每个桶所在的区域。
+    pt_BR: Obtenha a lista de buckets do S3 e, opcionalmente, inclua a região.
+    ja_JP: アカウントが保有する S3 バケット一覧を取得し、必要に応じてリージョン情報も付与します。
+  llm: Enumerate available S3 buckets so that a workflow can pick one for later steps.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Choose the AWS region to use when calling S3.
+      ja_JP: このツール実行時に利用する AWS リージョン。
+    form: form
+
+  - name: include_region
+    type: boolean
+    required: false
+    label:
+      en_US: Include bucket region
+      ja_JP: バケットのリージョンを含める
+    human_description:
+      en_US: If true, the tool will resolve the region for each bucket individually.
+      ja_JP: True の場合、各バケットのリージョン情報も取得します。
+    default: false
+    form: form
+
+  - name: name_prefix
+    type: string
+    required: false
+    label:
+      en_US: Bucket name prefix filter
+      ja_JP: バケット名プレフィックス
+    human_description:
+      en_US: Return only buckets whose names start with this prefix.
+      ja_JP: この文字列で始まるバケットのみを結果に含めます。
+    form: form
+extra:
+  python:
+    source: tools/s3_list_buckets.py

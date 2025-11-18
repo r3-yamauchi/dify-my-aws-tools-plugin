@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi
-**Version:** 1.0.2  
+**Version:** 1.0.3  
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
@@ -36,6 +36,9 @@ Included tools:
 - S3 Operator
 - S3 File Uploader
 - S3 File Download
+- S3 List Buckets
+- S3 Create Bucket
+- S3 List Objects
 - SageMaker Chinese Toxicity Detector
 - SageMaker Text Rerank
 - SageMaker TTS

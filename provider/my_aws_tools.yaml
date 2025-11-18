@@ -51,6 +51,9 @@ tools:
   - tools/s3_operator.yaml
   - tools/s3_file_uploader.yaml
   - tools/s3_file_download.yaml
+  - tools/s3_list_buckets.yaml
+  - tools/s3_create_bucket.yaml
+  - tools/s3_list_objects.yaml
   - tools/apply_guardrail.yaml
   - tools/nova_canvas.yaml
   - tools/transcribe_asr.yaml
