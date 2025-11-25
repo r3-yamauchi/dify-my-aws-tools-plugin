@@ -1,0 +1,95 @@
+identity:
+  name: sns_publish
+  author: r3-yamauchi
+  label:
+    en_US: SNS Publish
+    ja_JP: SNS 送信
+description:
+  human:
+    en_US: Publish a message to an SNS topic with optional subject and message attributes.
+    ja_JP: SNS トピックへメッセージを送信するツール。件名やメッセージ属性の指定が可能です。
+  llm: Publish a message to an SNS topic with optional subject and message attributes.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+  - name: topic_arn
+    type: string
+    required: false
+    label:
+      en_US: SNS Topic ARN
+    illation###  en_JP: SNS トピック ARN
+    human_description:
+      en_US: Topic ARN to publish to. Provide this or topic_name.
+      ja_JP: 送信先 SNS Topic ARN。topic_name 指定でも可。
+    form: form
+  - name: topic_name
+    type: string
+    required: false
+    label:
+      en_US: SNS Topic Name
+      ja_JP: SNS トピック名
+    human_description:
+      en_US: Topic name (used when TopicArn is not provided). Account ID is resolved via STS.
+      ja_JP: TopicArn 未指定時に使用するトピック名。アカウントIDは STS で解決します。
+    form: form
+  - name: subject
+    type: string
+    required: false
+    label:
+      en_US: Subject (optional)
+      ja_JP: 件名（任意）
+    human_description:
+      en_US: Optional subject up to 100 characters.
+      ja_JP: 任意の件名。最大100文字。
+    form: form
+  - name: message
+    type: string
+    required: true
+    label:
+      en_US: Message
+      ja_JP: メッセージ本文
+    human_description:
+      en_US: Message body to send.
+      ja_JP: 送信するメッセージ本文。
+    form: llm
+  - name: message_attributes
+    type: string
+    required: false
+    label:
+      en_US: Message Attributes (JSON)
+      ja_JP: メッセージ属性 (JSON)
+    human_description:
+      en_US: JSON object of SNS MessageAttributes, e.g. {"key":{"DataType":"String","StringValue":"value"}}.
+      ja_JP: SNS MessageAttributes を JSON オブジェクトで指定。例 {"key":{"DataType":"String","StringValue":"value"}}。
+    form: form
+extra:
+  python:
+    source: tools/sns_publish.py

@@ -102,8 +102,8 @@ parameters:
       en_US: Content array (JSON)
       ja_JP: content 配列（JSON）
     human_description:
-      en_US: JSON array of items: {"text": {"text": "..."}} or {"image": {"format": "png|jpeg", "source": {"bytes": "..." | "s3Uri": "s3://..."}}}. Use this for multiple texts or images.
-      ja_JP: 複数テキスト・画像を送る場合の JSON 配列。例 {"text":{"text":"..."}} または {"image":{"format":"png|jpeg","source":{"bytes":"..." または "s3Uri":"s3://..."}}}。
+      en_US: "JSON array of items: {\"text\": {\"text\": \"...\"}} or {\"image\": {\"format\": \"png|jpeg\", \"source\": {\"bytes\": \"...\" | \"s3Uri\": \"s3://...\"}}}. Use this for multiple texts or images."
+      ja_JP: "複数テキスト・画像を送る場合の JSON 配列。例 {\"text\":{\"text\":\"...\"}} または {\"image\":{\"format\":\"png|jpeg\",\"source\":{\"bytes\":\"...\" または \"s3Uri\":\"s3://...\"}}}。"
     llm_description: JSON array for multi text/image inputs. See human description for shape.
     form: llm
 extra:

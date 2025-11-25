@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.3  
+**Version:** 1.0.4  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -14,7 +14,7 @@
 
 ## 概要
 
-AWS Tools プラグインは、複数の AWS サービスに基づくツールセットを提供し、Dify アプリケーションの内部から AWS の機能を直接活用できるようにします。コンテンツモデレーション、テキストのリランク、テキスト読み上げ、音声認識など、幅広い機能領域をカバーします。
+My AWS Tools プラグインは、複数の AWS サービスに基づくツールセットを提供し、Dify アプリケーションの内部から AWS の機能を直接活用できるようにします。コンテンツモデレーション、テキストのリランク、テキスト読み上げ、音声認識など、幅広い機能領域をカバーします。
 
 含まれるツール:
 - Apply Guardrail
@@ -23,19 +23,21 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - Bedrock KB List
 - Bedrock KB Data Sources
 - Bedrock KB Sync
-- DynamoDB Manager
-- Extract Frame
-- Lambda YAML to JSON
+- SNS Publish
+- SQS Send Message
+- Step Functions Start Execution
 - Lambda Invoker
+- Lambda YAML to JSON
 - Nova Canvas
 - Nova Reel
+- Extract Frame
 - S3 Operator
 - S3 File Uploader
 - S3 File Download
 - S3 List Buckets
 - S3 Create Bucket
 - S3 List Objects
-- Step Functions Start Execution
+- DynamoDB Manager
 - Agentcore Code Interpreter
 - Agentcore Memory
 - Agentcore Memory Search
@@ -102,6 +104,10 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 ### ストレージ／データベース操作
 - **S3 Operator**: `s3://` URI を解析してバケット/キーを特定し、テキスト読み書きとプリサイン URL の生成を行います。`write` モードでは UTF-8 テキストをアップロードし、`read` モードでは本文または署名付き URL を返します。
 - **DynamoDB Manager**: PAY_PER_REQUEST モードでのテーブル作成、`put_item`、`get_item`、`delete_item` を 1 つのツールで提供します。パーティションキー/ソートキー名を個別に指定でき、JSON 文字列の item_data を dict に変換して登録します。
+
+### メッセージング
+- **SNS Publish**: SNS トピック ARN を指定してメッセージを公開します。件名（最大100文字）や MessageAttributes を JSON で付与可能。資格情報とリージョンはプロバイダー/ツールパラメータで上書きできます。
+- **SQS Send Message**: SQS キュー URL を指定してメッセージを送信します。任意の遅延秒数や MessageAttributes(JSON) を設定可能。資格情報とリージョンはプロバイダー/ツールパラメータで上書きできます。
 
 ### エージェントコア連携
 - **AgentCore Memory**: Bedrock AgentCore SDK で Memory リソースを自動作成し、`operation=record` で会話イベントを保存、`operation=retrieve` で `get_last_k_turns` を実行します。不足している memory_id・actor_id・session_id は作成して JSON 返却します。

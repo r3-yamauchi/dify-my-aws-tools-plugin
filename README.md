@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi
-**Version:** 1.0.3  
+**Version:** 1.0.4  
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
@@ -18,29 +18,30 @@ This repository is a personal fork of the official LangGenius AWS Tools plugin (
 
 ## Overview
 
-The AWS Tools plugin bundles multiple AWS services so that Dify applications can trigger content moderation, document reranking, text-to-speech, speech recognition, and other workflows directly inside the platform.
+My AWS Tools plugin bundles multiple AWS services so that Dify applications can trigger content moderation, document reranking, text-to-speech, speech recognition, and other workflows directly inside the platform.
 
 Included tools:
-- Apply Guardrail
 - Apply Guardrail
 - Bedrock Retrieve
 - Bedrock Retrieve and Generate
 - Bedrock KB List
 - Bedrock KB Data Sources
 - Bedrock KB Sync
-- DynamoDB Manager
-- Extract Frame
-- Lambda YAML to JSON
+- SNS Publish
+- SQS Send Message
+- Step Functions Start Execution
 - Lambda Invoker
+- Lambda YAML to JSON
 - Nova Canvas
 - Nova Reel
+- Extract Frame
 - S3 Operator
 - S3 File Uploader
 - S3 File Download
 - S3 List Buckets
 - S3 Create Bucket
 - S3 List Objects
-- Step Functions Start Execution
+- DynamoDB Manager
 - Agentcore Code Interpreter
 - Agentcore Memory
 - Agentcore Memory Search
@@ -109,6 +110,10 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 - **S3 File Uploader** – Accepts a file emitted by an upstream workflow node, uploads it to the specified bucket/key prefix, and can optionally return a presigned URL so later nodes can fetch the object without AWS credentials.
 - **S3 File Download** – Fetches objects from S3; either returns a presigned URL or streams the binary into the workflow along with a variable containing bucket/key metadata for downstream nodes.
 - **DynamoDB Manager** – Offers PAY_PER_REQUEST table creation plus `put_item`, `get_item`, and `delete_item`, supporting custom partition/sort keys and JSON `item_data` payloads.
+
+### Messaging
+- **SNS Publish** – Publishes messages to an SNS topic ARN with optional subject (100 chars) and MessageAttributes JSON. Supports per-tool AWS credentials/region overrides.
+- **SQS Send Message** – Sends a message to an SQS queue URL with optional delay seconds and MessageAttributes JSON. Supports per-tool AWS credentials/region overrides.
 
 ### AgentCore Integrations
 - **AgentCore Memory** – Creates memory resources via the AgentCore SDK, records conversations when `operation=record`, and fetches history with `get_last_k_turns` when `operation=retrieve`. Missing IDs are created automatically and returned as JSON.

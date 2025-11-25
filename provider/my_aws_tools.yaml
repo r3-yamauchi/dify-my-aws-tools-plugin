@@ -2,15 +2,15 @@ identity:
   author: r3-yamauchi
   name: my_aws_tools
   label:
-    en_US: AWS Tools
-    ja_JP: AWS Tools
-    zh_Hans: 亚马逊云科技工具集
-    pt_BR: AWS Tools
+    en_US: My AWS Tools
+    ja_JP: My AWS Tools
+    zh_Hans: My AWS Tools
+    pt_BR: My AWS Tools
   description:
-    en_US: the tools based on the aws services
-    ja_JP: "AWSサービスを使用するツール集"
-    zh_Hans: the tools based on the aws services
-    pt_BR: the tools based on the aws services
+    en_US: The tools based on the AWS Services
+    ja_JP: "AWSのサービスを使用する際に便利な *私のための* ツール集"
+    zh_Hans: The tools based on the AWS Services
+    pt_BR: The tools based on the AWS Services
   icon: icon.svg
   tags:
     - productivity
@@ -59,6 +59,8 @@ tools:
   - tools/s3_create_bucket.yaml
   - tools/s3_list_objects.yaml
   - tools/dynamodb_manager.yaml
+  - tools/sns_publish.yaml
+  - tools/sqs_send_message.yaml
   - tools/nova_canvas.yaml
   - tools/nova_reel.yaml
   - tools/extract_frame.yaml

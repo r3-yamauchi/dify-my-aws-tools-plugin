@@ -1,0 +1,95 @@
+identity:
+  name: sqs_send_message
+  author: r3-yamauchi
+  label:
+    en_US: SQS Send Message
+    ja_JP: SQS メッセージ送信
+description:
+  human:
+    en_US: Send a message to an SQS queue with optional delay and message attributes.
+    ja_JP: SQS キューにメッセージを送信します。遅延秒数やメッセージ属性の指定が可能です。
+  llm: Send a message to an Amazon SQS queue.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this tool if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Override the default AWS Region for this tool.
+      ja_JP: このツール固有の AWS リージョンを指定します。
+    form: form
+  - name: queue_url
+    type: string
+    required: false
+    label:
+      en_US: SQS Queue URL
+      ja_JP: SQS キュー URL
+    human_description:
+      en_US: Queue URL to send the message to. Provide this or queue_name.
+      ja_JP: 送信先 SQS キューの URL。queue_name とどちらか一方を指定。
+    form: form
+  - name: queue_name
+    type: string
+    required: false
+    label:
+      en_US: SQS Queue Name
+      ja_JP: SQS キュー名
+    human_description:
+      en_US: Queue name to resolve via GetQueueUrl when queue_url is not provided.
+      ja_JP: queue_url がない場合に GetQueueUrl で解決するキュー名。
+    form: form
+  - name: message_body
+    type: string
+    required: true
+    label:
+      en_US: Message Body
+      ja_JP: メッセージ本文
+    human_description:
+      en_US: Message body to enqueue.
+      ja_JP: キューに送るメッセージ本文。
+    form: llm
+  - name: delay_seconds
+    type: number
+    required: false
+    label:
+      en_US: Delay Seconds
+      ja_JP: 遅延秒数
+    human_description:
+      en_US: Optional delay (seconds) before the message becomes visible.
+      ja_JP: メッセージが可視化されるまでの遅延秒（任意）。
+    form: form
+  - name: message_attributes
+    type: string
+    required: false
+    label:
+      en_US: Message Attributes (JSON)
+      ja_JP: メッセージ属性 (JSON)
+    human_description:
+      en_US: JSON object of MessageAttributes, e.g. {"Key":{"DataType":"String","StringValue":"value"}}.
+      ja_JP: MessageAttributes を JSON で指定。例 {"Key":{"DataType":"String","StringValue":"value"}}。
+    form: form
+extra:
+  python:
+    source: tools/sqs_send_message.py
