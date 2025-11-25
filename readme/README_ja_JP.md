@@ -23,10 +23,10 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - Bedrock KB List
 - Bedrock KB Data Sources
 - Bedrock KB Sync
-- Lambda Translate Utils
+- DynamoDB Manager
+- Extract Frame
 - Lambda YAML to JSON
 - Lambda Invoker
-- Step Functions Start Execution
 - Nova Canvas
 - Nova Reel
 - S3 Operator
@@ -35,10 +35,10 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - S3 List Buckets
 - S3 Create Bucket
 - S3 List Objects
-- SageMaker Chinese Toxicity Detector
-- SageMaker Text Rerank
-- SageMaker TTS
-- Transcribe ASR
+- Step Functions Start Execution
+- Agentcore Code Interpreter
+- Agentcore Memory
+- Agentcore Memory Search
 
 ## ライセンスとクレジット
 
@@ -91,22 +91,13 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 - **Nova Reel**: Bedrock Nova Reel v1 の非同期 API を利用してテキスト→動画、または画像を初期フレームにした動画生成を行います。指定 S3 パスへ MP4 を出力し、同期モードでは完了をポーリングして動画バイナリも返します。
 
 ### 音声・メディア処理
-- **Transcribe ASR**: HTTP/S から音声をダウンロードして S3 に保存する補助を備え、Amazon Transcribe の `start_transcription_job` を起動します。LanguageCode/IdentifyLanguage/IdentifyMultipleLanguages の排他制御やスピーカーダイアライゼーションをサポートし、トランスクリプト JSON からテキストまたは話者付き書き起こしを作成します。
-- **SageMaker TTS**: SageMaker Runtime エンドポイントへ 4 種の推論モード（Preset Voice、Clone Voice、Clone Voice Cross Lingual、Instruct Voice）を送信します。クロスリンガル時は Amazon Comprehend で言語タグを推定し、結果の音声は S3 プリサイン URL として返却されます。
 - **Extract Frame**: GIF アニメーションの URL をダウンロードし、総フレーム数に応じて均等間隔の PNG フレームを抽出します。抽出枚数は 2 枚（先頭・末尾）から任意の回数まで指定でき、各フレームをバイナリで返却します。
 
-### 言語・翻訳ユーティリティ
-- **Lambda Translate Utils**: 任意の Lambda 関数にソース/ターゲット言語、辞書 ID、モデル ID、request_type、テキストを JSON で渡し、翻訳結果文字列を受け取ります。Lambda 側にカスタム辞書や Bedrock モデル呼び出しを実装する前提です。
 - **Lambda YAML to JSON**: YAML テキストを `body` に入れて Lambda を同期呼び出しし、statusCode 200 のときのみ JSON 文字列を返します。YAML→JSON 変換をサーバーレスで統一できます。
-- **Translation Evaluator**: `jieba` で中国語テキストを分かち書きし、sacrebleu/METEOR/NIST スコアを算出します。参照訳 (`label`) と生成訳 (`translation`) を渡すだけで評価指標を JSON で返し、SageMaker エンドポイントを追加で呼び出す拡張フックも備えています。
-- **SageMaker Chinese Toxicity Detector**: 中国語テキストを SageMaker エンドポイントに送信し、SAFE/NO_SAFE を返します。ネストされた `body.prediction` 形式にも対応して単一ラベルに正規化します。
 
-### データ検索・RAG 補助
 - **Bedrock KB List**: `list_knowledge_bases` API を呼び出してナレッジベースサマリーを取得し、ステータスや作成日時、ベクトルストア設定、nextToken を返します。
 - **Bedrock KB Data Sources**: `list_data_sources` で指定 knowledgeBaseId の接続データソースを列挙し、同期状態・コネクター種別・nextToken を返すため、後続の同期ジョブ選択が容易になります。
 - **Bedrock KB Sync**: knowledgeBaseId と dataSourceId を渡して `StartIngestionJob` を呼び出し、必要に応じて clientToken や dataDeletionPolicy を指定しながらオンデマンド同期を開始します。
-- **OpenSearch kNN Search**: Bedrock の埋め込みモデルでテキストと任意の S3 画像をベクトル化し、Amazon OpenSearch (Serverless/Managed) の kNN クエリで上位ドキュメントを検索します。取得した `_source` から指定メタデータフィールドのみを抽出し、スコア付き JSON を返します。
-- **SageMaker Text Rerank**: 既存の候補 (`candidate_texts` の JSON) を SageMaker エンドポイントで再スコアリングし、score フィールドを付与したうえでトップ K を返します。RAG パイプラインの再ランキング段に組み込めます。
 
 ### ストレージ／データベース操作
 - **S3 Operator**: `s3://` URI を解析してバケット/キーを特定し、テキスト読み書きとプリサイン URL の生成を行います。`write` モードでは UTF-8 テキストをアップロードし、`read` モードでは本文または署名付き URL を返します。
@@ -115,12 +106,10 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 ### エージェントコア連携
 - **AgentCore Memory**: Bedrock AgentCore SDK で Memory リソースを自動作成し、`operation=record` で会話イベントを保存、`operation=retrieve` で `get_last_k_turns` を実行します。不足している memory_id・actor_id・session_id は作成して JSON 返却します。
 - **AgentCore Memory Search**: 既存 Memory ID と namespace を指定し、`retrieve_memories` API でベクトル検索します。最大取得件数や検索クエリはフォームで設定し、結果を ISO8601 化した JSON に整形します。
-- **Agentcore Browser Session Manager**: BrowserClient を使ってブラウザセッションを開始/終了し、CDP WebSocket URL や Live View URL を Parameter Store `/browser-session/<session_id>` に書き込みます。クローズ時は SSM パラメータも削除します。
-- **Agentcore Browser Tool**: Parameter Store から取得した接続情報で Playwright を初期化し、`browse_url`、`search_web`、`extract_content`、`fill_form`、`execute_script` 等の操作を JSON で返します。ブラウザセッションの再利用やコンテンツ抽出 (見出し/リンク/画像/本文) に対応します。
 - **Agentcore Code Interpreter**: Bedrock AgentCore Code Interpreter を起動し、code_interpreter_id や session_id が無ければ自動生成します。Shell コマンド (`command`) とサポート言語のコード (`language`＋`code`) を順番に実行し、結果や ID を JSON で返します。
 
 ### そのほか
 - **Lambda Invoker**: FunctionName/ARN、JSON ペイロード、Qualifier、InvocationType（RequestResponse/Event/DryRun）を指定して任意の Lambda を実行します。Tail ログを含める設定を有効にすると、最大 4 KB の実行ログを結果 JSON に同梱します。
 - **Step Functions Start Execution**: ステートマシン ARN と入力 JSON、必要に応じて execution name／trace header／タグを渡して `start_execution` を呼び出します。戻り値には executionArn・開始時刻が含まれ、後続ノードでポーリングやモニタリングに利用できます。
-- **Lambda Translate Utils／Lambda YAML to JSON**: ワークフローから任意の Lambda ワークロードを安全に再利用するための薄いラッパーです。
-- **Transcribe ASR／Nova Canvas／Nova Reel など**: 上記の通り、音声・画像・動画のバッチ処理を Dify ツールとして即座に呼び出せます。
+- **Lambda YAML to JSON**: ワークフローから任意の Lambda ワークロードを安全に再利用するための薄いラッパーです。
+- **Nova Canvas／Nova Reel など**: 上記の通り、画像・動画のバッチ処理を Dify ツールとして即座に呼び出せます。

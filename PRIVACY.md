@@ -17,7 +17,6 @@ This document describes how the **my_aws_tools** plugin for Dify handles data wh
 - By default, the plugin does **not** store any user inputs or outputs on its own disk.
 - Temporary files (e.g., downloaded GIFs for frame extraction) are written to local storage only for the duration of the request and deleted immediately after completion.
 - Any persistent storage happens only when you instruct a tool to do so (e.g., writing a file to S3 or DynamoDB via the respective tools). In such cases the data resides in your AWS account under the resources you control.
-- **Exception – AgentCore Browser Session Manager.** To reopen Playwright browser sessions without re-authenticating, this tool writes minimal session metadata (session ID, WebSocket endpoint, serialized headers/tokens required by AgentCore) to AWS Systems Manager Parameter Store in *your* AWS account. These parameters never leave your account, contain no page content or prompts, and are deleted automatically when you call `close_browser_session` or when the stored TTL expires. If you prefer not to retain this metadata, disable the browser session manager or periodically purge the corresponding Parameter Store path.
 
 ## Third-party Services
 - The plugin communicates exclusively with AWS services using the official AWS SDK (boto3) and, for browser automation, the Bedrock AgentCore Browser service plus Playwright. No other third-party APIs are contacted.
@@ -30,5 +29,3 @@ This document describes how the **my_aws_tools** plugin for Dify handles data wh
 - The browser tool caches Playwright sessions in memory only for the life of the plugin process and cleans up resources when sessions are closed.
 - Temporary files for media processing are stored under the plugin workspace with restrictive permissions and are deleted after each request.
 - It is your responsibility to secure your AWS resources (IAM policies, S3 bucket ACLs, DynamoDB tables, etc.). The plugin will operate with whatever permissions the provided credentials allow.
-
-If you have questions or would like to report a privacy concern, please open an issue in your fork or contact the maintainer directly.
