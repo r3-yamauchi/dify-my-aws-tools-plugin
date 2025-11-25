@@ -53,7 +53,44 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 ### Amazon Bedrock
 - **Bedrock Retrieve** – Calls the `bedrock-agent-runtime` Retrieve API to run semantic or hybrid searches against a selected Knowledge Base. You can switch metadata filters, result counts, and Bedrock Reranking models (cohere.rerank-v3-5 / amazon.rerank-v1), and receive outputs as JSON or ranked text.
 - **Bedrock Retrieve and Generate** – Wraps `retrieve_and_generate` so KNOWLEDGE_BASE or EXTERNAL_SOURCES flows run in a single call. Supplying `session_configuration` and `session_id` lets Bedrock maintain session state, and the tool returns the text plus citation metadata.
-- **Apply Guardrail** – Uses Bedrock Runtime `apply_guardrail` with a guardrail ID/version, source, and text to evaluate safety, returning the action, generated output, and per-policy violations.
+- **Apply Guardrail** – Uses Bedrock Runtime `apply_guardrail` with these features:
+  - Inputs: `content` array (multiple texts and/or images via bytes or S3 URI) or a single `text` that is auto-chunked into 1000-character pieces and wrapped as content.
+  - `source`: PREPROCESS (default) or POSTPROCESS to target pre/post LLM stages.
+  - Outputs: action, processedOutputs (masked), outputs (raw), assessments, warnings/actionReasons; returned as human-readable text plus a JSON blob.
+  - Long-text protection via chunking aligned with Guardrails billing/limits.
+
+#### Apply Guardrail example (multi-text)
+
+```json
+{
+  "guardrail_id": "gr-123",
+  "guardrail_version": "2",
+  "source": "PREPROCESS",
+  "content": [
+    { "text": { "text": "User message 1" } },
+    { "text": { "text": "User message 2" } }
+  ]
+}
+```
+
+#### Apply Guardrail example (image + text)
+
+```json
+{
+  "guardrail_id": "gr-123",
+  "guardrail_version": "2",
+  "source": "POSTPROCESS",
+  "content": [
+    {
+      "image": {
+        "format": "png",
+        "source": { "s3Uri": "s3://bucket/path/image.png" }
+      }
+    },
+    { "text": { "text": "LLM generated response" } }
+  ]
+}
+```
 - **Nova Canvas** – Invokes Nova Canvas v1 for TEXT_IMAGE, COLOR_GUIDED, IMAGE_VARIATION, INPAINTING, OUTPAINTING, and BACKGROUND_REMOVAL tasks. Input images are fetched from S3 and outputs are uploaded back while also streamed to Dify as PNG blobs.
 - **Nova Reel** – Uses Nova Reel v1 to create videos from text or from a seed image. Results are saved as MP4 files in the specified S3 path, and synchronous mode polls until completion to return the binary.
 

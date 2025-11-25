@@ -73,29 +73,38 @@ parameters:
     form: form
   - name: source
     type: string
-    required: true
+    required: false
     label:
-      en_US: Content Source (INPUT or OUTPUT)
-      zh_Hans: 内容来源 (INPUT or OUTPUT)
-      ja_JP: コンテンツソース（INPUT/OUTPUT）
+      en_US: Guardrail stage (PREPROCESS/POSTPROCESS)
+      ja_JP: ガードレール適用段階（PREPROCESS/POSTPROCESS）
     human_description:
-      en_US: The source of data used in the request to apply the guardrail. Valid Values "INPUT | OUTPUT"
-      zh_Hans: 用于应用护栏的请求中所使用的数据来源。有效值为 "INPUT | OUTPUT"
-      ja_JP: 審査対象データの種別。"INPUT" または "OUTPUT" を指定します。
-    llm_description: The source of data used in the request to apply the guardrail. Valid Values "INPUT | OUTPUT"
+      en_US: Stage to apply the guardrail. Default PREPROCESS. POSTPROCESS can be used for LLM outputs.
+      ja_JP: ガードレールを適用する段階。デフォルト PREPROCESS。LLM 出力に適用する場合は POSTPROCESS を指定。
+    llm_description: Stage to apply the guardrail. Default PREPROCESS. POSTPROCESS for post-response checks.
     form: form
+
   - name: text
     type: string
-    required: true
+    required: false
     label:
-      en_US: Content to be reviewed
-      zh_Hans: 待审查内容
-      ja_JP: 審査対象コンテンツ
+      en_US: Text to be reviewed (single input)
+      ja_JP: 審査対象テキスト（単一入力）
     human_description:
-      en_US: The content used for requesting guardrail review, which can be either user input or LLM output.
-      zh_Hans: 用于请求护栏审查的内容，可以是用户输入或 LLM 输出。
-      ja_JP: Guardrail 審査を行いたい本文（ユーザー入力または LLM 出力）を入力します。
-    llm_description: The content used for requesting guardrail review, which can be either user input or LLM output.
+      en_US: Optional single text. If provided, it will be chunked by 1000 chars and sent as content array.
+      ja_JP: 単一テキスト入力（任意）。指定すると 1000 文字ごとに分割され content 配列として送信されます。
+    llm_description: Optional single text to review. Will be chunked and wrapped into the content array.
+    form: llm
+
+  - name: content
+    type: string
+    required: false
+    label:
+      en_US: Content array (JSON)
+      ja_JP: content 配列（JSON）
+    human_description:
+      en_US: JSON array of items: {"text": {"text": "..."}} or {"image": {"format": "png|jpeg", "source": {"bytes": "..." | "s3Uri": "s3://..."}}}. Use this for multiple texts or images.
+      ja_JP: 複数テキスト・画像を送る場合の JSON 配列。例 {"text":{"text":"..."}} または {"image":{"format":"png|jpeg","source":{"bytes":"..." または "s3Uri":"s3://..."}}}。
+    llm_description: JSON array for multi text/image inputs. See human description for shape.
     form: llm
 extra:
   python:

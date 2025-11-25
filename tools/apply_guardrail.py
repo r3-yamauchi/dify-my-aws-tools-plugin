@@ -6,9 +6,9 @@
 
 import json
 import logging
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, Literal
 from collections.abc import Generator
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, root_validator
 
 from botocore.exceptions import BotoCoreError  # type: ignore
 import boto3  # type: ignore
@@ -20,11 +20,45 @@ from provider.utils import resolve_aws_credentials, build_boto3_client_kwargs
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+TEXT_CHUNK_SIZE = 1000  # Guardrails 1,000文字単位の課金/評価に合わせて分割
+
+class TextContent(BaseModel):
+    text: str = Field(..., description="Text to evaluate")
+
+
+class ImageContent(BaseModel):
+    format: Literal["png", "jpeg"] = Field("png", description="Image format")
+    # base64 エンコード済みの画像バイト列
+    image_base64: Optional[str] = Field(None, description="Base64 encoded image bytes")
+    # S3 URI を直接指定する場合
+    image_s3_uri: Optional[str] = Field(None, description="S3 URI for the image")
+
+    @root_validator(pre=True)
+    def _at_least_one(cls, values):
+        if not values.get("image_base64") and not values.get("image_s3_uri"):
+            raise ValueError("Either image_base64 or image_s3_uri is required")
+        return values
+
+
+class ContentItem(BaseModel):
+    text: Optional[TextContent] = None
+    image: Optional[ImageContent] = None
+
+    @validator("image", always=True)
+    def _one_of_text_or_image(cls, v, values):
+        if (values.get("text") is None) and v is None:
+            raise ValueError("Either text or image must be provided")
+        if (values.get("text") is not None) and v is not None:
+            raise ValueError("Only one of text or image is allowed per content item")
+        return v
+
+
 class GuardrailParameters(BaseModel):
     guardrail_id: str = Field(..., description="The identifier of the guardrail")
     guardrail_version: str = Field(..., description="The version of the guardrail")
-    source: str = Field(..., description="The source of the content")
-    text: str = Field(..., description="The text to apply the guardrail to")
+    source: str = Field("PREPROCESS", description="PREPROCESS or POSTPROCESS or custom source")
+    text: Optional[str] = Field(None, description="Text to apply the guardrail to (legacy single input)")
+    content: Optional[list[ContentItem]] = Field(None, description="List of content items (text/image)")
     aws_region: Optional[str] = Field(None, description="AWS region for the Bedrock client")
 
 
@@ -45,12 +79,14 @@ class ApplyGuardrailTool(Tool):
             # 👉 ガードレール適用は bedrock-runtime クライアントを使う
             bedrock_client = boto3.client("bedrock-runtime", **client_kwargs)
 
+            request_content = self._build_content(params)
+
             # 👉 Guardrail API を実行
             response = bedrock_client.apply_guardrail(
                 guardrailIdentifier=params.guardrail_id,
                 guardrailVersion=params.guardrail_version,
                 source=params.source,
-                content=[{"text": {"text": params.text}}],
+                content=request_content,
             )
 
             logger.info(f"Raw response from AWS: {json.dumps(response, indent=2)}")
@@ -62,29 +98,46 @@ class ApplyGuardrailTool(Tool):
             # 👉 代表的なフィールドを取り出して人が読めるテキストに整形
             action = response.get("action", "No action specified")
             outputs = response.get("outputs", [])
+            processed_outputs = response.get("processedOutputs", [])
             output = outputs[0].get("text", "No output received") if outputs else "No output received"
+            processed_output = (
+                processed_outputs[0].get("text", "No processed output") if processed_outputs else "No processed output"
+            )
             assessments = response.get("assessments", [])
+            warnings = response.get("warnings")
+            action_reasons = response.get("actionReasons")
 
             # 👉 ポリシー別の評価内容を単純な文字列へ展開
-            formatted_assessments = []
-            for assessment in assessments:
-                for policy_type, policy_data in assessment.items():
-                    if isinstance(policy_data, dict) and "topics" in policy_data:
-                        for topic in policy_data["topics"]:
-                            formatted_assessments.append(
-                                f"Policy: {policy_type}, Topic: {topic['name']}, Type: {topic['type']},"
-                                f" Action: {topic['action']}"
-                            )
-                    else:
-                        formatted_assessments.append(f"Policy: {policy_type}, Data: {policy_data}")
+            formatted_assessments = self._format_assessments(assessments)
 
-            result = f"Action: {action}\n "
-            result += f"Output: {output}\n "
+            result_lines = [
+                f"Action: {action}",
+                f"Processed Output: {processed_output}",
+                f"Raw Output: {output}",
+            ]
+            if warnings:
+                result_lines.append(f"Warnings: {warnings}")
+            if action_reasons:
+                result_lines.append(f"Action Reasons: {action_reasons}")
             if formatted_assessments:
-                result += "Assessments:\n " + "\n ".join(formatted_assessments) + "\n "
-            #           result += f"Full response: {json.dumps(response, indent=2, ensure_ascii=False)}"
+                result_lines.append("Assessments:")
+                result_lines.extend([f"- {item}" for item in formatted_assessments])
 
-            yield self.create_text_message(text=result)
+            yield self.create_text_message(text="\n".join(result_lines))
+
+            # 構造化データを blob でも返す（LLM 二次利用向け）
+            structured_payload = {
+                "action": action,
+                "processedOutputs": processed_outputs,
+                "outputs": outputs,
+                "assessments": assessments,
+                "warnings": warnings,
+                "actionReasons": action_reasons,
+            }
+            yield self.create_blob_message(
+                blob=json.dumps(structured_payload, ensure_ascii=False).encode("utf-8"),
+                meta={"mime_type": "application/json"},
+            )
 
         except BotoCoreError as e:
             error_message = f"AWS service error: {str(e)}"
@@ -98,3 +151,49 @@ class ApplyGuardrailTool(Tool):
             error_message = f"An unexpected error occurred: {str(e)}"
             logger.error(error_message, exc_info=True)
             yield self.create_text_message(text=error_message)
+
+    def _build_content(self, params: GuardrailParameters) -> list[dict[str, Any]]:
+        """content 配列を構築。単一 text 指定は後方互換で分割しながら content に変換。"""
+
+        content_items: list[ContentItem] = []
+
+        if params.content:
+            content_items.extend(params.content)
+        elif params.text:
+            # 長文は 1000 文字チャンクに分割して複数 content とする
+            for chunk in self._chunk_text(params.text):
+                content_items.append(ContentItem(text=TextContent(text=chunk)))
+        else:
+            raise ValueError("Either 'content' or 'text' must be provided")
+
+        built: list[dict[str, Any]] = []
+        for item in content_items:
+            if item.text:
+                built.append({"text": {"text": item.text.text}})
+            elif item.image:
+                image_source: dict[str, Any] = {}
+                if item.image.image_base64:
+                    image_source["bytes"] = item.image.image_base64
+                if item.image.image_s3_uri:
+                    image_source["s3Uri"] = item.image.image_s3_uri
+                built.append({"image": {"format": item.image.format, "source": image_source}})
+        return built
+
+    def _chunk_text(self, text: str) -> list[str]:
+        """Guardrails の 1000 文字単位課金/制限を考慮し、必要に応じて分割。"""
+        if len(text) <= TEXT_CHUNK_SIZE:
+            return [text]
+        return [text[i : i + TEXT_CHUNK_SIZE] for i in range(0, len(text), TEXT_CHUNK_SIZE)]
+
+    def _format_assessments(self, assessments: list[dict[str, Any]]) -> list[str]:
+        formatted: list[str] = []
+        for assessment in assessments:
+            for policy_type, policy_data in assessment.items():
+                if isinstance(policy_data, dict) and "topics" in policy_data:
+                    for topic in policy_data["topics"]:
+                        formatted.append(
+                            f"Policy={policy_type}, Topic={topic.get('name')}, Type={topic.get('type')}, Action={topic.get('action')}"
+                        )
+                else:
+                    formatted.append(f"Policy={policy_type}, Data={policy_data}")
+        return formatted

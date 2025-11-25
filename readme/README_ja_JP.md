@@ -49,7 +49,44 @@ AWS Tools プラグインは、複数の AWS サービスに基づくツール�
 ### Amazon Bedrock 系
 - **Bedrock Retrieve**: `bedrock-agent-runtime` の Retrieve API を直接呼び出し、指定 Knowledge Base に対してセマンティックまたは HYBRID 検索を実行します。メタデータフィルタ、検索件数、Bedrock Reranking (cohere.rerank-v3-5 や amazon.rerank-v1) を切り替えられ、結果は JSON あるいは順位付きテキストで取得できます。
 - **Bedrock Retrieve and Generate**: Bedrock の `retrieve_and_generate` をラップし、KNOWLEDGE_BASE/EXTERNAL_SOURCES 構成を JSON で渡して検索＋生成を一括実行します。session_configuration と session_id を指定すれば Bedrock 側に会話状態を保持でき、引用情報付きで JSON／テキストを返します。
-- **Apply Guardrail**: Bedrock Runtime の `apply_guardrail` を呼び出し、Guardrail ID/Version・source・text を渡してコンテンツ安全性を評価します。レスポンスには action、生成出力、ポリシーごとの違反トピックが含まれます。
+- **Apply Guardrail**: Bedrock Runtime の `apply_guardrail` を呼び出し、以下の特徴を持ちます。
+  - 入力: `content` 配列（テキスト複数・画像 bytes/S3 URI）または単一 `text`（1000 文字ごとに自動分割し content 化）。
+  - `source`: PREPROCESS（既定）/POSTPROCESS を指定可能。
+  - 出力: action、processedOutputs（マスク後）、outputs（マスク前）、assessments、warnings/actionReasons をテキストと JSON blob で返却。
+  - チャンク分割で長文の課金/サイズ上限に対応。
+
+#### Apply Guardrail サンプルリクエスト (複数テキスト)
+
+```json
+{
+  "guardrail_id": "gr-123",
+  "guardrail_version": "2",
+  "source": "PREPROCESS",
+  "content": [
+    { "text": { "text": "ユーザーの入力テキスト1" } },
+    { "text": { "text": "ユーザーの入力テキスト2" } }
+  ]
+}
+```
+
+#### Apply Guardrail サンプルリクエスト (画像 + テキスト)
+
+```json
+{
+  "guardrail_id": "gr-123",
+  "guardrail_version": "2",
+  "source": "POSTPROCESS",
+  "content": [
+    {
+      "image": {
+        "format": "png",
+        "source": { "s3Uri": "s3://bucket/path/image.png" }
+      }
+    },
+    { "text": { "text": "LLM が生成した応答" } }
+  ]
+}
+```
 - **Nova Canvas**: Bedrock Nova Canvas v1 を用いた画像生成ツールで、TEXT_IMAGE・COLOR_GUIDED・IMAGE_VARIATION・INPAINTING・OUTPAINTING・BACKGROUND_REMOVAL を選択できます。入力画像が必要なタスクでは S3 からバイナリを取得し、出力は S3 へ PNG 保存すると同時に Dify へバイナリを返送します。
 - **Nova Reel**: Bedrock Nova Reel v1 の非同期 API を利用してテキスト→動画、または画像を初期フレームにした動画生成を行います。指定 S3 パスへ MP4 を出力し、同期モードでは完了をポーリングして動画バイナリも返します。
 
