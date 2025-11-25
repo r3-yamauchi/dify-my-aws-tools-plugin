@@ -264,7 +264,7 @@ class NovaReelTool(Tool):
             response = s3_client.get_object(Bucket=bucket, Key=key)
             video_content = response["Body"].read()
             return [
-                self.create_text_message(f"Video is available at: {video_path}/output.mp4"),
+                self.create_text_message(f"{video_path}/output.mp4 and s3://{bucket}/{key}"),
                 self.create_blob_message(blob=video_content, meta={"mime_type": "video/mp4"}, save_as="output.mp4"),
             ]
         except Exception as e:
@@ -279,93 +279,108 @@ class NovaReelTool(Tool):
         parameters = [
             ToolParameter(
                 name="prompt",
-                label=I18nObject(en_US="Prompt", zh_Hans="提示词"),
+                label=I18nObject(en_US="Prompt", ja_JP="プロンプト"),
                 type=ToolParameter.ToolParameterType.STRING,
                 required=True,
                 form=ToolParameter.ToolParameterForm.LLM,
                 human_description=I18nObject(
-                    en_US="Text description of the video you want to generate", zh_Hans="您想要生成的视频的文本描述"
+                    en_US="Text description of the video you want to generate",
+                    ja_JP="生成したい動画のテキスト説明",
                 ),
                 llm_description="Describe the video you want to generate",
             ),
             ToolParameter(
                 name="video_output_s3uri",
-                label=I18nObject(en_US="Output S3 URI", zh_Hans="输出S3 URI"),
+                label=I18nObject(en_US="Output S3 URI", ja_JP="出力先 S3 URI"),
                 type=ToolParameter.ToolParameterType.STRING,
                 required=True,
                 form=ToolParameter.ToolParameterForm.FORM,
                 human_description=I18nObject(
-                    en_US="S3 URI where the generated video will be stored", zh_Hans="生成的视频将存储的S3 URI"
+                    en_US="S3 URI where the generated video will be stored",
+                    ja_JP="生成動画を保存する S3 URI",
                 ),
             ),
             ToolParameter(
                 name="dimension",
-                label=I18nObject(en_US="Dimension", zh_Hans="尺寸"),
+                label=I18nObject(en_US="Dimension", ja_JP="解像度"),
                 type=ToolParameter.ToolParameterType.STRING,
                 required=False,
                 default=NOVA_REEL_DEFAULT_DIMENSION,
                 form=ToolParameter.ToolParameterForm.FORM,
-                human_description=I18nObject(en_US="Video dimensions (width x height)", zh_Hans="视频尺寸（宽 x 高）"),
+                human_description=I18nObject(
+                    en_US="Video dimensions (width x height)",
+                    ja_JP="動画の解像度（幅 x 高さ）",
+                ),
             ),
             ToolParameter(
                 name="duration",
-                label=I18nObject(en_US="Duration", zh_Hans="时长"),
+                label=I18nObject(en_US="Duration", ja_JP="再生時間"),
                 type=ToolParameter.ToolParameterType.NUMBER,
                 required=False,
                 default=NOVA_REEL_DEFAULT_DURATION,
                 form=ToolParameter.ToolParameterForm.FORM,
-                human_description=I18nObject(en_US="Video duration in seconds", zh_Hans="视频时长（秒）"),
+                human_description=I18nObject(
+                    en_US="Video duration in seconds",
+                    ja_JP="動画の長さ（秒）",
+                ),
             ),
             ToolParameter(
                 name="seed",
-                label=I18nObject(en_US="Seed", zh_Hans="种子值"),
+                label=I18nObject(en_US="Seed", ja_JP="シード値"),
                 type=ToolParameter.ToolParameterType.NUMBER,
                 required=False,
                 default=0,
                 form=ToolParameter.ToolParameterForm.FORM,
-                human_description=I18nObject(en_US="Random seed for video generation", zh_Hans="视频生成的随机种子"),
+                human_description=I18nObject(
+                    en_US="Random seed for video generation",
+                    ja_JP="動画生成の乱数シード",
+                ),
             ),
             ToolParameter(
                 name="fps",
-                label=I18nObject(en_US="FPS", zh_Hans="帧率"),
+                label=I18nObject(en_US="FPS", ja_JP="FPS"),
                 type=ToolParameter.ToolParameterType.NUMBER,
                 required=False,
                 default=NOVA_REEL_DEFAULT_FPS,
                 form=ToolParameter.ToolParameterForm.FORM,
                 human_description=I18nObject(
-                    en_US="Frames per second for the generated video", zh_Hans="生成视频的每秒帧数"
+                    en_US="Frames per second for the generated video",
+                    ja_JP="生成動画のフレームレート",
                 ),
             ),
             ToolParameter(
                 name="async",
-                label=I18nObject(en_US="Async Mode", zh_Hans="异步模式"),
+                label=I18nObject(en_US="Async Mode", ja_JP="非同期モード"),
                 type=ToolParameter.ToolParameterType.BOOLEAN,
                 required=False,
                 default=True,
                 form=ToolParameter.ToolParameterForm.LLM,
                 human_description=I18nObject(
                     en_US="Whether to run in async mode (return immediately) or sync mode (wait for completion)",
-                    zh_Hans="是否以异步模式运行（立即返回）或同步模式（等待完成）",
+                    ja_JP="非同期で実行するか（すぐ返却）/同期で待機するか",
                 ),
             ),
             ToolParameter(
                 name="aws_region",
-                label=I18nObject(en_US="AWS Region", zh_Hans="AWS 区域"),
+                label=I18nObject(en_US="AWS Region", ja_JP="AWS リージョン"),
                 type=ToolParameter.ToolParameterType.STRING,
                 required=False,
                 default=NOVA_REEL_DEFAULT_REGION,
                 form=ToolParameter.ToolParameterForm.FORM,
-                human_description=I18nObject(en_US="AWS region for Bedrock service", zh_Hans="Bedrock 服务的 AWS 区域"),
+                human_description=I18nObject(
+                    en_US="AWS region for Bedrock service",
+                    ja_JP="Bedrock サービスの AWS リージョン",
+                ),
             ),
             ToolParameter(
                 name="image_input_s3uri",
-                label=I18nObject(en_US="Input Image S3 URI", zh_Hans="输入图像S3 URI"),
+                label=I18nObject(en_US="Input Image S3 URI", ja_JP="入力画像 S3 URI"),
                 type=ToolParameter.ToolParameterType.STRING,
                 required=False,
                 form=ToolParameter.ToolParameterForm.LLM,
                 human_description=I18nObject(
                     en_US="S3 URI of the input image (1280x720 JPEG/PNG) to use as first frame",
-                    zh_Hans="用作第一帧的输入图像（1280x720 JPEG/PNG）的S3 URI",
+                    ja_JP="先頭フレームに使う入力画像（1280x720 JPEG/PNG）の S3 URI",
                 ),
             ),
         ]
