@@ -1,0 +1,84 @@
+identity:
+  name: cf_create_invalidation
+  author: r3-yamauchi
+  label:
+    en_US: CloudFront Create Invalidation
+    ja_JP: CloudFront キャッシュ無効化
+description:
+  human:
+    en_US: Create a CloudFront invalidation request for a distribution with an optional custom batch payload.
+    ja_JP: CloudFront 配信のキャッシュ無効化リクエストを作成します。バッチ指定が無い場合は全パスを無効化します。
+  llm: Submit a CloudFront invalidation for the given distribution.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Optional Access Key ID to override the provider setting.
+      ja_JP: プロバイダー設定を上書きする任意の Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Optional Secret Access Key to pair with the Access Key ID.
+      ja_JP: Access Key ID とペアで指定する任意のシークレットキー。
+    form: form
+
+  - name: distribution_id
+    type: string
+    required: true
+    label:
+      en_US: CloudFront Distribution ID
+      ja_JP: CloudFront ディストリビューション ID
+    human_description:
+      en_US: Target distribution whose cached objects will be invalidated.
+      ja_JP: キャッシュを無効化したい対象ディストリビューションの ID。
+    llm_description: ID of the CloudFront distribution to invalidate.
+    form: llm
+
+  - name: paths
+    type: string
+    required: false
+    label:
+      en_US: Paths list
+      ja_JP: 無効化するパスのリスト
+    human_description:
+      en_US: JSON or Python-style list of paths to invalidate (e.g., ["/*"] or ['/' , '/css/*']). If omitted, all paths are invalidated.
+      ja_JP: "無効化対象パスのリストを JSON または Python 風リスト文字列で指定します（例: [\"/*\"] や ['/' , '/css/*']）。未指定時は全パスを無効化します。"
+    llm_description: Array of path strings to invalidate; accepts JSON or Python-style list strings.
+    form: llm
+
+  - name: invalidation_batch
+    type: string
+    required: false
+    label:
+      en_US: Invalidation batch JSON
+      ja_JP: Invalidation バッチ JSON
+    human_description:
+      en_US: JSON string for InvalidationBatch. When omitted, all paths (/*) are invalidated.
+      ja_JP: InvalidationBatch 用の JSON 文字列。未指定時は全パス (/*) を無効化します。
+    llm_description: JSON for CloudFront InvalidationBatch (Paths, CallerReference, etc.).
+    form: llm
+
+  - name: caller_reference
+    type: string
+    required: false
+    label:
+      en_US: Caller reference
+      ja_JP: CallerReference
+    human_description:
+      en_US: Optional unique string for idempotent invalidation requests. When omitted, a value like "dify-<epoch>-<random>" is generated.
+      ja_JP: Invalidation の冪等性を保つ任意のユニーク文字列。未指定時は "dify-<epoch>-<random>" 形式が自動生成されます。
+    llm_description: Custom CallerReference string for the invalidation request.
+    form: form
+extra:
+  python:
+    source: tools/cf_create_invalidation.py

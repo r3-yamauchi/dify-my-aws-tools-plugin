@@ -67,6 +67,7 @@ tools:
   - tools/agentcore_memory.yaml
   - tools/agentcore_memory_search.yaml
   - tools/agentcore_code_interpreter.yaml
+  - tools/cf_create_invalidation.yaml
 extra:
   python:
     source: provider/my_aws_tools.py

@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.4  
+**Version:** 1.0.5  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -37,6 +37,7 @@ My AWS Tools プラグインは、複数の AWS サービスに基づくツー�
 - S3 List Buckets
 - S3 Create Bucket
 - S3 List Objects
+- CloudFront Create Invalidation
 - DynamoDB Manager
 - Agentcore Code Interpreter
 - Agentcore Memory
@@ -49,8 +50,34 @@ My AWS Tools プラグインは、複数の AWS サービスに基づくツー�
 ## ツール別機能概要
 
 ### Amazon Bedrock 系
+
 - **Bedrock Retrieve**: `bedrock-agent-runtime` の Retrieve API を直接呼び出し、指定 Knowledge Base に対してセマンティックまたは HYBRID 検索を実行します。メタデータフィルタ、検索件数、Bedrock Reranking (cohere.rerank-v3-5 や amazon.rerank-v1) を切り替えられ、結果は JSON あるいは順位付きテキストで取得できます。
+
+```json
+{
+  "knowledge_base_id": "ABCDEFG8H9",
+  "query": "最新のプロダクトロードマップ",
+  "search_type": "HYBRID",
+  "max_results": 5,
+  "reranking_model": "amazon.rerank-v1"
+}
+```
+
 - **Bedrock Retrieve and Generate**: Bedrock の `retrieve_and_generate` をラップし、KNOWLEDGE_BASE/EXTERNAL_SOURCES 構成を JSON で渡して検索＋生成を一括実行します。session_configuration と session_id を指定すれば Bedrock 側に会話状態を保持でき、引用情報付きで JSON／テキストを返します。
+
+```json
+{
+  "knowledge_base_id": "ABCDEFG8H9",
+  "query": "インシデント対応手順を要約してください",
+  "generation_configuration": {
+    "promptTemplate": "KB の内容を使って簡潔に要約: {{query}}"
+  },
+  "retrieval_configuration": {
+    "vectorSearchConfiguration": {"numberOfResults": 3}
+  }
+}
+```
+
 - **Apply Guardrail**: Bedrock Runtime の `apply_guardrail` を呼び出し、以下の特徴を持ちます。
   - 入力: `content` 配列（テキスト複数・画像 bytes/S3 URI）または単一 `text`（1000 文字ごとに自動分割し content 化）。
   - `source`: PREPROCESS（既定）/POSTPROCESS を指定可能。
@@ -89,33 +116,228 @@ My AWS Tools プラグインは、複数の AWS サービスに基づくツー�
   ]
 }
 ```
+
 - **Nova Canvas**: Bedrock Nova Canvas v1 を用いた画像生成ツールで、TEXT_IMAGE・COLOR_GUIDED・IMAGE_VARIATION・INPAINTING・OUTPAINTING・BACKGROUND_REMOVAL を選択できます。入力画像が必要なタスクでは S3 からバイナリを取得し、出力は S3 へ PNG 保存すると同時に Dify へバイナリを返送します。
+
+```json
+{
+  "task": "TEXT_IMAGE",
+  "prompt": "嵐の中の灯台",
+  "output_s3_uri": "s3://my-bucket/outputs/canvas.png"
+}
+```
+
 - **Nova Reel**: Bedrock Nova Reel v1 の非同期 API を利用してテキスト→動画、または画像を初期フレームにした動画生成を行います。指定 S3 パスへ MP4 を出力し、同期モードでは完了をポーリングして動画バイナリも返します。
 
+```json
+{
+  "mode": "TEXT_TO_VIDEO",
+  "prompt": "雪山をドローンが飛ぶ映像",
+  "output_s3_uri": "s3://my-bucket/outputs/reel.mp4",
+  "wait_for_completion": true
+}
+```
+
 ### 音声・メディア処理
+
 - **Extract Frame**: GIF アニメーションの URL をダウンロードし、総フレーム数に応じて均等間隔の PNG フレームを抽出します。抽出枚数は 2 枚（先頭・末尾）から任意の回数まで指定でき、各フレームをバイナリで返却します。
+
+```json
+{
+  "gif_url": "https://example.com/anim.gif",
+  "frame_count": 4
+}
+```
 
 - **Lambda YAML to JSON**: YAML テキストを `body` に入れて Lambda を同期呼び出しし、statusCode 200 のときのみ JSON 文字列を返します。YAML→JSON 変換をサーバーレスで統一できます。
 
+```yaml
+lambda_name: yaml-to-json
+yaml_content: |
+  key: value
+  list:
+    - a
+    - b
+```
+
 - **Bedrock KB List**: `list_knowledge_bases` API を呼び出してナレッジベースサマリーを取得し、ステータスや作成日時、ベクトルストア設定、nextToken を返します。
+
+```json
+{
+  "max_results": 20
+}
+```
+
 - **Bedrock KB Data Sources**: `list_data_sources` で指定 knowledgeBaseId の接続データソースを列挙し、同期状態・コネクター種別・nextToken を返すため、後続の同期ジョブ選択が容易になります。
+
+```json
+{
+  "knowledge_base_id": "ABCDEFG8H9",
+  "max_results": 10
+}
+```
+
 - **Bedrock KB Sync**: knowledgeBaseId と dataSourceId を渡して `StartIngestionJob` を呼び出し、必要に応じて clientToken や dataDeletionPolicy を指定しながらオンデマンド同期を開始します。
 
+```json
+{
+  "knowledge_base_id": "ABCDEFG8H9",
+  "data_source_id": "ds-001",
+  "client_token": "sync-20250227"
+}
+```
+
 ### ストレージ／データベース操作
-- **S3 Operator**: `s3://` URI を解析してバケット/キーを特定し、テキスト読み書きとプリサイン URL の生成を行います。`write` モードでは UTF-8 テキストをアップロードし、`read` モードでは本文または署名付き URL を返します。
-- **DynamoDB Manager**: PAY_PER_REQUEST モードでのテーブル作成、`put_item`、`get_item`、`delete_item` を 1 つのツールで提供します。パーティションキー/ソートキー名を個別に指定でき、JSON 文字列の item_data を dict に変換して登録します。
+
+- **CloudFront Create Invalidation**: CloudFront ディストリビューションに対して `create_invalidation` を送信します。`paths` または `invalidation_batch` を受け付け、`caller_reference` 未指定時は自動生成します。
+
+```json
+{
+  "distribution_id": "D123456"
+}
+```
+
+```json
+{
+  "distribution_id": "D123456",
+  "paths": ["/index.html", "/css/*"]
+}
+```
+
+```json
+{
+  "distribution_id": "D123456",
+  "caller_reference": "my-ref-1",
+  "invalidation_batch": {
+    "Paths": {
+      "Items": ["/*"]
+    }
+  }
+}
+```
+
+- **S3 File Uploader**: ワークフローから受け取ったファイルを指定のバケット/キーへアップロードし、必要に応じてプリサイン URL を返します。
+
+```json
+{
+  "bucket_name": "my-bucket",
+  "object_key": "uploads/example.txt",
+  "file": "{{file}}",
+  "return_presigned_url": true
+}
+```
+
+- **S3 Operator (write)**: `s3://` URI を解析しテキストを書き込む例。
+
+```json
+{
+  "operation": "write",
+  "s3_uri": "s3://my-bucket/config.json",
+  "text": "{\"env\":\"prod\"}"
+}
+```
+
+- **S3 File Download**: S3 からオブジェクトを取得し、プリサイン URL を返すかバイナリを直接返却します（`presign_only` などで指定）。
+
+```json
+{
+  "bucket_name": "my-bucket",
+  "object_key": "reports/latest.pdf",
+  "presign_only": true,
+  "expires_in": 600
+}
+```
+
+- **DynamoDB Manager**: PAY_PER_REQUEST でのテーブル作成や `put_item`/`get_item`/`delete_item` を 1 つのツールで提供します。
+
+```json
+{
+  "operation": "put_item",
+  "table_name": "users",
+  "partition_key_name": "user_id",
+  "item_data": {
+    "user_id": "u-1",
+    "name": "Alice"
+  }
+}
+```
 
 ### メッセージング
-- **SNS Publish**: SNS トピック ARN を指定してメッセージを公開します。件名（最大100文字）や MessageAttributes を JSON で付与可能。資格情報とリージョンはプロバイダー/ツールパラメータで上書きできます。
-- **SQS Send Message**: SQS キュー URL を指定してメッセージを送信します。任意の遅延秒数や MessageAttributes(JSON) を設定可能。資格情報とリージョンはプロバイダー/ツールパラメータで上書きできます。
+
+- **SNS Publish**: SNS トピック ARN へメッセージを公開します。件名や MessageAttributes を付与可能。
+
+```json
+{
+  "topic_arn": "arn:aws:sns:us-east-1:111122223333:alerts",
+  "message": "Deployed v1.2.3",
+  "subject": "Deploy notice"
+}
+```
+
+- **SQS Send Message**: SQS キュー URL へメッセージを送信します。遅延秒数や MessageAttributes を指定可能。
+
+```json
+{
+  "queue_url": "https://sqs.us-east-1.amazonaws.com/111122223333/tasks",
+  "message_body": "{\"job_id\":123}",
+  "delay_seconds": 5
+}
+```
 
 ### エージェントコア連携
-- **AgentCore Memory**: Bedrock AgentCore SDK で Memory リソースを自動作成し、`operation=record` で会話イベントを保存、`operation=retrieve` で `get_last_k_turns` を実行します。不足している memory_id・actor_id・session_id は作成して JSON 返却します。
-- **AgentCore Memory Search**: 既存 Memory ID と namespace を指定し、`retrieve_memories` API でベクトル検索します。最大取得件数や検索クエリはフォームで設定し、結果を ISO8601 化した JSON に整形します。
-- **Agentcore Code Interpreter**: Bedrock AgentCore Code Interpreter を起動し、code_interpreter_id や session_id が無ければ自動生成します。Shell コマンド (`command`) とサポート言語のコード (`language`＋`code`) を順番に実行し、結果や ID を JSON で返します。
+
+- **Agentcore Code Interpreter**: Code Interpreter セッションを作成/利用してコマンドやコードを実行します。
+
+```json
+{
+  "operation": "execute",
+  "code": "print(1+1)",
+  "language": "python"
+}
+```
+
+- **AgentCore Memory Search**: 指定 memory/namespace に対して `retrieve_memories` を実行し、top_k で件数制限します。
+
+```json
+{
+  "memory_id": "mem-abc",
+  "namespace": "default",
+  "query": "error logs",
+  "top_k": 5
+}
+```
+
+- **AgentCore Memory**: Memory リソースの作成・記録・取得を行います（`operation=record` または `retrieve` を指定）。
+
+```json
+{
+  "operation": "record",
+  "memory_id": "mem-123",
+  "actor_id": "user",
+  "role": "user",
+  "content": "こんにちは"
+}
+```
 
 ### そのほか
+
 - **Lambda Invoker**: FunctionName/ARN、JSON ペイロード、Qualifier、InvocationType（RequestResponse/Event/DryRun）を指定して任意の Lambda を実行します。Tail ログを含める設定を有効にすると、最大 4 KB の実行ログを結果 JSON に同梱します。
+
+```json
+{
+  "lambda_name": "my-function",
+  "payload_json": {"action": "ping"},
+  "invocation_type": "RequestResponse",
+  "include_logs": true
+}
+```
+
 - **Step Functions Start Execution**: ステートマシン ARN と入力 JSON、必要に応じて execution name／trace header／タグを渡して `start_execution` を呼び出します。戻り値には executionArn・開始時刻が含まれ、後続ノードでポーリングやモニタリングに利用できます。
-- **Lambda YAML to JSON**: ワークフローから任意の Lambda ワークロードを安全に再利用するための薄いラッパーです。
-- **Nova Canvas／Nova Reel など**: 上記の通り、画像・動画のバッチ処理を Dify ツールとして即座に呼び出せます。
+
+```json
+{
+  "state_machine_arn": "arn:aws:states:us-east-1:111122223333:stateMachine:MyFlow",
+  "input_json": {"task": "sync"},
+  "name": "run-001"
+}
+```
