@@ -17,45 +17,6 @@ description:
   llm: A tool for retrieving relevant information from Amazon Bedrock Knowledge Base.
 
 parameters:
-  - name: aws_region
-    type: string
-    required: false
-    label:
-      en_US: AWS Region
-      zh_Hans: AWS区域
-      ja_JP: AWS リージョン
-    human_description:
-      en_US: AWS region for the Bedrock service
-      zh_Hans: Bedrock服务的AWS区域
-      ja_JP: Bedrock サービスを利用する AWS リージョン
-    form: form
-
-  - name: aws_access_key_id
-    type: string
-    required: false
-    label:
-      en_US: AWS Access Key ID
-      zh_Hans: AWS访问密钥ID
-      ja_JP: AWS アクセスキー ID
-    human_description:
-      en_US: AWS access key ID for authentication (optional)
-      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
-      ja_JP: 認証に使う AWS アクセスキー ID（任意）
-    form: form
-
-  - name: aws_secret_access_key
-    type: string
-    required: false
-    label:
-      en_US: AWS Secret Access Key
-      zh_Hans: AWS秘密访问密钥
-      ja_JP: AWS シークレットアクセスキー
-    human_description:
-      en_US: AWS secret access key for authentication (optional)
-      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
-      ja_JP: 認証に使う AWS シークレットアクセスキー（任意）
-    form: form
-
   - name: result_type
     type: select
     required: true
@@ -65,8 +26,8 @@ parameters:
       ja_JP: 返却形式
     human_description:
       en_US: return a list of json or texts
-      zh_Hans: 返回一个列表，内容是json还是纯文本
-      ja_JP: JSON で返すかプレーンテキストで返すかを選択します
+      zh_Hans: "返回一个列表，内容是json还是纯文本"
+      ja_JP: "JSON で返すかプレーンテキストで返すかを選択します"
     default: text
     options:
       - value: json
@@ -93,7 +54,7 @@ parameters:
       en_US: ID of the Bedrock Knowledge Base to retrieve from
       zh_Hans: 用于检索的Bedrock知识库ID
       pt_BR: ID of the Bedrock Knowledge Base to retrieve from
-      ja_JP: 検索対象となる Bedrock Knowledge Base の ID
+      ja_JP: "検索対象の Bedrock Knowledge Base の ID（例: 1ABCDEFGHI）"
     llm_description: ID of the Bedrock Knowledge Base to retrieve from
     form: form
 
@@ -206,6 +167,68 @@ parameters:
       pt_BR: 'JSON formatted filter conditions for metadata (e.g., {"greaterThan": {"key: "aaa", "value": 10}})'
       ja_JP: 'メタデータに適用する JSON 形式のフィルター条件（例: {"greaterThan": {"key": "aaa", "value": 10}}）'
     form: llm
+
+  - name: guardrail_id
+    type: string
+    required: false
+    label:
+      en_US: "Guardrail ID or ARN"
+      ja_JP: "Amazon Bedrock ガードレール の ID（任意）"
+    human_description:
+      en_US: "Optional guardrail identifier applied to the retrieve request"
+      ja_JP: "Retrieve 呼び出し時に適用する Guardrail ID（例: ab1cd2e3f45g）"
+    form: form
+
+  - name: guardrail_version
+    type: string
+    required: false
+    label:
+      en_US: "Guardrail Version"
+      ja_JP: "適用するガードレールのバージョン（任意）"
+    human_description:
+      en_US: "Guardrail version (numeric or DRAFT). Defaults to DRAFT when omitted."
+      ja_JP: "対象 Guardrail の公開バージョン番号（例: 1）または DRAFT。未指定時は DRAFT を使用"
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for the Bedrock service
+      zh_Hans: Bedrock服务的AWS区域
+      ja_JP: Bedrock サービスを利用する AWS リージョン
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      ja_JP: 認証に使う AWS アクセスキー ID（任意）
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      ja_JP: 認証に使う AWS シークレットアクセスキー（任意）
+    form: form
+
 extra:
   python:
     source: tools/bedrock_retrieve.py

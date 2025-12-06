@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.5  
+**Version:** 1.0.6  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -14,7 +14,7 @@
 
 ## 概要
 
-My AWS Tools プラグインは、複数の AWS サービスに基づくツールセットを提供し、Dify アプリケーションの内部から AWS の機能を直接活用できるようにします。コンテンツモデレーション、テキストのリランク、テキスト読み上げ、音声認識など、幅広い機能領域をカバーします。
+このツール・プラグインは、いくつかの AWS サービスに基づくツールセットを提供し、Dify アプリケーションの中で AWS の機能を直接活用できるようにします。
 
 含まれるツール:
 - Apply Guardrail
@@ -51,7 +51,7 @@ My AWS Tools プラグインは、複数の AWS サービスに基づくツー�
 
 ### Amazon Bedrock 系
 
-- **Bedrock Retrieve**: `bedrock-agent-runtime` の Retrieve API を直接呼び出し、指定 Knowledge Base に対してセマンティックまたは HYBRID 検索を実行します。メタデータフィルタ、検索件数、Bedrock Reranking (cohere.rerank-v3-5 や amazon.rerank-v1) を切り替えられ、結果は JSON あるいは順位付きテキストで取得できます。
+- **Bedrock Retrieve**: `bedrock-agent-runtime` の Retrieve API を直接呼び出し、指定 Knowledge Base に対してセマンティックまたは HYBRID 検索を実行します。メタデータフィルタ、検索件数、Bedrock Reranking (cohere.rerank-v3-5 や amazon.rerank-v1) を切り替えられ、`guardrail_id` / `guardrail_version` で Bedrock ガードレールを任意適用し、結果は JSON あるいは順位付きテキストで取得できます。
 
 ```json
 {
@@ -80,7 +80,7 @@ My AWS Tools プラグインは、複数の AWS サービスに基づくツー�
 
 - **Apply Guardrail**: Bedrock Runtime の `apply_guardrail` を呼び出し、以下の特徴を持ちます。
   - 入力: `content` 配列（テキスト複数・画像 bytes/S3 URI）または単一 `text`（1000 文字ごとに自動分割し content 化）。
-  - `source`: PREPROCESS（既定）/POSTPROCESS を指定可能。
+  - `source`: 入力（既定） に適用するか、 出力 に適用するかを指定可能。
   - 出力: action、processedOutputs（マスク後）、outputs（マスク前）、assessments、warnings/actionReasons をテキストと JSON blob で返却。
   - チャンク分割で長文の課金/サイズ上限に対応。
 
@@ -88,9 +88,9 @@ My AWS Tools プラグインは、複数の AWS サービスに基づくツー�
 
 ```json
 {
-  "guardrail_id": "gr-123",
-  "guardrail_version": "2",
-  "source": "PREPROCESS",
+  "guardrail_id": "ab1cd2e3f45g",
+  "guardrail_version": "1",
+  "source": "入力",
   "content": [
     { "text": { "text": "ユーザーの入力テキスト1" } },
     { "text": { "text": "ユーザーの入力テキスト2" } }
@@ -102,9 +102,9 @@ My AWS Tools プラグインは、複数の AWS サービスに基づくツー�
 
 ```json
 {
-  "guardrail_id": "gr-123",
+  "guardrail_id": "ab1cd2e3f45g",
   "guardrail_version": "2",
-  "source": "POSTPROCESS",
+  "source": "出力",
   "content": [
     {
       "image": {

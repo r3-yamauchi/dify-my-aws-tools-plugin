@@ -15,6 +15,126 @@ description:
   llm: A tool for retrieving and generating information using Amazon Bedrock Knowledge Base
 
 parameters:
+  - name: result_type
+    type: select
+    required: true
+    label:
+      en_US: result type
+      zh_Hans: 结果类型
+      ja_JP: 返却形式
+    human_description:
+      en_US: return a list of json or texts
+      zh_Hans: "返回一个列表，内容是json还是纯文本"
+      ja_JP: "JSON / テキスト / 引用付きテキストのいずれで返すか"
+    default: text
+    options:
+      - value: json
+        label:
+          en_US: JSON
+          zh_Hans: JSON
+          ja_JP: JSON
+      - value: text
+        label:
+          en_US: Text
+          zh_Hans: 文本
+          ja_JP: テキスト
+      - value: text-with-citations
+        label:
+          en_US: Text With Citations
+          zh_Hans: 文本（包含引用）
+          ja_JP: テキスト（引用付き）
+    form: form
+
+  - name: input
+    type: string
+    required: true
+    label:
+      en_US: Input Text
+      zh_Hans: 输入文本
+      ja_JP: 入力テキスト
+    human_description:
+      en_US: The text query to retrieve information
+      zh_Hans: 用于检索信息的文本查询
+      ja_JP: 検索・生成を行う際の入力テキスト
+    form: llm
+
+  - name: type
+    type: select
+    required: true
+    label:
+      en_US: Configuration Type
+      zh_Hans: 配置类型
+      ja_JP: "ナレッジベース/外部ソース"
+    human_description:
+      en_US: Type of retrieve and generate configuration
+      zh_Hans: 检索和生成配置的类型
+      ja_JP: "ナレッジベース か 外部ソース"
+    options:
+      - value: KNOWLEDGE_BASE
+        label:
+          en_US: Knowledge Base
+          zh_Hans: 知识库
+          ja_JP: ナレッジベース
+      - value: EXTERNAL_SOURCES
+        label:
+          en_US: External Sources
+          zh_Hans: 外部源
+          ja_JP: 外部ソース
+    form: form
+
+  - name: knowledge_base_configuration
+    type: string
+    required: false
+    label:
+      en_US: Knowledge Base Configuration
+      zh_Hans: 知识库配置
+      ja_JP: ナレッジベース設定
+    human_description:
+      en_US: Please refer to @https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate for complete parameters and paste them here
+      zh_Hans: 请参考 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate 配置完整的参数并粘贴到这里
+      ja_JP: 'knowledgeBaseConfiguration JSON を入れてください。例: {"knowledgeBaseId":"1ABCDEFGHI","modelArn":"arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0","retrievalConfiguration":{"vectorSearchConfiguration":{"numberOfResults":5}}}'
+    form: form
+
+  - name: external_sources_configuration
+    type: string
+    required: false
+    label:
+      en_US: External Sources Configuration
+      zh_Hans: 外部源配置
+      ja_JP: 外部ソース設定
+    human_description:
+      en_US: Please refer to https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate for complete parameters and paste them here
+      zh_Hans: 请参考 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate 配置完整的参数并粘贴到这里
+      ja_JP: 'externalSourcesConfiguration JSON を入れてください。例: {"modelArn":"arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0","sources":[{"sourceType":"S3","s3Location":{"uri":"s3://<your-uri>"}}]}'
+    form: form
+
+  - name: session_configuration
+    type: string
+    required: false
+    label:
+      en_US: Session Configuration
+      zh_Hans: 会话配置
+      ja_JP: セッション設定
+    human_description:
+      en_US: JSON formatted session configuration
+      zh_Hans: JSON格式的会话配置
+      ja_JP: JSON 形式のセッション設定
+    default: ""
+    form: form
+
+  - name: session_id
+    type: string
+    required: false
+    label:
+      en_US: Session ID
+      zh_Hans: 会话ID
+      ja_JP: セッション ID
+    human_description:
+      en_US: Session ID for continuous conversations
+      zh_Hans: 用于连续对话的会话ID
+      ja_JP: 連続会話を識別するセッション ID
+    form: form
+
   - name: aws_region
     type: string
     required: false
@@ -54,125 +174,6 @@ parameters:
       ja_JP: 認証に使う AWS シークレットアクセスキー（任意）
     form: form
 
-  - name: result_type
-    type: select
-    required: true
-    label:
-      en_US: result type
-      zh_Hans: 结果类型
-      ja_JP: 返却形式
-    human_description:
-      en_US: return a list of json or texts
-      zh_Hans: 返回一个列表，内容是json还是纯文本
-      ja_JP: JSON / テキスト / 引用付きテキストのいずれで返すか
-    default: text
-    options:
-      - value: json
-        label:
-          en_US: JSON
-          zh_Hans: JSON
-          ja_JP: JSON
-      - value: text
-        label:
-          en_US: Text
-          zh_Hans: 文本
-          ja_JP: テキスト
-      - value: text-with-citations
-        label:
-          en_US: Text With Citations
-          zh_Hans: 文本（包含引用）
-          ja_JP: テキスト（引用付き）
-    form: form
-
-  - name: input
-    type: string
-    required: true
-    label:
-      en_US: Input Text
-      zh_Hans: 输入文本
-      ja_JP: 入力テキスト
-    human_description:
-      en_US: The text query to retrieve information
-      zh_Hans: 用于检索信息的文本查询
-      ja_JP: 検索・生成を行う際の入力テキスト
-    form: llm
-
-  - name: type
-    type: select
-    required: true
-    label:
-      en_US: Configuration Type
-      zh_Hans: 配置类型
-      ja_JP: 設定タイプ
-    human_description:
-      en_US: Type of retrieve and generate configuration
-      zh_Hans: 检索和生成配置的类型
-      ja_JP: Retrieve & Generate の構成種別
-    options:
-      - value: KNOWLEDGE_BASE
-        label:
-          en_US: Knowledge Base
-          zh_Hans: 知识库
-          ja_JP: ナレッジベース
-      - value: EXTERNAL_SOURCES
-        label:
-          en_US: External Sources
-          zh_Hans: 外部源
-          ja_JP: 外部ソース
-    form: form
-
-  - name: knowledge_base_configuration
-    type: string
-    required: false
-    label:
-      en_US: Knowledge Base Configuration
-      zh_Hans: 知识库配置
-      ja_JP: ナレッジベース設定
-    human_description:
-      en_US: Please refer to @https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate for complete parameters and paste them here
-      zh_Hans: 请参考 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate 配置完整的参数并粘贴到这里
-      ja_JP: 'knowledgeBaseConfiguration JSON を入れてください。例: {"knowledgeBaseId":"1ABCDEFGHI","modelArn":"arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0","retrievalConfiguration":{"vectorSearchConfiguration":{"numberOfResults":5}}}'
-    form: form
-
-  - name: external_sources_configuration
-    type: string
-    required: false
-    label:
-      en_US: External Sources Configuration
-      zh_Hans: 外部源配置
-      ja_JP: 外部ソース設定
-    human_description:
-      en_US: Please refer to https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate for complete parameters and paste them here
-      zh_Hans: 请参考 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-agent-runtime/client/retrieve_and_generate.html#retrieve-and-generate 配置完整的参数并粘贴到这里
-      ja_JP: 'externalSourcesConfiguration JSON を入れてください。'
-    form: form
-
-  - name: session_configuration
-    type: string
-    required: false
-    label:
-      en_US: Session Configuration
-      zh_Hans: 会话配置
-      ja_JP: セッション設定
-    human_description:
-      en_US: JSON formatted session configuration
-      zh_Hans: JSON格式的会话配置
-      ja_JP: JSON 形式のセッション設定
-    default: ""
-    form: form
-
-  - name: session_id
-    type: string
-    required: false
-    label:
-      en_US: Session ID
-      zh_Hans: 会话ID
-      ja_JP: セッション ID
-    human_description:
-      en_US: Session ID for continuous conversations
-      zh_Hans: 用于连续对话的会话ID
-      ja_JP: 連続会話を識別するセッション ID
-    form: form
 extra:
   python:
     source: tools/bedrock_retrieve_and_generate.py

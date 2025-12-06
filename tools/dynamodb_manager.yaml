@@ -10,7 +10,7 @@ description:
     en_US: DynamoDB Manager - Comprehensive tool for managing DynamoDB tables and items with full CRUD operations
     zh_Hans: DynamoDB 管理器 - 用于管理 DynamoDB 表和项目的全面工具，支持完整的增删改查操作
     ja_JP: DynamoDB テーブルや項目を CRUD 操作できる包括的な管理ツールです
-  llm: DynamoDB Manager provides comprehensive database management capabilities including create table, put item, get item, and delete item operations for AWS DynamoDB service
+  llm: DynamoDB Manager provides comprehensive database management capabilities including create table, put item, get item, delete item or scan operations for AWS DynamoDB service
 parameters:
   - name: aws_access_key_id
     type: string
@@ -53,9 +53,9 @@ parameters:
       zh_Hans: 操作类型
       ja_JP: 操作種別
     human_description:
-      en_US: Select the DynamoDB Manager operation type (create table, put item, get item, or delete item)
-      zh_Hans: 选择 DynamoDB 管理器操作类型（创建表、添加项目、获取项目或删除项目）
-      ja_JP: 実行する DynamoDB 操作（テーブル作成/項目追加/取得/削除）を選択します
+      en_US: Select the DynamoDB Manager operation type (create table, put item, get item, delete item, or scan)
+      zh_Hans: 选择 DynamoDB 管理器操作类型（创建表、添加项目、获取项目、删除项目或扫描）
+      ja_JP: 実行する DynamoDB 操作（テーブル作成/項目追加/取得/削除/スキャン）を選択します
     llm_description: Specify the type of DynamoDB Manager operation to execute
     options:
       - value: create_table
@@ -78,6 +78,11 @@ parameters:
           en_US: Delete Item
           zh_Hans: 删除项目
           ja_JP: 項目削除
+      - value: scan
+        label:
+          en_US: Scan
+          zh_Hans: 扫描
+          ja_JP: スキャン
     form: form
   - name: table_name
     type: string
@@ -94,7 +99,7 @@ parameters:
     form: llm
   - name: partition_key_name
     type: string
-    required: true
+    required: false
     label:
       en_US: Partition Key Name
       zh_Hans: 主键名称
@@ -107,7 +112,7 @@ parameters:
     form: llm
   - name: partition_key
     type: string
-    required: true
+    required: false
     label:
       en_US: Partition Key
       zh_Hans: 主键值
@@ -156,6 +161,20 @@ parameters:
       zh_Hans: DynamoDB 管理器项目数据（JSON 格式），用于添加操作
       ja_JP: put_item で追加する JSON 形式の項目データ
     llm_description: JSON formatted item data for DynamoDB Manager put operations
+    form: llm
+  - name: limit
+    type: number
+    required: false
+    label:
+      en_US: Limit
+      zh_Hans: 限制数量
+      ja_JP: Limit
+    human_description:
+      en_US: Maximum number of items to return for scan operations
+      zh_Hans: 扫描操作返回的最大项目数量
+      ja_JP: scan で返す最大件数
+    llm_description: Maximum number of items to return for DynamoDB Manager scan operations
+    default: 100
     form: llm
 extra:
   python:

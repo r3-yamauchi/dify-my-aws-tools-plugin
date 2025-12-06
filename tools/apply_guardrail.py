@@ -55,11 +55,23 @@ class ContentItem(BaseModel):
 
 class GuardrailParameters(BaseModel):
     guardrail_id: str = Field(..., description="The identifier of the guardrail")
-    guardrail_version: str = Field(..., description="The version of the guardrail")
-    source: str = Field("PREPROCESS", description="PREPROCESS or POSTPROCESS or custom source")
+    guardrail_version: str = Field(
+        "DRAFT",
+        description="The version of the guardrail. Defaults to DRAFT when omitted.",
+    )
+    source: str = Field("INPUT", description="INPUT or OUTPUT")
     text: Optional[str] = Field(None, description="Text to apply the guardrail to (legacy single input)")
     content: Optional[list[ContentItem]] = Field(None, description="List of content items (text/image)")
     aws_region: Optional[str] = Field(None, description="AWS region for the Bedrock client")
+
+    @validator("guardrail_version", pre=True, always=True)
+    def _default_guardrail_version(cls, value: Optional[str]) -> str:
+        """guardrail_version が空や未指定の場合は DRAFT を適用する。"""
+        if value is None:
+            return "DRAFT"
+        if isinstance(value, str) and value.strip() == "":
+            return "DRAFT"
+        return value
 
 
 class ApplyGuardrailTool(Tool):
@@ -134,6 +146,10 @@ class ApplyGuardrailTool(Tool):
                 "warnings": warnings,
                 "actionReasons": action_reasons,
             }
+
+            # JSON 形式でも返却し、ワークフロー内で扱いやすくする
+            yield self.create_json_message(structured_payload)
+
             yield self.create_blob_message(
                 blob=json.dumps(structured_payload, ensure_ascii=False).encode("utf-8"),
                 meta={"mime_type": "application/json"},

@@ -1,7 +1,7 @@
 # my_aws_tools
 
-**Author:** r3-yamauchi
-**Version:** 1.0.5  
+**Author:** r3-yamauchi  
+**Version:** 1.0.6  
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
@@ -55,7 +55,7 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 
 ### Amazon Bedrock
 
-- **Bedrock Retrieve** – Calls the `bedrock-agent-runtime` Retrieve API to run semantic or hybrid searches against a selected Knowledge Base. You can switch metadata filters, result counts, and Bedrock Reranking models (cohere.rerank-v3-5 / amazon.rerank-v1), and receive outputs as JSON or ranked text.
+- **Bedrock Retrieve** – Calls the `bedrock-agent-runtime` Retrieve API to run semantic or hybrid searches against a selected Knowledge Base. You can switch metadata filters, result counts, Bedrock Reranking models (cohere.rerank-v3-5 / amazon.rerank-v1), and apply optional Guardrails via `guardrail_id` / `guardrail_version`, and receive outputs as JSON or ranked text.
 
 ```json
 {
@@ -84,7 +84,7 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 
 - **Apply Guardrail** – Uses Bedrock Runtime `apply_guardrail` with these features:
   - Inputs: `content` array (multiple texts and/or images via bytes or S3 URI) or a single `text` that is auto-chunked into 1000-character pieces and wrapped as content.
-  - `source`: PREPROCESS (default) or POSTPROCESS to target pre/post LLM stages.
+  - `source`: INPUT (default) or OUTPUT to target pre/post LLM stages.
   - Outputs: action, processedOutputs (masked), outputs (raw), assessments, warnings/actionReasons; returned as human-readable text plus a JSON blob.
   - Long-text protection via chunking aligned with Guardrails billing/limits.
 
@@ -92,9 +92,9 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 
 ```json
 {
-  "guardrail_id": "gr-123",
-  "guardrail_version": "2",
-  "source": "PREPROCESS",
+  "guardrail_id": "ab1cd2e3f45g",
+  "guardrail_version": "1",
+  "source": "INPUT",
   "content": [
     { "text": { "text": "User message 1" } },
     { "text": { "text": "User message 2" } }
@@ -106,9 +106,9 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
 
 ```json
 {
-  "guardrail_id": "gr-123",
+  "guardrail_id": "ab1cd2e3f45g",
   "guardrail_version": "2",
-  "source": "POSTPROCESS",
+  "source": "OUTPUT",
   "content": [
     {
       "image": {

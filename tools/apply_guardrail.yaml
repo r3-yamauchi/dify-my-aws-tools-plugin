@@ -4,7 +4,7 @@ identity:
   label:
     en_US: Content Moderation Guardrails
     zh_Hans: 内容审查护栏
-    ja_JP: コンテンツモデレーションガードレール
+    ja_JP: ガードレールによるコンテンツモデレーション
 description:
   human:
     en_US: "Content Moderation Guardrails utilizes the ApplyGuardrail API, a feature of Guardrails for Amazon Bedrock. This API is capable of evaluating input prompts and model responses for all Foundation Models (FMs), including those on Amazon Bedrock, custom FMs, and third-party FMs. By implementing this functionality, organizations can achieve centralized governance across all their generative AI applications, thereby enhancing control and consistency in content moderation."
@@ -12,6 +12,80 @@ description:
     ja_JP: "Amazon Bedrock Guardrails の ApplyGuardrail API を利用し、ユーザー入力やモデル出力を横断的に審査できるコンテンツモデレーションツールです。Bedrock 標準モデルやカスタム/サードパーティ FM を統合的に管理し、生成 AI アプリ全体の統制と一貫性を高めます。"
   llm: "Content Moderation Guardrails utilizes the ApplyGuardrail API, a feature of Guardrails for Amazon Bedrock. This API is capable of evaluating input prompts and model responses for all Foundation Models (FMs), including those on Amazon Bedrock, custom FMs, and third-party FMs. By implementing this functionality, organizations can achieve centralized governance across all their generative AI applications, thereby enhancing control and consistency in content moderation."
 parameters:
+  - name: guardrail_id
+    type: string
+    required: true
+    label:
+      en_US: Guardrail ID
+      zh_Hans: Guardrail ID
+      ja_JP: "Amazon Bedrock ガードレール の ID"
+    human_description:
+      en_US: Please enter the ID of the Guardrail that has already been created on Amazon Bedrock, for example 'ab1cd2e3f45g'.
+      zh_Hans: 请输入已经在 Amazon Bedrock 上创建好的 Guardrail ID, 例如 'ab1cd2e3f45g'.
+      ja_JP: "Amazon Bedrock で作成済みの Guardrail ID（例: ab1cd2e3f45g）を入力してください。"
+    llm_description: Please enter the ID of the Guardrail that has already been created on Amazon Bedrock, for example 'ab1cd2e3f45g'.
+    form: form
+
+  - name: guardrail_version
+    type: string
+    required: false
+    label:
+      en_US: Guardrail Version Number
+      zh_Hans: Guardrail 版本号码
+      ja_JP: "適用するガードレールのバージョン"
+    human_description:
+      en_US: "Guardrail version (numeric or DRAFT). Defaults to DRAFT when omitted."
+      zh_Hans: "Guardrail 版本（数字或 DRAFT）。未指定时使用 DRAFT。"
+      ja_JP: "対象 Guardrail の公開バージョン番号（例: 1）または DRAFT。未指定時は DRAFT を使用"
+    llm_description: "Guardrail version (numeric or DRAFT). Defaults to DRAFT when omitted."
+    form: form
+
+  - name: source
+    type: select
+    required: false
+    default: INPUT
+    options:
+      - value: INPUT
+        label:
+          en_US: INPUT
+          ja_JP: 入力
+      - value: OUTPUT
+        label:
+          en_US: OUTPUT
+          ja_JP: 出力
+    label:
+      en_US: "Guardrail stage (INPUT/OUTPUT)"
+      ja_JP: "ガードレールを適用する段階"
+    human_description:
+      en_US: Stage to apply the guardrail. Default INPUT. OUTPUT can be used for LLM outputs.
+      ja_JP: "ガードレールを適用する段階。LLM 出力に対して適用する場合は 出力 を指定してください"
+    llm_description: Stage to apply the guardrail. Default INPUT. OUTPUT for post-response checks.
+    form: form
+
+  - name: text
+    type: string
+    required: false
+    label:
+      en_US: "Text to be reviewed (single input)"
+      ja_JP: "審査対象テキスト（単一入力）"
+    human_description:
+      en_US: "Optional single text. If provided, it will be chunked by 1000 chars and sent as content array."
+      ja_JP: "単一テキスト入力（任意） 1000文字ごとに分割され content 配列として送信されます。"
+    llm_description: Optional single text to review. Will be chunked and wrapped into the content array.
+    form: llm
+
+  - name: content
+    type: string
+    required: false
+    label:
+      en_US: "Content array (JSON)"
+      ja_JP: "content 配列（JSON）"
+    human_description:
+      en_US: "JSON array of items: {\"text\": {\"text\": \"...\"}} or {\"image\": {\"format\": \"png|jpeg\", \"source\": {\"bytes\": \"...\" | \"s3Uri\": \"s3://...\"}}}. Use this for multiple texts or images."
+      ja_JP: "複数テキストや画像を送る場合の JSON 配列。例 {\"text\":{\"text\":\"...\"}} または {\"image\":{\"format\":\"png|jpeg\",\"source\":{\"bytes\":\"...\" または \"s3Uri\":\"s3://...\"}}}"
+    llm_description: JSON array for multi text/image inputs. See human description for shape.
+    form: llm
+
   - name: aws_access_key_id
     type: string
     required: false
@@ -45,67 +119,6 @@ parameters:
       ja_JP: このツール固有の AWS リージョンを指定します。
     form: form
 
-  - name: guardrail_id
-    type: string
-    required: true
-    label:
-      en_US: Guardrail ID
-      zh_Hans: Guardrail ID
-      ja_JP: ガードレール ID
-    human_description:
-      en_US: Please enter the ID of the Guardrail that has already been created on Amazon Bedrock, for example 'qk5nk0e4b77b'.
-      zh_Hans: 请输入已经在 Amazon Bedrock 上创建好的 Guardrail ID, 例如 'qk5nk0e4b77b'.
-      ja_JP: "Amazon Bedrock で作成済みの Guardrail ID（例: qk5nk0e4b77b）を入力してください。"
-    llm_description: Please enter the ID of the Guardrail that has already been created on Amazon Bedrock, for example 'qk5nk0e4b77b'.
-    form: form
-  - name: guardrail_version
-    type: string
-    required: true
-    label:
-      en_US: Guardrail Version Number
-      zh_Hans: Guardrail 版本号码
-      ja_JP: ガードレールのバージョン
-    human_description:
-      en_US: Please enter the published version of the Guardrail ID that has already been created on Amazon Bedrock. This is typically a version number, such as 2.
-      zh_Hans: 请输入已经在Amazon Bedrock 上创建好的Guardrail ID发布的版本, 通常使用版本号, 例如2.
-      ja_JP: "対象 Guardrail の公開バージョン番号（例: 2）を入力してください。"
-    llm_description: Please enter the published version of the Guardrail ID that has already been created on Amazon Bedrock. This is typically a version number, such as 2.
-    form: form
-  - name: source
-    type: string
-    required: false
-    label:
-      en_US: Guardrail stage (PREPROCESS/POSTPROCESS)
-      ja_JP: ガードレール適用段階（PREPROCESS/POSTPROCESS）
-    human_description:
-      en_US: Stage to apply the guardrail. Default PREPROCESS. POSTPROCESS can be used for LLM outputs.
-      ja_JP: ガードレールを適用する段階。デフォルト PREPROCESS。LLM 出力に適用する場合は POSTPROCESS を指定。
-    llm_description: Stage to apply the guardrail. Default PREPROCESS. POSTPROCESS for post-response checks.
-    form: form
-
-  - name: text
-    type: string
-    required: false
-    label:
-      en_US: Text to be reviewed (single input)
-      ja_JP: 審査対象テキスト（単一入力）
-    human_description:
-      en_US: Optional single text. If provided, it will be chunked by 1000 chars and sent as content array.
-      ja_JP: 単一テキスト入力（任意）。指定すると 1000 文字ごとに分割され content 配列として送信されます。
-    llm_description: Optional single text to review. Will be chunked and wrapped into the content array.
-    form: llm
-
-  - name: content
-    type: string
-    required: false
-    label:
-      en_US: Content array (JSON)
-      ja_JP: content 配列（JSON）
-    human_description:
-      en_US: "JSON array of items: {\"text\": {\"text\": \"...\"}} or {\"image\": {\"format\": \"png|jpeg\", \"source\": {\"bytes\": \"...\" | \"s3Uri\": \"s3://...\"}}}. Use this for multiple texts or images."
-      ja_JP: "複数テキスト・画像を送る場合の JSON 配列。例 {\"text\":{\"text\":\"...\"}} または {\"image\":{\"format\":\"png|jpeg\",\"source\":{\"bytes\":\"...\" または \"s3Uri\":\"s3://...\"}}}。"
-    llm_description: JSON array for multi text/image inputs. See human description for shape.
-    form: llm
 extra:
   python:
     source: tools/apply_guardrail.py

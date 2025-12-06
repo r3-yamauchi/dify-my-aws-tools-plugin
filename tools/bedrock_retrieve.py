@@ -21,8 +21,6 @@ from provider.utils import (
 
 class BedrockRetrieveTool(Tool):
     bedrock_client: Any = None
-    knowledge_base_id: str = None
-    topk: int = None
 
     def convert_to_dify_kb_format(self, kb_repsonse):
         """Bedrock 検索結果を Dify Knowledge 互換の配列に再構築する補助メソッド."""
@@ -79,6 +77,8 @@ class BedrockRetrieveTool(Tool):
         num_results: int,
         search_type: str,
         rerank_model_id: str,
+        region_name: Optional[str],
+        guardrail_config: Optional[dict],
         metadata_filter: Optional[dict] = None,
     ):
         """Bedrock Retrieve API を実行し、必要に応じてリランキングやメタデータフィルターを適用する."""
@@ -94,7 +94,11 @@ class BedrockRetrieveTool(Tool):
             }
 
             if rerank_model_id != "default":
-                model_for_rerank_arn = f"arn:aws:bedrock:us-west-2::foundation-model/{rerank_model_id}"
+                model_region = region_name or "us-east-1"
+                # 👉 amazon.rerank-v1:0 は us-east-1 で未サポートのため west-2 にフォールバック
+                if rerank_model_id == "amazon.rerank-v1:0" and model_region == "us-east-1":
+                    model_region = "us-west-2"
+                model_for_rerank_arn = f"arn:aws:bedrock:{model_region}::foundation-model/{rerank_model_id}"
                 rerankingConfiguration = {
                     "bedrockRerankingConfiguration": {
                         "numberOfRerankedResults": num_results,
@@ -114,6 +118,7 @@ class BedrockRetrieveTool(Tool):
                 knowledgeBaseId=knowledge_base_id,
                 retrievalQuery=retrieval_query,
                 retrievalConfiguration=retrieval_configuration,
+                **({"guardrailConfiguration": guardrail_config} if guardrail_config else {}),
             )
 
             results = self.convert_to_dify_kb_format(response)
@@ -138,37 +143,57 @@ class BedrockRetrieveTool(Tool):
                 self.bedrock_client = boto3.client(**client_kwargs)
         except Exception as e:
             yield self.create_text_message(f"Failed to initialize Bedrock client: {str(e)}")
+            return
 
         try:
-            line = 1  # Knowledge Base ID のキャッシュが無ければ読み出す
-            if not self.knowledge_base_id:
-                self.knowledge_base_id = tool_parameters.get("knowledge_base_id")
-                if not self.knowledge_base_id:
-                    yield self.create_text_message("Please provide knowledge_base_id")
+            line = 1  # Knowledge Base ID の取得と検証
+            knowledge_base_id = tool_parameters.get("knowledge_base_id")
+            if not knowledge_base_id:
+                yield self.create_text_message("Please provide knowledge_base_id")
+                return
 
-            line = 2  # topk は順次リクエストで変えられるようキャッシュに初期値を保存
-            if not self.topk:
-                self.topk = tool_parameters.get("topk", 5)
+            line = 2  # topk はリクエスト単位で取得
+            topk = tool_parameters.get("topk", 5)
 
             line = 3  # クエリ未指定の場合は早期リターン
             query = tool_parameters.get("query", "")
             if not query:
                 yield self.create_text_message("Please input query")
+                return
 
             # 👉 metadata_filter は JSON 文字列で渡されるためここで dict へ展開
             metadata_filter_str = tool_parameters.get("metadata_filter")
-            metadata_filter = json.loads(metadata_filter_str) if metadata_filter_str else None
+            try:
+                metadata_filter = json.loads(metadata_filter_str) if metadata_filter_str else None
+            except json.JSONDecodeError:
+                yield self.create_text_message("metadata_filter must be a valid JSON object")
+                return
 
-            search_type = tool_parameters.get("search_type")
-            rerank_model_id = tool_parameters.get("rerank_model_id")
+            search_type = tool_parameters.get("search_type") or "SEMANTIC"
+            if search_type not in ["SEMANTIC", "HYBRID"]:
+                yield self.create_text_message("search_type must be SEMANTIC or HYBRID")
+                return
+
+            rerank_model_id = tool_parameters.get("rerank_model_id") or "default"
+            region_name = credentials.get("aws_region") or "us-east-1"
+            guardrail_id = tool_parameters.get("guardrail_id")
+            guardrail_version = tool_parameters.get("guardrail_version") or "DRAFT"
+            guardrail_config = None
+            if guardrail_id:
+                guardrail_config = {
+                    "guardrailId": guardrail_id,
+                    "guardrailVersion": guardrail_version,
+                }
 
             line = 4  # 検索本体の実行
             retrieved_docs = self._bedrock_retrieve(
                 query_input=query,
-                knowledge_base_id=self.knowledge_base_id,
-                num_results=self.topk,
+                knowledge_base_id=knowledge_base_id,
+                num_results=topk,
                 search_type=search_type,
                 rerank_model_id=rerank_model_id,
+                region_name=region_name,
+                guardrail_config=guardrail_config,
                 metadata_filter=metadata_filter,
             )
 
@@ -199,5 +224,19 @@ class BedrockRetrieveTool(Tool):
             raise ValueError("query is required")
 
         metadata_filter_str = parameters.get("metadata_filter")
-        if metadata_filter_str and not isinstance(json.loads(metadata_filter_str), dict):
-            raise ValueError("metadata_filter must be a valid JSON object")
+        if metadata_filter_str:
+            try:
+                parsed_filter = json.loads(metadata_filter_str)
+            except json.JSONDecodeError:
+                raise ValueError("metadata_filter must be a valid JSON object")
+            if not isinstance(parsed_filter, dict):
+                raise ValueError("metadata_filter must be a valid JSON object")
+
+        # 👉 デフォルト値をここで補完し、想定外の値を早期に弾く
+        search_type = parameters.get("search_type") or "SEMANTIC"
+        if search_type not in ["SEMANTIC", "HYBRID"]:
+            raise ValueError("search_type must be SEMANTIC or HYBRID")
+        parameters["search_type"] = search_type
+
+        rerank_model_id = parameters.get("rerank_model_id") or "default"
+        parameters["rerank_model_id"] = rerank_model_id
