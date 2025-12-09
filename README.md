@@ -1,26 +1,24 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.6  
+**Version:** 1.0.7  
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
-
-## Description
-
-The source code of this plugin is available in the [GitHub repository](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin).
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/r3-yamauchi/dify-my-aws-tools-plugin)
 
 ## Fork Status
 
-This repository is a personal fork of the official LangGenius AWS Tools plugin (release 0.0.15) under the Apache License 2.0.
+This repository is a personal fork of the [AWS Tools plugin](https://github.com/langgenius/dify-official-plugins/tree/main/tools/aws) (release 0.0.15) under the terms of the Apache License 2.0.
 
 ## Overview
 
-My AWS Tools plugin bundles multiple AWS services so that Dify applications can trigger content moderation, document reranking, text-to-speech, speech recognition, and other workflows directly inside the platform.
+This tool plugin provides a set of tools based on several AWS services, letting you leverage AWS capabilities directly inside Dify applications.
+It adds custom tools not included in the original [AWS Tools plugin](https://github.com/langgenius/dify-official-plugins/tree/main/tools/aws), removes a few tools that are less frequently used and harder for me to maintain, and adds custom parameters plus Japanese translations for each tool.
 
 Included tools:
+
 - Apply Guardrail
 - Bedrock Retrieve
 - Bedrock Retrieve and Generate
@@ -47,48 +45,48 @@ Included tools:
 - Agentcore Memory
 - Agentcore Memory Search
 
-## License & Attribution
+The source code of this plugin is available in the [GitHub repository](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin).
 
-This project is distributed under the Apache License 2.0. See `LICENSE` for the full text and `NOTICE` for attribution requirements, which also document that this implementation derives from the LangGenius official plugin sources.
+## License and Credits
 
-## Feature Highlights by Category
+This project is distributed under the Apache License 2.0. See `LICENSE` for the full text, and `NOTICE` for credit requirements when redistributing derivatives. `NOTICE` specifies that this implementation is derived from https://github.com/langgenius/dify-official-plugins/tree/main/tools/aws.
 
-### Amazon Bedrock
+## Feature Overview by Tool
 
-- **Bedrock Retrieve** – Calls the `bedrock-agent-runtime` Retrieve API to run semantic or hybrid searches against a selected Knowledge Base. You can switch metadata filters, result counts, Bedrock Reranking models (cohere.rerank-v3-5 / amazon.rerank-v1), and apply optional Guardrails via `guardrail_id` / `guardrail_version`, and receive outputs as JSON or ranked text.
+### Amazon Bedrock Suite
+
+- **Bedrock Retrieve**: Calls the `bedrock-agent-runtime` Retrieve API directly to run semantic or HYBRID search against a specified Knowledge Base.
 
 ```json
 {
   "knowledge_base_id": "ABCDEFG8H9",
-  "query": "latest product roadmap",
+  "query": "Latest product roadmap",
   "search_type": "HYBRID",
   "max_results": 5,
-  "reranking_model": "amazon.rerank-v1"
+  "guardrail_id": "ab1cd2e3f45g"
 }
 ```
 
-- **Bedrock Retrieve and Generate** – Wraps `retrieve_and_generate` so KNOWLEDGE_BASE or EXTERNAL_SOURCES flows run in a single call. Supplying `session_configuration` and `session_id` lets Bedrock maintain session state, and the tool returns the text plus citation metadata.
+- **Bedrock Retrieve and Generate**: Calls `retrieve_and_generate`. Passing knowledge_base_configuration or external_sources_configuration in JSON performs retrieval and generation together. Provide session_configuration and session_id to let Bedrock retain conversation state.
 
 ```json
 {
-  "knowledge_base_id": "ABCDEFG8H9",
-  "query": "Summarize the incident response runbook",
-  "generation_configuration": {
-    "promptTemplate": "Using the KB, summarize concisely: {{query}}"
-  },
-  "retrieval_configuration": {
-    "vectorSearchConfiguration": {"numberOfResults": 3}
+  "result_type": "JSON",
+  "input": "Please summarize the incident response procedures",
+  "type": "Knowledge Base",
+  "knowledge_base_configuration": {
+    "knowledgeBaseId": "ABCDEFG8H9",
+    "modelArn":"arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "retrievalConfiguration": {
+      "vectorSearchConfiguration": {"numberOfResults": 3}
+    }
   }
 }
 ```
 
-- **Apply Guardrail** – Uses Bedrock Runtime `apply_guardrail` with these features:
-  - Inputs: `content` array (multiple texts and/or images via bytes or S3 URI) or a single `text` that is auto-chunked into 1000-character pieces and wrapped as content.
-  - `source`: INPUT (default) or OUTPUT to target pre/post LLM stages.
-  - Outputs: action, processedOutputs (masked), outputs (raw), assessments, warnings/actionReasons; returned as human-readable text plus a JSON blob.
-  - Long-text protection via chunking aligned with Guardrails billing/limits.
+- **Apply Guardrail**: Calls `apply_guardrail`.
 
-#### Apply Guardrail example (multi-text)
+#### Apply Guardrail Sample Request (multiple texts)
 
 ```json
 {
@@ -96,13 +94,13 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
   "guardrail_version": "1",
   "source": "INPUT",
   "content": [
-    { "text": { "text": "User message 1" } },
-    { "text": { "text": "User message 2" } }
+    { "text": { "text": "User input text 1" } },
+    { "text": { "text": "User input text 2" } }
   ]
 }
 ```
 
-#### Apply Guardrail example (image + text)
+#### Apply Guardrail Sample Request (image + text)
 
 ```json
 {
@@ -116,7 +114,7 @@ This project is distributed under the Apache License 2.0. See `LICENSE` for the 
         "source": { "s3Uri": "s3://bucket/path/image.png" }
       }
     },
-    { "text": { "text": "LLM generated response" } }
+    { "text": { "text": "Response generated by the LLM" } }
   ]
 }
 ```

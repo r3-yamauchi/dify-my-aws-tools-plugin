@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.6  
+**Version:** 1.0.7  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -10,13 +10,15 @@
 
 ## フォーク状況
 
-本リポジトリは、LangGenius 公式 AWS Tools プラグイン (リリース 0.0.15) を Apache License 2.0 の条件でフォークした個人プロジェクトです。
+本リポジトリは [AWS Tools プラグイン](https://github.com/langgenius/dify-official-plugins/tree/main/tools/aws) (リリース 0.0.15) を Apache License 2.0 の条件でフォークした個人プロジェクトです。
 
 ## 概要
 
 このツール・プラグインは、いくつかの AWS サービスに基づくツールセットを提供し、Dify アプリケーションの中で AWS の機能を直接活用できるようにします。
+オリジナルの [AWS Tools プラグイン](https://github.com/langgenius/dify-official-plugins/tree/main/tools/aws) には含まれていない独自ツールを追加し、（利用頻度が低く、私が保守していくことは難しいと感じた）いくつかのツールを削除しました。また、各ツールに独自のパラメータと日本語訳を追加しています。
 
 含まれるツール:
+
 - Apply Guardrail
 - Bedrock Retrieve
 - Bedrock Retrieve and Generate
@@ -45,13 +47,13 @@
 
 ## ライセンスとクレジット
 
-本プロジェクトは Apache License 2.0 の下で配布されています。全文は `LICENSE` を確認し、派生物を再配布する際のクレジット要件は `NOTICE` を参照してください。NOTICE には、この実装が LangGenius 公式プラグインを由来としていることを明記しています。
+本プロジェクトは Apache License 2.0 の下で配布されています。全文は `LICENSE` を確認し、派生物を再配布する際のクレジット要件は `NOTICE` を参照してください。 `NOTICE` には、この実装が https://github.com/langgenius/dify-official-plugins/tree/main/tools/aws を由来としていることを明記しています。
 
 ## ツール別機能概要
 
 ### Amazon Bedrock 系
 
-- **Bedrock Retrieve**: `bedrock-agent-runtime` の Retrieve API を直接呼び出し、指定 Knowledge Base に対してセマンティックまたは HYBRID 検索を実行します。メタデータフィルタ、検索件数、Bedrock Reranking (cohere.rerank-v3-5 や amazon.rerank-v1) を切り替えられ、`guardrail_id` / `guardrail_version` で Bedrock ガードレールを任意適用し、結果は JSON あるいは順位付きテキストで取得できます。
+- **Bedrock Retrieve**: `bedrock-agent-runtime` の Retrieve API を直接呼び出し、指定した Knowledge Base に対してセマンティックまたは HYBRID 検索を実行します。
 
 ```json
 {
@@ -59,30 +61,28 @@
   "query": "最新のプロダクトロードマップ",
   "search_type": "HYBRID",
   "max_results": 5,
-  "reranking_model": "amazon.rerank-v1"
+  "guardrail_id": "ab1cd2e3f45g"
 }
 ```
 
-- **Bedrock Retrieve and Generate**: Bedrock の `retrieve_and_generate` をラップし、KNOWLEDGE_BASE/EXTERNAL_SOURCES 構成を JSON で渡して検索＋生成を一括実行します。session_configuration と session_id を指定すれば Bedrock 側に会話状態を保持でき、引用情報付きで JSON／テキストを返します。
+- **Bedrock Retrieve and Generate**: `retrieve_and_generate` を呼び出します。knowledge_base_configuration または external_sources_configuration を JSON で渡すと、検索と生成を一括実行します。session_configuration と session_id を指定すれば Bedrock 側に会話状態を保持できます。
 
 ```json
 {
-  "knowledge_base_id": "ABCDEFG8H9",
-  "query": "インシデント対応手順を要約してください",
-  "generation_configuration": {
-    "promptTemplate": "KB の内容を使って簡潔に要約: {{query}}"
-  },
-  "retrieval_configuration": {
-    "vectorSearchConfiguration": {"numberOfResults": 3}
+  "result_type": "JSON",
+  "input": "インシデント対応手順を要約してください",
+  "type": "ナレッジベース",
+  "knowledge_base_configuration": {
+    "knowledgeBaseId": "ABCDEFG8H9",
+    "modelArn":"arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "retrievalConfiguration": {
+      "vectorSearchConfiguration": {"numberOfResults": 3}
+    }
   }
 }
 ```
 
-- **Apply Guardrail**: Bedrock Runtime の `apply_guardrail` を呼び出し、以下の特徴を持ちます。
-  - 入力: `content` 配列（テキスト複数・画像 bytes/S3 URI）または単一 `text`（1000 文字ごとに自動分割し content 化）。
-  - `source`: 入力（既定） に適用するか、 出力 に適用するかを指定可能。
-  - 出力: action、processedOutputs（マスク後）、outputs（マスク前）、assessments、warnings/actionReasons をテキストと JSON blob で返却。
-  - チャンク分割で長文の課金/サイズ上限に対応。
+- **Apply Guardrail**: `apply_guardrail` を呼び出します。
 
 #### Apply Guardrail サンプルリクエスト (複数テキスト)
 
