@@ -15,7 +15,7 @@ import boto3  # type: ignore
 
 from dify_plugin import Tool
 from dify_plugin.entities.tool import ToolInvokeMessage
-from provider.utils import resolve_aws_credentials, build_boto3_client_kwargs
+from utils.utils import resolve_aws_credentials, build_boto3_client_kwargs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

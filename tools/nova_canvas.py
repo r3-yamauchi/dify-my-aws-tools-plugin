@@ -22,7 +22,7 @@ from dify_plugin.entities.tool import (
     ToolParameterOption,
     I18nObject,
 )
-from provider.utils import resolve_aws_credentials, build_boto3_client_kwargs
+from utils.utils import resolve_aws_credentials, build_boto3_client_kwargs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -65,17 +65,17 @@ class NovaCanvasTool(Tool):
             if not image_input_s3uri or urlparse(image_input_s3uri).scheme != "s3":
                 yield self.create_text_message("Please provide a valid S3 URI for image to image generation.")
 
-            # Parse S3 URI
+            # S3 URI を解析
             parsed_uri = urlparse(image_input_s3uri)
             bucket = parsed_uri.netloc
             key = parsed_uri.path.lstrip("/")
 
-            # Initialize S3 client and download image
+            # S3 クライアントを初期化して画像をダウンロード
             s3_client = boto3.client("s3", **client_kwargs)
             response = s3_client.get_object(Bucket=bucket, Key=key)
             image_data = response["Body"].read()
 
-            # Base64 encode the image
+            # 画像を Base64 エンコード
             input_image = base64.b64encode(image_data).decode("utf-8")
 
         try:
@@ -180,20 +180,20 @@ class NovaCanvasTool(Tool):
                 parsed_uri = urlparse(image_output_s3uri)
                 output_bucket = parsed_uri.netloc
                 output_base_path = parsed_uri.path.lstrip("/")
-                # Generate filename with timestamp
+                # タイムスタンプ付きのファイル名を生成
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 output_key = f"{output_base_path}/canvas-output-{timestamp}.png"
 
                 # S3 へ PNG をアップロード
                 s3_client = boto3.client("s3", **client_kwargs)
 
-                # Decode base64 image and upload to S3
+                # Base64 画像をデコードして S3 にアップロード
                 image_data = base64.b64decode(base64_image)
                 s3_client.put_object(Bucket=output_bucket, Key=output_key, Body=image_data, ContentType="image/png")
                 logger.info(f"Image uploaded to s3://{output_bucket}/{output_key}")
             except Exception as e:
                 logger.exception("Failed to upload image to S3")
-            # return image
+            # 画像を返す
             yield self.create_text_message(f"s3://{output_bucket}/{output_key}")
             yield self.create_blob_message(
                 blob=base64.b64decode(base64_image),

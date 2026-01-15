@@ -12,7 +12,7 @@ from collections.abc import Generator
 
 from dify_plugin import Tool
 from dify_plugin.entities.tool import ToolInvokeMessage
-from provider.utils import (
+from utils.utils import (
     resolve_aws_credentials,
     build_boto3_client_kwargs,
     reset_clients_on_credential_change,
@@ -150,7 +150,7 @@ class DynamoDBManager(Tool):
         partition_key_name = params.get("partition_key_name", "id")
         sort_key_name = params.get("sort_key_name")
         
-        # Build key data
+        # キーデータを構築
         key_data = {}
         key_data[partition_key_name] = partition_key
 
@@ -162,7 +162,7 @@ class DynamoDBManager(Tool):
         return f"Item deleted from {table_name} successfully"
 
     def _scan(self, params: dict) -> dict:
-        """Scan DynamoDB table"""
+        """DynamoDB テーブルをスキャンする"""
         table_name = params.get("table_name")
         limit = params.get("limit", 100)
         

@@ -17,13 +17,13 @@ from dify_plugin import Tool
 from dify_plugin.entities.tool import ToolInvokeMessage
 
 try:
-    from my_aws_tools.provider.utils import (
+    from utils.utils import (
         build_boto3_client_kwargs,
         resolve_aws_credentials,
         reset_clients_on_credential_change,
     )
 except ModuleNotFoundError:  # pragma: no cover
-    from provider.utils import (
+    from utils.utils import (
         build_boto3_client_kwargs,
         resolve_aws_credentials,
         reset_clients_on_credential_change,

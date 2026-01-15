@@ -1,0 +1,120 @@
+identity:
+  name: cwlogs_insight
+  author: r3-yamauchi
+  label:
+    en_US: CloudWatch Logs Insight
+    zh_Hans: CloudWatch Logs Insight
+    pt_BR: CloudWatch Logs Insight
+    ja_JP: CloudWatch Logs Insight
+description:
+  human:
+    en_US: Execute advanced CloudWatch Logs Insight queries for log analysis, aggregation, and visualization with powerful query language support.
+    zh_Hans: 执行高级 CloudWatch Logs Insight 查询，支持强大的查询语言进行日志分析、聚合和可视化。
+    pt_BR: Execute consultas avançadas do CloudWatch Logs Insight para análise, agregação e visualização de logs com suporte a linguagem de consulta poderosa.
+    ja_JP: CloudWatch Logs Insightの強力なクエリ言語を使用して高度なログ分析、集計、可視化を実行します。
+  llm: Execute CloudWatch Logs Insight queries using the powerful Logs Insight query language for advanced log analysis, filtering, aggregation, and statistical operations with structured JSON results and human-readable summaries.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region used when calling CloudWatch Logs. Defaults to the provider setting.
+      ja_JP: CloudWatch Logs 呼び出しに使用する AWS リージョン。既定はプロバイダー設定です。
+    form: form
+
+  - name: log_group_names
+    type: string
+    required: true
+    label:
+      en_US: Log Group Names
+      ja_JP: ロググループ名
+    human_description:
+      en_US: Comma-separated list of CloudWatch Logs log group names to search. Supports multiple log groups for cross-group analysis.
+      ja_JP: 検索対象の CloudWatch Logs ロググループ名をカンマ区切りで指定。複数ロググループでの横断分析をサポート。
+    form: form
+
+  - name: query_string
+    type: string
+    required: true
+    label:
+      en_US: Query String
+      ja_JP: クエリ文字列
+    human_description:
+      en_US: |
+        CloudWatch Logs Insight query using the Logs Insight query language. Supports fields, filter, stats, sort, limit operations and multi-line queries.
+        
+        Examples:
+        - Basic: "fields @timestamp, @message | limit 20"
+        - Filter: "fields @timestamp, @message | filter @message like /ERROR/ | sort @timestamp desc"
+        - Stats: "stats count() by bin(5m) | sort @timestamp"
+      ja_JP: |
+        CloudWatch Logs Insightクエリ言語を使用したクエリ。fields、filter、stats、sort、limit操作と複数行クエリをサポート。
+        
+        例:
+        - 基本: "fields @timestamp, @message | limit 20"
+        - フィルター: "fields @timestamp, @message | filter @message like /ERROR/ | sort @timestamp desc"
+        - 統計: "stats count() by bin(5m) | sort @timestamp"
+    form: form
+
+  - name: start_time
+    type: string
+    required: false
+    label:
+      en_US: Start Time
+      ja_JP: 開始時刻
+    human_description:
+      en_US: "Start time for log search. Supports Unix timestamp (ms), ISO 8601 format, or relative time (e.g., \"1h\", \"30m\", \"2d\")."
+      ja_JP: "ログ検索の開始時刻。Unix タイムスタンプ (ms)、ISO 8601 形式、または相対時刻 (例: \"1h\", \"30m\", \"2d\") をサポート。"
+    form: form
+
+  - name: end_time
+    type: string
+    required: false
+    label:
+      en_US: End Time
+      ja_JP: 終了時刻
+    human_description:
+      en_US: "End time for log search. Supports Unix timestamp (ms), ISO 8601 format, or relative time (e.g., \"1h\", \"30m\", \"2d\")."
+      ja_JP: "ログ検索の終了時刻。Unix タイムスタンプ (ms)、ISO 8601 形式、または相対時刻 (例: \"1h\", \"30m\", \"2d\") をサポート。"
+    form: form
+
+  - name: max_results
+    type: number
+    required: false
+    label:
+      en_US: Max Results
+      ja_JP: 最大結果件数
+    human_description:
+      en_US: Maximum number of log entries to return (1-10000). Results may be further limited by query execution time and data volume. Defaults to 1000.
+      ja_JP: 取得するログエントリの最大件数 (1-10000)。クエリ実行時間とデータ量により更に制限される場合があります。既定値は 1000。
+    default: 1000
+    form: form
+
+extra:
+  python:
+    source: tools/cwlogs/cwlogs_insight.py

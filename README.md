@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.7  
+**Version:** 1.0.8  
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
@@ -41,6 +41,10 @@ Included tools:
 - S3 List Objects
 - CloudFront Create Invalidation
 - DynamoDB Manager
+- CloudWatch Logs Describe Streams
+- CloudWatch Logs Filter Events
+- CloudWatch Logs Get Events
+- CloudWatch Logs Insight
 - Agentcore Code Interpreter
 - Agentcore Memory
 - Agentcore Memory Search
@@ -261,6 +265,56 @@ yaml_content: |
     "user_id": "u-1",
     "name": "Alice"
   }
+}
+```
+
+### CloudWatch Logs
+
+- **CloudWatch Logs Describe Streams**: Searches and lists log streams within a specified CloudWatch Logs log group. Supports prefix filtering and sort order specification to streamline subsequent log event searches.
+
+```json
+{
+  "log_group_name": "/aws/lambda/my-function",
+  "log_stream_name_prefix": "2025/01/04",
+  "order_by": "LastEventTime",
+  "descending": true,
+  "max_items": 20
+}
+```
+
+- **CloudWatch Logs Filter Events**: Searches and retrieves log events from CloudWatch Logs using time ranges and filter patterns. Enables cross-stream searches across multiple log streams and filtering by specific string patterns.
+
+```json
+{
+  "log_group_name": "/aws/lambda/my-function",
+  "log_stream_names": "2025/01/04/[$LATEST]abc123,2025/01/04/[$LATEST]def456",
+  "start_time": "1h",
+  "filter_pattern": "ERROR",
+  "max_events": 500
+}
+```
+
+- **CloudWatch Logs Get Events**: Retrieves all log events from a specified CloudWatch Logs log stream. Supports bidirectional pagination for efficient processing of large log datasets.
+
+```json
+{
+  "log_group_name": "/aws/lambda/my-function",
+  "log_stream_name": "2025/01/04/[$LATEST]abc123",
+  "start_time": "2025-01-04T00:00:00Z",
+  "end_time": "2025-01-04T23:59:59Z",
+  "start_from_head": true,
+  "max_events": 10000
+}
+```
+
+- **CloudWatch Logs Insight**: Executes advanced log analysis, aggregation, and visualization using CloudWatch Logs Insights' powerful query language. Enables cross-log-group analysis and statistical processing across multiple log groups.
+
+```json
+{
+  "log_group_names": "/aws/lambda/function1,/aws/lambda/function2",
+  "query_string": "fields @timestamp, @message | filter @message like /ERROR/ | stats count() by bin(5m) | sort @timestamp desc",
+  "start_time": "1d",
+  "max_results": 1000
 }
 ```
 

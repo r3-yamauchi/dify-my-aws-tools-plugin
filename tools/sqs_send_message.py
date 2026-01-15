@@ -19,7 +19,7 @@ from dify_plugin.entities.tool import (
     ToolParameterOption,
     I18nObject,
 )
-from provider.utils import resolve_aws_credentials, build_boto3_client_kwargs
+from utils.utils import resolve_aws_credentials, build_boto3_client_kwargs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -6,7 +6,7 @@
 
 from dify_plugin import Plugin, DifyPluginEnv
 
-from provider.logging_filters import install_sensitive_data_filter
+from utils.logging_filters import install_sensitive_data_filter
 
 install_sensitive_data_filter()
 

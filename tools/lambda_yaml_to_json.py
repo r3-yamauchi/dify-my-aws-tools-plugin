@@ -13,7 +13,7 @@ import boto3  # type: ignore
 
 from dify_plugin import Tool
 from dify_plugin.entities.tool import ToolInvokeMessage
-from provider.utils import (
+from utils.utils import (
     resolve_aws_credentials,
     build_boto3_client_kwargs,
     reset_clients_on_credential_change,

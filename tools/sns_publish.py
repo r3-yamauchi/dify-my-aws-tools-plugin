@@ -19,7 +19,7 @@ from dify_plugin.entities.tool import (
     ToolParameterOption,
     I18nObject,
 )
-from provider.utils import resolve_aws_credentials, build_boto3_client_kwargs
+from utils.utils import resolve_aws_credentials, build_boto3_client_kwargs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class SnsPublishTool(Tool):
                 parsed = json.loads(message_attributes_raw)
                 if not isinstance(parsed, dict):
                     raise ValueError("message_attributes must be a JSON object")
-                # SNS expects {"Key": {"DataType": "String", "StringValue": "..."}}
+                # SNS は {"Key": {"DataType": "String", "StringValue": "..."}} 形式を期待する
                 message_attributes = parsed
             except Exception as exc:  # noqa: BLE001
                 yield self.create_text_message(f"Invalid message_attributes: {exc}")
@@ -69,7 +69,7 @@ class SnsPublishTool(Tool):
 
             publish_kwargs: dict[str, Any] = {"TopicArn": resolved_topic_arn, "Message": message}
             if subject:
-                publish_kwargs["Subject"] = subject[:100]  # SNS subject max 100 chars
+                publish_kwargs["Subject"] = subject[:100]  # SNS の件名は最大100文字
             if message_attributes:
                 publish_kwargs["MessageAttributes"] = message_attributes
 

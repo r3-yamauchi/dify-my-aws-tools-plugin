@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.7  
+**Version:** 1.0.8  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -41,6 +41,10 @@
 - S3 List Objects
 - CloudFront Create Invalidation
 - DynamoDB Manager
+- CloudWatch Logs Describe Streams
+- CloudWatch Logs Filter Events
+- CloudWatch Logs Get Events
+- CloudWatch Logs Insight
 - Agentcore Code Interpreter
 - Agentcore Memory
 - Agentcore Memory Search
@@ -259,6 +263,56 @@ yaml_content: |
     "user_id": "u-1",
     "name": "Alice"
   }
+}
+```
+
+### CloudWatch Logs 系
+
+- **CloudWatch Logs Describe Streams**: 指定した CloudWatch Logs ロググループ内のログストリームを検索・一覧取得します。プレフィックスフィルタリングやソート順の指定が可能で、後続のログイベント検索処理を効率化します。
+
+```json
+{
+  "log_group_name": "/aws/lambda/my-function",
+  "log_stream_name_prefix": "2025/01/04",
+  "order_by": "LastEventTime",
+  "descending": true,
+  "max_items": 20
+}
+```
+
+- **CloudWatch Logs Filter Events**: CloudWatch Logs から時間範囲とフィルターパターンを使用してログイベントを検索・取得します。複数のログストリームを対象にした横断検索や、特定の文字列パターンでの絞り込みが可能です。
+
+```json
+{
+  "log_group_name": "/aws/lambda/my-function",
+  "log_stream_names": "2025/01/04/[$LATEST]abc123,2025/01/04/[$LATEST]def456",
+  "start_time": "1h",
+  "filter_pattern": "ERROR",
+  "max_events": 500
+}
+```
+
+- **CloudWatch Logs Get Events**: 指定した CloudWatch Logs ログストリームから全ログイベントを取得します。双方向ページネーションに対応し、大量のログデータを効率的に処理できます。
+
+```json
+{
+  "log_group_name": "/aws/lambda/my-function",
+  "log_stream_name": "2025/01/04/[$LATEST]abc123",
+  "start_time": "2025-01-04T00:00:00Z",
+  "end_time": "2025-01-04T23:59:59Z",
+  "start_from_head": true,
+  "max_events": 10000
+}
+```
+
+- **CloudWatch Logs Insight**: CloudWatch Logs Insight の強力なクエリ言語を使用して高度なログ分析、集計、可視化を実行します。複数のロググループを対象にした横断分析や統計処理が可能です。
+
+```json
+{
+  "log_group_names": "/aws/lambda/function1,/aws/lambda/function2",
+  "query_string": "fields @timestamp, @message | filter @message like /ERROR/ | stats count() by bin(5m) | sort @timestamp desc",
+  "start_time": "1d",
+  "max_results": 1000
 }
 ```
 

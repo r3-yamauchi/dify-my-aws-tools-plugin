@@ -1,0 +1,130 @@
+identity:
+  name: cwlogs_get_events
+  author: r3-yamauchi
+  label:
+    en_US: CloudWatch Logs Get Events
+    zh_Hans: CloudWatch Logs 获取事件
+    pt_BR: CloudWatch Logs Obter Eventos
+    ja_JP: CloudWatch Logs ログストリーム内容取得
+description:
+  human:
+    en_US: Retrieve all log events from a specific CloudWatch Logs log stream with bidirectional pagination support.
+    zh_Hans: 从特定的 CloudWatch Logs 日志流中检索所有日志事件，支持双向分页。
+    pt_BR: Recupere todos os eventos de log de um stream de log específico do CloudWatch Logs com suporte à paginação bidirecional.
+    ja_JP: 指定した CloudWatch Logs ログストリームから全ログイベントを取得し、双方向ページネーションに対応します。
+  llm: Retrieve complete log history from a specific CloudWatch Logs stream for comprehensive analysis and debugging.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region used when calling CloudWatch Logs. Defaults to the provider setting.
+      ja_JP: CloudWatch Logs 呼び出しに使用する AWS リージョン。既定はプロバイダー設定です。
+    form: form
+
+  - name: log_group_name
+    type: string
+    required: true
+    label:
+      en_US: Log Group Name
+      ja_JP: ロググループ名
+    human_description:
+      en_US: Name of the CloudWatch Logs log group containing the target log stream.
+      ja_JP: 対象のログストリームを含む CloudWatch Logs ロググループの名前。
+    form: form
+
+  - name: log_stream_name
+    type: string
+    required: true
+    label:
+      en_US: Log Stream Name
+      ja_JP: ログストリーム名
+    human_description:
+      en_US: Name of the specific log stream to retrieve events from.
+      ja_JP: ログイベントを取得する特定のログストリームの名前。
+    form: form
+
+  - name: start_time
+    type: string
+    required: false
+    label:
+      en_US: Start Time
+      ja_JP: 開始時刻
+    human_description:
+      en_US: "Start time for log retrieval. Supports Unix timestamp (ms), ISO 8601 format, or relative time (e.g., \"1h\", \"30m\", \"2d\")."
+      ja_JP: "ログ取得の開始時刻。Unix タイムスタンプ (ms)、ISO 8601 形式、または相対時刻 (例: \"1h\", \"30m\", \"2d\") をサポート。"
+    form: form
+
+  - name: end_time
+    type: string
+    required: false
+    label:
+      en_US: End Time
+      ja_JP: 終了時刻
+    human_description:
+      en_US: "End time for log retrieval. Supports Unix timestamp (ms), ISO 8601 format, or relative time (e.g., \"1h\", \"30m\", \"2d\")."
+      ja_JP: "ログ取得の終了時刻。Unix タイムスタンプ (ms)、ISO 8601 形式、または相対時刻 (例: \"1h\", \"30m\", \"2d\") をサポート。"
+    form: form
+
+  - name: start_from_head
+    type: boolean
+    required: false
+    label:
+      en_US: Start From Head
+      ja_JP: 先頭から取得
+    human_description:
+      en_US: If true, retrieve events from the beginning of the log stream. If false, retrieve from the end.
+      ja_JP: true の場合はログストリームの先頭から取得、false の場合は末尾から取得します。
+    default: true
+    form: form
+
+  - name: max_events
+    type: number
+    required: false
+    label:
+      en_US: Max Events
+      ja_JP: 最大取得件数
+    human_description:
+      en_US: Maximum number of log events to return (1-10000). Defaults to 10000.
+      ja_JP: 取得するログイベントの最大件数 (1-10000)。既定値は 10000。
+    default: 10000
+    form: form
+
+  - name: next_token
+    type: string
+    required: false
+    label:
+      en_US: Next Token
+      ja_JP: 継続トークン
+    human_description:
+      en_US: Supply the nextForwardToken or nextBackwardToken from a prior call to fetch the next page of results.
+      ja_JP: 前回レスポンスの nextForwardToken または nextBackwardToken を指定して次ページの結果を取得します。
+    form: form
+extra:
+  python:
+    source: tools/cwlogs/cwlogs_get_events.py
