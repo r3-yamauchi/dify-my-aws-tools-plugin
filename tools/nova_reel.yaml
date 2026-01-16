@@ -2,16 +2,16 @@ identity:
   name: nova_reel
   author: r3-yamauchi
   label:
-    en_US: AWS Bedrock Nova Reel
-    zh_Hans: AWS Bedrock Nova Reel
-    ja_JP: AWS Bedrock Nova Reel
+    en_US: Amazon Bedrock Nova Reel
+    zh_Hans: Amazon Bedrock Nova Reel
+    ja_JP: Amazon Bedrock Nova Reel
   icon: icon.svg
 description:
   human:
-    en_US: A tool for generating videos using AWS Bedrock's Nova Reel model. Supports text-to-video generation and image-to-video generation with customizable parameters like duration, FPS, and dimensions. Input parameters reference https://docs.aws.amazon.com/nova/latest/userguide/video-generation.html
-    zh_Hans: 使用 AWS Bedrock 的 Nova Reel 模型生成视频的工具。支持文本生成视频和图像生成视频功能，可自定义持续时间、帧率和尺寸等参数。输入参数参考 https://docs.aws.amazon.com/nova/latest/userguide/video-generation.html
-    ja_JP: AWS Bedrock Nova Reel モデルで動画を生成するツールです。テキスト→動画と画像→動画をサポートし、再生時間・FPS・解像度などを細かく設定できます。パラメータは https://docs.aws.amazon.com/nova/latest/userguide/video-generation.html を参照してください。
-  llm: Generate videos using AWS Bedrock's Nova Reel model with support for both text-to-video and image-to-video generation, allowing customization of video properties like duration, frame rate, and resolution.
+    en_US: A tool for generating videos using Amazon Bedrock's Nova Reel model. Supports text-to-video generation and image-to-video generation with customizable parameters like duration, FPS, and dimensions. Input parameters reference https://docs.aws.amazon.com/nova/latest/userguide/video-generation.html
+    zh_Hans: 使用 Amazon Bedrock 的 Nova Reel 模型生成视频的工具。支持文本生成视频和图像生成视频功能，可自定义持续时间、帧率和尺寸等参数。输入参数参考 https://docs.aws.amazon.com/nova/latest/userguide/video-generation.html
+    ja_JP: Amazon Bedrock Nova Reel モデルで動画を生成するツールです。テキスト→動画と画像→動画をサポートし、再生時間・FPS・解像度などを細かく設定できます。パラメータは https://docs.aws.amazon.com/nova/latest/userguide/video-generation.html を参照してください。
+  llm: Generate videos using Amazon Bedrock's Nova Reel model with support for both text-to-video and image-to-video generation, allowing customization of video properties like duration, frame rate, and resolution.
 
 parameters:
   - name: aws_access_key_id

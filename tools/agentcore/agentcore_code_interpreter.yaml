@@ -9,13 +9,13 @@ identity:
 description:
   human: 
     en_US: > 
-      This tool offers an isolated code execution sandbox based on AWS Bedrock AgentCore that allows you to perform various code interpreter actions.
+      This tool offers an isolated code execution sandbox based on Amazon Bedrock AgentCore that allows you to perform various code interpreter actions.
       Supported actions include:
       (1) execute python, javascript, or typescript code,
       (2) execute terminal commands.
       The tool can automatically create code interpreters and sessions if not provided.
     ja_JP: >
-      AWS Bedrock AgentCore 上のサンドボックスでコードやコマンドを安全に実行できるツールです。
+      Amazon Bedrock AgentCore 上のサンドボックスでコードやコマンドを安全に実行できるツールです。
       対応機能:
       (1) Python / JavaScript / TypeScript コードの実行
       (2) ターミナルコマンドの実行

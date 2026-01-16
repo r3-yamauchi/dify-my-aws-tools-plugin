@@ -1,0 +1,204 @@
+identity:
+  name: agentcore_runtime
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Runtime
+    zh_Hans: AgentCore 运行时
+    pt_BR: Runtime AgentCore
+    ja_JP: AgentCore Runtime
+  icon: icon.svg
+
+description:
+  human:
+    en_US: AgentCore Runtime tool for invoking deployed agents and managing execution status
+    zh_Hans: AgentCore 运行时工具，用于调用已部署的代理并管理执行状态
+    pt_BR: Ferramenta de Runtime AgentCore para invocar agentes implantados e gerenciar status de execução
+    ja_JP: デプロイ済みの AgentCore Runtime を呼び出し、実行ステータスを管理するためのツールです
+  llm: |
+    AGENTCORE RUNTIME TOOL - Tool for invoking deployed AgentCore agents and managing execution status.
+    
+    OPERATIONS:
+    1. **SYNC_INVOKE** - Synchronously invoke a Runtime and get immediate response
+    2. **ASYNC_INVOKE** - Asynchronously invoke a Runtime and get invocation ID
+    3. **GET_STATUS** - Get the status of an asynchronous invocation
+    
+    WHEN TO USE:
+    - sync_invoke: Need immediate response from agent (blocking call)
+    - async_invoke: Start long-running agent task (non-blocking call)
+    - get_status: Check status of async invocation using invocation_id
+    
+    **Functions**:
+    - Sync Invoke: client.invoke_agent(agentId, sessionId, inputText)
+    - Async Invoke: client.invoke_agent_async(agentId, sessionId, inputText)
+    - Get Status: client.get_agent_invocation(agentId, invocationId)
+    
+    If Session ID is not provided, a new one will be generated automatically.
+    Runtime ID must be obtained from AWS Console (Bedrock AgentCore).
+
+parameters:
+  - name: operation
+    type: select
+    required: true
+    options:
+      - value: sync_invoke
+        label:
+          en_US: Synchronous Invoke
+          zh_Hans: 同步调用
+          pt_BR: Invocação Síncrona
+          ja_JP: 同期呼び出し
+      - value: async_invoke
+        label:
+          en_US: Asynchronous Invoke
+          zh_Hans: 异步调用
+          pt_BR: Invocação Assíncrona
+          ja_JP: 非同期呼び出し
+      - value: get_status
+        label:
+          en_US: Get Invocation Status
+          zh_Hans: 获取调用状态
+          pt_BR: Obter Status de Invocação
+          ja_JP: 実行ステータス取得
+    label:
+      en_US: Operation
+      zh_Hans: 操作
+      pt_BR: Operação
+      ja_JP: 操作
+    human_description:
+      en_US: Select the Runtime operation to perform
+      zh_Hans: 选择要执行的运行时操作
+      pt_BR: Selecione a operação de Runtime a ser executada
+      ja_JP: 実行する Runtime 操作（同期呼び出し、非同期呼び出し、ステータス取得）を選択します
+    llm_description: |
+      The type of Runtime operation to perform:
+      - "sync_invoke": Invoke agent synchronously and wait for response
+      - "async_invoke": Invoke agent asynchronously and get invocation ID
+      - "get_status": Get status of an asynchronous invocation
+    form: llm
+
+  - name: runtime_id
+    type: string
+    required: true
+    label:
+      en_US: Runtime ID
+      zh_Hans: 运行时ID
+      pt_BR: ID do Runtime
+      ja_JP: ランタイム ID
+    human_description:
+      en_US: ID of the deployed AgentCore Runtime (get from AWS Console)
+      zh_Hans: 已部署的 AgentCore 运行时的 ID（从 AWS 控制台获取）
+      pt_BR: ID do Runtime AgentCore implantado (obter do Console AWS)
+      ja_JP: デプロイ済みの AgentCore Runtime の ID（AWS コンソールから取得）
+    llm_description: |
+      The Runtime ID (Agent ID) from AWS Console Bedrock AgentCore service.
+      This is the unique identifier of the deployed agent you want to invoke.
+      Required for all operations.
+    form: llm
+
+  - name: message
+    type: string
+    required: false
+    label:
+      en_US: Message
+      zh_Hans: 消息
+      pt_BR: Mensagem
+      ja_JP: メッセージ
+    human_description:
+      en_US: The message to send to the Runtime (required for invoke operations)
+      zh_Hans: 要发送到运行时的消息（调用操作必需）
+      pt_BR: A mensagem a ser enviada ao Runtime (obrigatória para operações de invocação)
+      ja_JP: Runtime に送信するメッセージ（sync_invoke と async_invoke の場合は必須）
+    llm_description: |
+      The input message/text to send to the agent.
+      Required when operation is "sync_invoke" or "async_invoke".
+      Not required for "get_status" operation.
+    form: llm
+
+  - name: session_id
+    type: string
+    required: false
+    label:
+      en_US: Session ID
+      zh_Hans: 会话ID
+      pt_BR: ID da Sessão
+      ja_JP: セッション ID
+    human_description:
+      en_US: ID of the conversation session. If not provided, a new one will be created.
+      zh_Hans: 对话会话的 ID。如果未提供，将创建新的。
+      pt_BR: ID da sessão de conversa. Se não fornecido, um novo será criado.
+      ja_JP: 会話セッションの ID。未指定の場合は自動生成されます。
+    llm_description: |
+      The session ID for this conversation with the agent.
+      If not provided, a new session ID will be generated automatically.
+      Use the same session ID to maintain conversation context across multiple invocations.
+    form: llm
+
+  - name: invocation_id
+    type: string
+    required: false
+    label:
+      en_US: Invocation ID
+      zh_Hans: 调用ID
+      pt_BR: ID de Invocação
+      ja_JP: 実行 ID
+    human_description:
+      en_US: ID of the asynchronous invocation (required for get_status operation)
+      zh_Hans: 异步调用的 ID（获取状态操作必需）
+      pt_BR: ID da invocação assíncrona (obrigatório para operação get_status)
+      ja_JP: 非同期呼び出しの実行 ID（get_status の場合は必須）
+    llm_description: |
+      The invocation ID returned from an async_invoke operation.
+      Required when operation is "get_status".
+      Use this to check the status and result of an asynchronous invocation.
+    form: llm
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      pt_BR: Região AWS
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for the AgentCore Runtime service (optional, defaults to us-east-1)
+      zh_Hans: AgentCore Runtime 服务的 AWS 区域（可选，默认为 us-east-1）
+      pt_BR: Região AWS para o serviço AgentCore Runtime (opcional, padrão us-east-1)
+      ja_JP: AgentCore Runtime サービスを利用する AWS リージョン（任意、デフォルトは us-east-1）
+    llm_description: AWS region for the AgentCore Runtime service. Defaults to us-east-1 if not specified.
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      pt_BR: ID da Chave de Acesso AWS
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的 AWS 访问密钥 ID（可选）
+      pt_BR: ID da chave de acesso AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS アクセスキー ID（任意）
+    llm_description: AWS access key ID for authentication.
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      pt_BR: Chave de Acesso Secreta AWS
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的 AWS 秘密访问密钥（可选）
+      pt_BR: Chave de acesso secreta AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS シークレットアクセスキー（任意）
+    llm_description: AWS secret access key for authentication.
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_runtime.py

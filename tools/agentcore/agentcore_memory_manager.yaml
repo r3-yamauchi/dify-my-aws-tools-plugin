@@ -1,0 +1,329 @@
+identity:
+  name: agentcore_memory_manager
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Memory Manager
+    zh_Hans: AgentCore 记忆管理器
+    pt_BR: Gerenciador de Memória AgentCore
+    ja_JP: AgentCore Memory 管理
+  icon: icon.svg
+
+description:
+  human:
+    en_US: AgentCore Memory Manager tool for managing memory resource lifecycle (list, get, create, delete)
+    zh_Hans: AgentCore 记忆管理器工具，用于管理记忆资源生命周期（列表、获取、创建、删除）
+    pt_BR: Ferramenta de gerenciamento de memória AgentCore para gerenciar o ciclo de vida dos recursos de memória (listar, obter, criar, excluir)
+    ja_JP: AgentCore のメモリーリソースのライフサイクル管理（一覧取得、詳細取得、作成、削除）を行うツールです
+  llm: |
+    AGENTCORE MEMORY MANAGER TOOL - Tool for managing Memory resource lifecycle.
+    
+    OPERATIONS:
+    1. **LIST** - Get list of all memory resources with optional filtering and sorting
+    2. **GET** - Get detailed information about a specific memory resource
+    3. **CREATE** - Create a new memory resource with custom strategies
+    4. **DELETE** - Delete an existing memory resource
+    
+    WHEN TO USE:
+    - List: Need to see all available memory resources or find a specific memory
+    - Get: Need detailed information about a memory (strategies, configuration, metadata)
+    - Create: Need to create a new memory resource for a new project or use case
+    - Delete: Need to clean up unused memory resources to reduce costs
+    
+    **Functions**:
+    - List: client.list_memories(max_results, filter_status, sort_by)
+    - Get: client.gmcp_client.get_memory(memoryId)
+    - Create: client.create_memory_and_wait(name, description, strategies)
+    - Delete: client.delete_memory_and_wait(memory_id)
+    
+    **Default Strategies** (when not specified):
+    - semantic: Stores semantic embeddings for similarity search
+    - summary: Maintains conversation summaries
+    - userPreference: Tracks user preferences and settings
+    
+    **Filter Options**:
+    - ACTIVE: Only active memories
+    - CREATING: Memories being created
+    - FAILED: Failed memory creation
+    - DELETING: Memories being deleted
+    
+    **Sort Options**:
+    - created_at_asc: Oldest first
+    - created_at_desc: Newest first (default)
+    - name_asc: Alphabetical A-Z
+    - name_desc: Alphabetical Z-A
+
+parameters:
+  - name: operation
+    type: select
+    required: true
+    options:
+      - value: list
+        label:
+          en_US: List Memories
+          zh_Hans: 列出记忆
+          pt_BR: Listar Memórias
+          ja_JP: メモリー一覧取得
+      - value: get
+        label:
+          en_US: Get Memory Details
+          zh_Hans: 获取记忆详情
+          pt_BR: Obter Detalhes da Memória
+          ja_JP: メモリー詳細取得
+      - value: create
+        label:
+          en_US: Create Memory
+          zh_Hans: 创建记忆
+          pt_BR: Criar Memória
+          ja_JP: メモリー作成
+      - value: delete
+        label:
+          en_US: Delete Memory
+          zh_Hans: 删除记忆
+          pt_BR: Excluir Memória
+          ja_JP: メモリー削除
+    label:
+      en_US: Operation
+      zh_Hans: 操作
+      pt_BR: Operação
+      ja_JP: 操作
+    human_description:
+      en_US: Select the memory management operation to perform
+      zh_Hans: 选择要执行的记忆管理操作
+      pt_BR: Selecione a operação de gerenciamento de memória a ser executada
+      ja_JP: 実行するメモリー管理操作を選択します
+    llm_description: |
+      The type of memory management operation to perform:
+      - "list": Get list of all memory resources
+      - "get": Get detailed information about a specific memory
+      - "create": Create a new memory resource
+      - "delete": Delete an existing memory resource
+    form: llm
+
+  - name: memory_id
+    type: string
+    required: false
+    label:
+      en_US: Memory ID
+      zh_Hans: 记忆ID
+      pt_BR: ID da Memória
+      ja_JP: メモリー ID
+    human_description:
+      en_US: ID of the memory resource (required for get and delete operations)
+      zh_Hans: 记忆资源ID（获取和删除操作必需）
+      pt_BR: ID do recurso de memória (obrigatório para operações de obter e excluir)
+      ja_JP: メモリーリソースの ID（get および delete 操作時に必須）
+    llm_description: |
+      The memory resource ID. Required for "get" and "delete" operations.
+      Not used for "list" and "create" operations.
+    form: llm
+
+  - name: name
+    type: string
+    required: false
+    label:
+      en_US: Memory Name
+      zh_Hans: 记忆名称
+      pt_BR: Nome da Memória
+      ja_JP: メモリー名
+    human_description:
+      en_US: Name for the new memory resource (required for create operation)
+      zh_Hans: 新记忆资源的名称（创建操作必需）
+      pt_BR: Nome para o novo recurso de memória (obrigatório para operação de criar)
+      ja_JP: 新しいメモリーリソースの名前（create 操作時に必須）
+    llm_description: |
+      The name for the new memory resource. Required for "create" operation.
+      Should be descriptive and unique to identify the memory's purpose.
+    form: llm
+
+  - name: description
+    type: string
+    required: false
+    label:
+      en_US: Memory Description
+      zh_Hans: 记忆描述
+      pt_BR: Descrição da Memória
+      ja_JP: メモリーの説明
+    human_description:
+      en_US: Description of the memory resource (optional for create operation)
+      zh_Hans: 记忆资源的描述（创建操作可选）
+      pt_BR: Descrição do recurso de memória (opcional para operação de criar)
+      ja_JP: メモリーリソースの説明（create 操作時に任意）
+    llm_description: |
+      Optional description for the new memory resource. Helps document the
+      purpose and usage of the memory.
+    form: llm
+
+  - name: strategies
+    type: string
+    required: false
+    label:
+      en_US: Memory Strategies (JSON)
+      zh_Hans: 记忆策略（JSON）
+      pt_BR: Estratégias de Memória (JSON)
+      ja_JP: メモリー戦略（JSON）
+    human_description:
+      en_US: JSON string of memory strategies (optional for create operation). If not provided, default strategies will be used.
+      zh_Hans: 记忆策略的JSON字符串（创建操作可选）。如果未提供，将使用默认策略。
+      pt_BR: String JSON de estratégias de memória (opcional para operação de criar). Se não fornecido, estratégias padrão serão usadas.
+      ja_JP: メモリー戦略の JSON 文字列（create 操作時に任意）。未指定の場合はデフォルト戦略が使用されます。
+    llm_description: |
+      Optional JSON string defining custom memory strategies. If not provided,
+      default strategies (semantic, summary, userPreference) will be used.
+      Example: '[{"type": "semantic"}, {"type": "summary"}]'
+    form: llm
+
+  - name: filter_status
+    type: select
+    required: false
+    options:
+      - value: ACTIVE
+        label:
+          en_US: Active
+          zh_Hans: 活跃
+          pt_BR: Ativo
+          ja_JP: アクティブ
+      - value: CREATING
+        label:
+          en_US: Creating
+          zh_Hans: 创建中
+          pt_BR: Criando
+          ja_JP: 作成中
+      - value: FAILED
+        label:
+          en_US: Failed
+          zh_Hans: 失败
+          pt_BR: Falhou
+          ja_JP: 失敗
+      - value: DELETING
+        label:
+          en_US: Deleting
+          zh_Hans: 删除中
+          pt_BR: Excluindo
+          ja_JP: 削除中
+    label:
+      en_US: Filter by Status
+      zh_Hans: 按状态筛选
+      pt_BR: Filtrar por Status
+      ja_JP: ステータスでフィルター
+    human_description:
+      en_US: Filter memories by status (optional for list operation)
+      zh_Hans: 按状态筛选记忆（列表操作可选）
+      pt_BR: Filtrar memórias por status (opcional para operação de listar)
+      ja_JP: ステータスでメモリーをフィルタリング（list 操作時に任意）
+    llm_description: |
+      Optional status filter for list operation. Only memories with the
+      specified status will be returned.
+    form: llm
+
+  - name: sort_by
+    type: select
+    required: false
+    options:
+      - value: created_at_desc
+        label:
+          en_US: Newest First
+          zh_Hans: 最新优先
+          pt_BR: Mais Recente Primeiro
+          ja_JP: 新しい順
+      - value: created_at_asc
+        label:
+          en_US: Oldest First
+          zh_Hans: 最旧优先
+          pt_BR: Mais Antigo Primeiro
+          ja_JP: 古い順
+      - value: name_asc
+        label:
+          en_US: Name A-Z
+          zh_Hans: 名称A-Z
+          pt_BR: Nome A-Z
+          ja_JP: 名前 A-Z
+      - value: name_desc
+        label:
+          en_US: Name Z-A
+          zh_Hans: 名称Z-A
+          pt_BR: Nome Z-A
+          ja_JP: 名前 Z-A
+    label:
+      en_US: Sort Order
+      zh_Hans: 排序顺序
+      pt_BR: Ordem de Classificação
+      ja_JP: ソート順
+    human_description:
+      en_US: Sort order for memory list (optional for list operation, default is newest first)
+      zh_Hans: 记忆列表的排序顺序（列表操作可选，默认为最新优先）
+      pt_BR: Ordem de classificação para lista de memórias (opcional para operação de listar, padrão é mais recente primeiro)
+      ja_JP: メモリー一覧のソート順（list 操作時に任意、デフォルトは新しい順）
+    llm_description: |
+      Optional sort order for list operation. Default is "created_at_desc" (newest first).
+    form: llm
+
+  - name: max_results
+    type: number
+    required: false
+    default: 100
+    label:
+      en_US: Maximum Results
+      zh_Hans: 最大结果数
+      pt_BR: Máximo de Resultados
+      ja_JP: 最大取得件数
+    human_description:
+      en_US: Maximum number of memories to return (1-1000, default 100)
+      zh_Hans: 返回的最大记忆数（1-1000，默认100）
+      pt_BR: Número máximo de memórias a retornar (1-1000, padrão 100)
+      ja_JP: 取得するメモリー数の上限（1〜1000、デフォルト 100）
+    llm_description: |
+      Maximum number of memories to return for list operation (1-1000, default 100).
+      Not used for other operations.
+    form: llm
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      pt_BR: Região AWS
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for the AgentCore Memory service (optional)
+      zh_Hans: AgentCore Memory服务的AWS区域（可选）
+      pt_BR: Região AWS para o serviço AgentCore Memory (opcional)
+      ja_JP: AgentCore Memory サービスを利用する AWS リージョン（任意）
+    llm_description: AWS region for the AgentCore Memory service.
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      pt_BR: ID da Chave de Acesso AWS
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      pt_BR: ID da chave de acesso AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS アクセスキー ID（任意）
+    llm_description: AWS access key ID for authentication.
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      pt_BR: Chave de Acesso Secreta AWS
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      pt_BR: Chave de acesso secreta AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS シークレットアクセスキー（任意）
+    llm_description: AWS secret access key for authentication.
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_memory_manager.py

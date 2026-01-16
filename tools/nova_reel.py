@@ -1,6 +1,6 @@
 """
 場所: tools/nova_reel.py
-内容: AWS Bedrock Nova Reel モデルを呼び出してテキスト/画像から動画を生成するツール。
+内容: Amazon Bedrock Nova Reel モデルを呼び出してテキスト/画像から動画を生成するツール。
 目的: Dify のワークフローから非同期/同期モードで動画生成を実行し、S3 へ成果物を保存する。
 """
 
@@ -46,7 +46,7 @@ class NovaReelTool(Tool):
     def _invoke(
         self, tool_parameters: dict[str, Any]
     ) -> Generator[ToolInvokeMessage]:
-        """AWS Bedrock Nova Reel モデルを呼び出して動画生成またはステータス情報を返す."""
+        """Amazon Bedrock Nova Reel モデルを呼び出して動画生成またはステータス情報を返す."""
         try:
             credentials = resolve_aws_credentials(self, tool_parameters)
 

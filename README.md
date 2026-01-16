@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.8  
+**Version:** 1.0.9  
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
@@ -46,8 +46,19 @@ Included tools:
 - CloudWatch Logs Get Events
 - CloudWatch Logs Insight
 - Agentcore Code Interpreter
+- Agentcore Code Interpreter Files
 - Agentcore Memory
 - Agentcore Memory Search
+- Agentcore Memory Search Advanced
+- Agentcore Memory Backup
+- Agentcore Memory Merge/Split
+- Agentcore Memory Manager
+- Agentcore Memory Query
+- Agentcore Memory Statistics
+- Agentcore Memory Template
+- Agentcore Event Manager
+- Agentcore Runtime
+- Agentcore Observability
 
 The source code of this plugin is available in the [GitHub repository](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin).
 
@@ -340,7 +351,263 @@ yaml_content: |
 }
 ```
 
-### AgentCore Integrations
+### Amazon Bedrock AgentCore Integrations
+
+- **AgentCore Runtime**: Launches, invokes, and checks the status of Runtime agents. Supports both synchronous and asynchronous invocation modes, enabling session management and retrieval of execution results.
+
+```json
+{
+  "operation": "invoke",
+  "agent_id": "agent-abc123",
+  "input_text": "Please execute data analysis",
+  "session_id": "session-001",
+  "enable_trace": true,
+  "end_session": false
+}
+```
+
+- **AgentCore Memory Manager**: Manages the lifecycle of Memory resources. Enables listing, retrieving detailed information, creating, and deleting Memory resources, with filtering and sorting capabilities.
+
+```json
+{
+  "operation": "list",
+  "max_results": 50,
+  "filter_name_prefix": "prod-",
+  "sort_by": "createdAt",
+  "sort_order": "desc"
+}
+```
+
+```json
+{
+  "operation": "create",
+  "memory_name": "customer-support-memory",
+  "description": "Memory for customer support",
+  "tags": {
+    "Environment": "production",
+    "Team": "support"
+  }
+}
+```
+
+- **AgentCore Event Manager**: Provides detailed management of Memory events. Enables listing, retrieving details, deleting (individual/batch), and exporting (JSON, CSV) events, with support for filtering by time range, Actor ID, and Session ID.
+
+```json
+{
+  "operation": "list",
+  "memory_id": "mem-abc123",
+  "start_time": "2025-01-01T00:00:00Z",
+  "end_time": "2025-01-31T23:59:59Z",
+  "filter_actor_id": "user001",
+  "max_results": 100
+}
+```
+
+```json
+{
+  "operation": "export",
+  "memory_id": "mem-abc123",
+  "format": "csv",
+  "output_location": "s3://my-bucket/exports/events.csv",
+  "start_time": "1w"
+}
+```
+
+- **AgentCore Memory Statistics**: Analyzes Memory usage. Retrieves statistical information for Memory resources, event count aggregation by Actor, event count aggregation by Session, and time-series event count trends.
+
+```json
+{
+  "operation": "memory_stats",
+  "memory_id": "mem-abc123"
+}
+```
+
+```json
+{
+  "operation": "actor_stats",
+  "memory_id": "mem-abc123",
+  "start_time": "7d",
+  "top_n": 10
+}
+```
+
+```json
+{
+  "operation": "timeline",
+  "memory_id": "mem-abc123",
+  "start_time": "2025-01-01T00:00:00Z",
+  "end_time": "2025-01-31T23:59:59Z",
+  "interval": "1h"
+}
+```
+
+- **AgentCore Observability**: Provides integrated access to AgentCore Observability data. Enables session/trace/span metrics, log retrieval from CloudWatch Logs, X-Ray trace data retrieval, performance analysis, and bottleneck identification.
+
+```json
+{
+  "operation": "get_session_metrics",
+  "session_id": "session-abc123",
+  "metric_types": "duration,token_count,error_rate"
+}
+```
+
+```json
+{
+  "operation": "get_logs",
+  "log_group_name": "/aws/bedrock/agentcore",
+  "start_time": "1h",
+  "filter_pattern": "ERROR",
+  "max_events": 100
+}
+```
+
+```json
+{
+  "operation": "analyze_performance",
+  "trace_id": "trace-abc123",
+  "include_bottlenecks": true
+}
+```
+
+- **AgentCore Memory Backup**: Provides complete backup and restore functionality for Memory resources. Can be used for disaster recovery and data migration between environments. Backups are stored in S3 with optional compression and encryption.
+
+```json
+{
+  "operation": "backup",
+  "memory_id": "mem-abc123",
+  "backup_location": "s3://my-backup-bucket/backups/",
+  "include_events": true,
+  "include_strategies": true,
+  "compression": "gzip",
+  "encryption": true
+}
+```
+
+```json
+{
+  "operation": "restore",
+  "backup_location": "s3://my-backup-bucket/backups/mem-abc123-20250115.json.gz",
+  "target_memory_id": "mem-new123",
+  "conflict_resolution": "skip"
+}
+```
+
+- **AgentCore Memory Merge/Split**: Provides merge, split, and event copy functionality for Memory resources. Enables consolidating multiple Memory resources, splitting a single Memory by Actor or Session, and copying only events that match specific conditions.
+
+```json
+{
+  "operation": "merge",
+  "source_memory_ids": "mem-abc123,mem-def456,mem-ghi789",
+  "target_memory_id": "mem-merged",
+  "merge_conflict_resolution": "keep_latest",
+  "deduplicate": true,
+  "merge_strategies": true
+}
+```
+
+```json
+{
+  "operation": "split",
+  "source_memory_id": "mem-abc123",
+  "split_by": "actor_id",
+  "target_memory_prefix": "memory-actor-",
+  "create_index": true
+}
+```
+
+- **AgentCore Memory Query**: Searches Memory by constructing complex search conditions. Enables combining multiple conditions (AND/OR/NOT), regular expression search, similarity search (vector search), and saving and reusing queries.
+
+```json
+{
+  "operation": "search",
+  "memory_id": "mem-abc123",
+  "query": {
+    "and": [
+      {"field": "actor_id", "operator": "equals", "value": "user001"},
+      {"field": "timestamp", "operator": "greater_than", "value": "2025-01-01T00:00:00Z"}
+    ]
+  },
+  "max_results": 50
+}
+```
+
+```json
+{
+  "operation": "similarity_search",
+  "memory_id": "mem-abc123",
+  "query_text": "Investigate the cause of the error",
+  "top_k": 10,
+  "similarity_threshold": 0.7
+}
+```
+
+- **AgentCore Memory Template**: Provides templating for Memory configurations. Enables creating Memory configuration templates, creating Memory from templates, sharing and importing templates, and version control.
+
+```json
+{
+  "operation": "create_template",
+  "template_name": "customer-support-template",
+  "description": "Standard template for customer support",
+  "memory_config": {
+    "retention_days": 90,
+    "max_events": 10000,
+    "enable_search": true
+  },
+  "tags": {
+    "Type": "support",
+    "Version": "1.0"
+  }
+}
+```
+
+```json
+{
+  "operation": "create_from_template",
+  "template_id": "template-abc123",
+  "memory_name": "support-team-a-memory",
+  "override_config": {
+    "retention_days": 180
+  }
+}
+```
+
+- **AgentCore Code Interpreter Files**: Manages Code Interpreter files. Enables file upload (local/Base64), retrieving files from execution results, listing files (with filtering and sorting), and deleting files (single/batch), with file size limit (100MB) and security checks implemented.
+
+```json
+{
+  "operation": "upload",
+  "session_id": "session-abc123",
+  "file_path": "/path/to/data.csv",
+  "file_name": "data.csv",
+  "description": "Data for analysis"
+}
+```
+
+```json
+{
+  "operation": "list",
+  "session_id": "session-abc123",
+  "filter_extension": ".csv",
+  "sort_by": "upload_time",
+  "sort_order": "desc"
+}
+```
+
+- **AgentCore Memory Search Advanced**: Extends Memory Search functionality. Enables adding filter conditions (time range, Actor ID, Session ID, Namespace), specifying sort order (relevance, timestamp), pagination (max 100 items/page), highlight feature (customizable), and context extraction.
+
+```json
+{
+  "memory_id": "mem-abc123",
+  "query": "Error handling",
+  "filter_actor_id": "user001",
+  "filter_start_time": "2025-01-01T00:00:00Z",
+  "filter_end_time": "2025-01-31T23:59:59Z",
+  "sort_by": "relevance",
+  "page_size": 50,
+  "enable_highlight": true,
+  "context_size": 100
+}
+```
 
 - **Agentcore Code Interpreter** – Creates/uses an interpreter session to run shell commands or code.
 

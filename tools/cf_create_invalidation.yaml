@@ -7,7 +7,7 @@ identity:
 description:
   human:
     en_US: Create a CloudFront invalidation request for a distribution with an optional custom batch payload.
-    ja_JP: CloudFront 配信のキャッシュ無効化リクエストを作成します。バッチ指定が無い場合は全パスを無効化します。
+    ja_JP: CloudFront ディストリビューションのキャッシュ無効化リクエストを作成します。バッチ指定が無い場合は全パスを無効化します。
   llm: Submit a CloudFront invalidation for the given distribution.
 parameters:
   - name: aws_access_key_id

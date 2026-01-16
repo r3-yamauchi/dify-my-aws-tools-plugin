@@ -1,0 +1,376 @@
+identity:
+  name: agentcore_memory_search_advanced
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Memory Search Advanced
+    zh_Hans: AgentCore 记忆高级搜索
+    pt_BR: Busca Avançada de Memória AgentCore
+    ja_JP: AgentCore Memory 高度な検索
+  icon: icon.svg
+
+description:
+  human:
+    en_US: Advanced Memory search with filters, sorting, pagination, and highlighting
+    zh_Hans: 具有过滤、排序、分页和高亮显示的高级记忆搜索
+    pt_BR: Busca avançada de memória com filtros, ordenação, paginação e destaque
+    ja_JP: フィルター、ソート、ページネーション、ハイライト機能を備えた高度な Memory 検索
+  llm: |
+    AGENTCORE MEMORY SEARCH ADVANCED - Tool for advanced Memory search with filters, sorting, pagination, and highlighting.
+    
+    FEATURES:
+    - **Time Range Filter** - Filter by start/end time
+    - **Actor ID Filter** - Filter by actor identifiers
+    - **Session ID Filter** - Filter by session identifiers
+    - **Namespace Filter** - Filter by namespace patterns
+    - **Multiple Sorting** - Sort by relevance, timestamp, actor_id, session_id
+    - **Pagination** - Split large result sets into pages
+    - **Highlighting** - Highlight matched text with customizable markers
+    - **Context Extraction** - Extract text around matches
+    
+    WHEN TO USE:
+    - Need to filter search results by time, actor, session, or namespace
+    - Want to sort results by different criteria
+    - Need to handle large result sets with pagination
+    - Want to highlight matched text in results
+    - Need to extract context around matches
+    
+    FILTER STRUCTURE:
+    {
+      "start_time": "2024-01-01T00:00:00Z",
+      "end_time": "2024-01-31T23:59:59Z",
+      "actor_ids": ["actor_001", "actor_002"],
+      "session_ids": ["session_001"],
+      "namespaces": ["/semantic/actor_001"]
+    }
+    
+    SORT OPTIONS:
+    - relevance: Sort by relevance score (default, descending)
+    - timestamp_asc: Sort by timestamp (ascending, oldest first)
+    - timestamp_desc: Sort by timestamp (descending, newest first)
+    - actor_id: Sort by actor ID (ascending)
+    - session_id: Sort by session ID (ascending)
+    
+    PAGINATION:
+    - Default page size: 20
+    - Maximum page size: 100
+    - Returns next_page_token for subsequent requests
+    
+    EXAMPLES:
+    1. Search with time range filter:
+       memory_id: "mem_12345"
+       query: "error"
+       filters: {"start_time": "2024-01-01T00:00:00Z", "end_time": "2024-01-31T23:59:59Z"}
+    
+    2. Search with actor filter and sorting:
+       memory_id: "mem_12345"
+       query: "feedback"
+       filters: {"actor_ids": ["user_001", "user_002"]}
+       sort_by: "timestamp_desc"
+    
+    3. Search with highlighting:
+       memory_id: "mem_12345"
+       query: "important"
+       enable_highlight: true
+       highlight_marker: "<mark>"
+       context_size: 100
+    
+    4. Paginated search:
+       memory_id: "mem_12345"
+       query: "data"
+       page: 1
+       page_size: 50
+
+parameters:
+  - name: memory_id
+    type: string
+    required: true
+    label:
+      en_US: Memory ID
+      zh_Hans: 记忆ID
+      pt_BR: ID da Memória
+      ja_JP: メモリー ID
+    human_description:
+      en_US: ID of the memory resource to search
+      zh_Hans: 要搜索的记忆资源ID
+      pt_BR: ID do recurso de memória para pesquisar
+      ja_JP: 検索するメモリーリソースの ID
+    llm_description: The memory resource ID from AWS Console AgentCore Memory service.
+    form: llm
+
+  - name: query
+    type: string
+    required: true
+    label:
+      en_US: Search Query
+      zh_Hans: 搜索查询
+      pt_BR: Consulta de Pesquisa
+      ja_JP: 検索クエリ
+    human_description:
+      en_US: Search query text
+      zh_Hans: 搜索查询文本
+      pt_BR: Texto da consulta de pesquisa
+      ja_JP: 検索クエリテキスト
+    llm_description: The search query text to find in memory.
+    form: llm
+
+  - name: namespace
+    type: string
+    required: false
+    default: /
+    label:
+      en_US: Namespace
+      zh_Hans: 命名空间
+      pt_BR: Namespace
+      ja_JP: ネームスペース
+    human_description:
+      en_US: Memory namespace (optional, use "/" for global search)
+      zh_Hans: 记忆命名空间（可选，使用"/"进行全局搜索）
+      pt_BR: Namespace da memória (opcional, use "/" para busca global)
+      ja_JP: メモリーネームスペース（任意、全体検索は "/"）
+    llm_description: The memory namespace for search operation. Use "/" for global search across all strategies.
+    form: llm
+
+  - name: filters
+    type: string
+    required: false
+    label:
+      en_US: Filters
+      zh_Hans: 过滤器
+      pt_BR: Filtros
+      ja_JP: フィルター
+    human_description:
+      en_US: JSON object with filter conditions (time_range, actor_ids, session_ids, namespaces)
+      zh_Hans: 包含过滤条件的JSON对象（时间范围、actor_ids、session_ids、命名空间）
+      pt_BR: Objeto JSON com condições de filtro (time_range, actor_ids, session_ids, namespaces)
+      ja_JP: フィルター条件を含むJSONオブジェクト（時間範囲、actor_ids、session_ids、namespaces）
+    llm_description: |
+      JSON object with filter conditions:
+      - start_time: ISO 8601 datetime string (e.g., "2024-01-01T00:00:00Z")
+      - end_time: ISO 8601 datetime string
+      - actor_ids: Array of actor IDs
+      - session_ids: Array of session IDs
+      - namespaces: Array of namespace patterns
+      
+      Example: {"start_time": "2024-01-01T00:00:00Z", "actor_ids": ["actor_001"]}
+    form: llm
+
+  - name: sort_by
+    type: select
+    required: false
+    options:
+      - value: relevance
+        label:
+          en_US: Relevance
+          zh_Hans: 相关性
+          pt_BR: Relevância
+          ja_JP: 関連度
+      - value: timestamp_asc
+        label:
+          en_US: Timestamp (Ascending)
+          zh_Hans: 时间戳（升序）
+          pt_BR: Timestamp (Ascendente)
+          ja_JP: タイムスタンプ（昇順）
+      - value: timestamp_desc
+        label:
+          en_US: Timestamp (Descending)
+          zh_Hans: 时间戳（降序）
+          pt_BR: Timestamp (Descendente)
+          ja_JP: タイムスタンプ（降順）
+      - value: actor_id
+        label:
+          en_US: Actor ID
+          zh_Hans: Actor ID
+          pt_BR: ID do Actor
+          ja_JP: Actor ID
+      - value: session_id
+        label:
+          en_US: Session ID
+          zh_Hans: Session ID
+          pt_BR: ID da Sessão
+          ja_JP: Session ID
+    default: relevance
+    label:
+      en_US: Sort By
+      zh_Hans: 排序方式
+      pt_BR: Ordenar Por
+      ja_JP: ソート順
+    human_description:
+      en_US: Sort results by relevance, timestamp, actor_id, or session_id
+      zh_Hans: 按相关性、时间戳、actor_id或session_id对结果进行排序
+      pt_BR: Ordenar resultados por relevância, timestamp, actor_id ou session_id
+      ja_JP: 関連度、タイムスタンプ、actor_id、session_id でソート
+    llm_description: |
+      Sort results by:
+      - relevance: Relevance score (descending)
+      - timestamp_asc: Timestamp (ascending, oldest first)
+      - timestamp_desc: Timestamp (descending, newest first)
+      - actor_id: Actor ID (ascending)
+      - session_id: Session ID (ascending)
+    form: llm
+
+  - name: sort_order
+    type: select
+    required: false
+    options:
+      - value: asc
+        label:
+          en_US: Ascending
+          zh_Hans: 升序
+          pt_BR: Ascendente
+          ja_JP: 昇順
+      - value: desc
+        label:
+          en_US: Descending
+          zh_Hans: 降序
+          pt_BR: Descendente
+          ja_JP: 降順
+    default: desc
+    label:
+      en_US: Sort Order
+      zh_Hans: 排序顺序
+      pt_BR: Ordem de Ordenação
+      ja_JP: ソート順序
+    human_description:
+      en_US: Sort order (ascending or descending)
+      zh_Hans: 排序顺序（升序或降序）
+      pt_BR: Ordem de ordenação (ascendente ou descendente)
+      ja_JP: ソート順序（昇順または降順）
+    llm_description: Sort order - "asc" for ascending or "desc" for descending.
+    form: llm
+
+  - name: page
+    type: number
+    required: false
+    default: 1
+    label:
+      en_US: Page Number
+      zh_Hans: 页码
+      pt_BR: Número da Página
+      ja_JP: ページ番号
+    human_description:
+      en_US: Page number for pagination (starts from 1)
+      zh_Hans: 分页的页码（从1开始）
+      pt_BR: Número da página para paginação (começa em 1)
+      ja_JP: ページネーション用のページ番号（1から開始）
+    llm_description: Page number for pagination (starts from 1).
+    form: llm
+
+  - name: page_size
+    type: number
+    required: false
+    default: 20
+    label:
+      en_US: Page Size
+      zh_Hans: 每页大小
+      pt_BR: Tamanho da Página
+      ja_JP: ページサイズ
+    human_description:
+      en_US: Number of results per page (1-100, default=20)
+      zh_Hans: 每页结果数（1-100，默认=20）
+      pt_BR: Número de resultados por página (1-100, padrão=20)
+      ja_JP: 1ページあたりの結果数（1〜100、デフォルト 20）
+    llm_description: Number of results per page (1-100, default=20, maximum=100).
+    form: llm
+
+  - name: enable_highlight
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Enable Highlight
+      zh_Hans: 启用高亮
+      pt_BR: Ativar Destaque
+      ja_JP: ハイライト有効化
+    human_description:
+      en_US: Enable highlighting of matched text in search results
+      zh_Hans: 在搜索结果中启用匹配文本的高亮显示
+      pt_BR: Ativar destaque de texto correspondente nos resultados da pesquisa
+      ja_JP: 検索結果でマッチしたテキストのハイライトを有効化
+    llm_description: Enable highlighting of matched text in search results.
+    form: llm
+
+  - name: highlight_marker
+    type: string
+    required: false
+    default: <em>
+    label:
+      en_US: Highlight Marker
+      zh_Hans: 高亮标记
+      pt_BR: Marcador de Destaque
+      ja_JP: ハイライトマーカー
+    human_description:
+      en_US: HTML tag or marker for highlighting (default="<em>")
+      zh_Hans: 用于高亮显示的HTML标签或标记（默认="<em>"）
+      pt_BR: Tag HTML ou marcador para destaque (padrão="<em>")
+      ja_JP: ハイライト用のHTMLタグまたはマーカー（デフォルト="<em>"）
+    llm_description: HTML tag or marker for highlighting matched text (default="<em>", use "<mark>" for yellow highlight).
+    form: llm
+
+  - name: context_size
+    type: number
+    required: false
+    default: 50
+    label:
+      en_US: Context Size
+      zh_Hans: 上下文大小
+      pt_BR: Tamanho do Contexto
+      ja_JP: コンテキストサイズ
+    human_description:
+      en_US: Number of characters to include before and after matches (default=50)
+      zh_Hans: 匹配前后包含的字符数（默认=50）
+      pt_BR: Número de caracteres a incluir antes e depois das correspondências (padrão=50)
+      ja_JP: マッチの前後に含める文字数（デフォルト=50）
+    llm_description: Number of characters to include before and after matches for context extraction (default=50).
+    form: llm
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      pt_BR: Região AWS
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for the AgentCore Memory service (optional)
+      zh_Hans: AgentCore Memory服务的AWS区域（可选）
+      pt_BR: Região AWS para o serviço AgentCore Memory (opcional)
+      ja_JP: AgentCore Memory サービスを利用する AWS リージョン（任意）
+    llm_description: AWS region for the AgentCore Memory service.
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      pt_BR: ID da Chave de Acesso AWS
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      pt_BR: ID da chave de acesso AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS アクセスキー ID（任意）
+    llm_description: AWS access key ID for authentication.
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      pt_BR: Chave de Acesso Secreta AWS
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      pt_BR: Chave de acesso secreta AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS シークレットアクセスキー（任意）
+    llm_description: AWS secret access key for authentication.
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_memory_search_advanced.py

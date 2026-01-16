@@ -64,14 +64,25 @@ tools:
   - tools/nova_canvas.yaml
   - tools/nova_reel.yaml
   - tools/extract_frame.yaml
-  - tools/agentcore/agentcore_memory.yaml
-  - tools/agentcore/agentcore_memory_search.yaml
-  - tools/agentcore/agentcore_code_interpreter.yaml
   - tools/cf_create_invalidation.yaml
   - tools/cwlogs/cwlogs_describe_streams.yaml
   - tools/cwlogs/cwlogs_filter_events.yaml
   - tools/cwlogs/cwlogs_get_events.yaml
   - tools/cwlogs/cwlogs_insight.yaml
+  - tools/agentcore/agentcore_runtime.yaml
+  - tools/agentcore/agentcore_memory.yaml
+  - tools/agentcore/agentcore_memory_manager.yaml
+  - tools/agentcore/agentcore_memory_search.yaml
+  - tools/agentcore/agentcore_memory_search_advanced.yaml
+  - tools/agentcore/agentcore_memory_query.yaml
+  - tools/agentcore/agentcore_memory_statistics.yaml
+  - tools/agentcore/agentcore_memory_backup.yaml
+  - tools/agentcore/agentcore_memory_merge_split.yaml
+  - tools/agentcore/agentcore_memory_template.yaml
+  - tools/agentcore/agentcore_event_manager.yaml
+  - tools/agentcore/agentcore_observability.yaml
+  - tools/agentcore/agentcore_code_interpreter.yaml
+  - tools/agentcore/agentcore_code_interpreter_files.yaml
 extra:
   python:
     source: provider/my_aws_tools.py

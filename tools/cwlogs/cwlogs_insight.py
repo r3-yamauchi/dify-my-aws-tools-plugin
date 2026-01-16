@@ -351,7 +351,7 @@ class CloudWatchLogsInsight(Tool):
         for result_row in raw_results:
             formatted_row = {}
             
-            # CloudWatch Logs Insightの結果は2つの形式をサポート:
+            # CloudWatch Logs Insight の結果は2つの形式をサポート:
             # 1. フィールドオブジェクトの配列: [{'field': '@timestamp', 'value': '...'}, ...]
             # 2. 辞書形式: {'@timestamp': '...', '@message': '...'}
             

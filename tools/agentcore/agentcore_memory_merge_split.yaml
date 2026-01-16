@@ -1,0 +1,487 @@
+identity:
+  name: agentcore_memory_merge_split
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Memory Merge/Split
+    zh_Hans: AgentCore 记忆合并/拆分
+    pt_BR: Mesclagem/Divisão de Memória AgentCore
+    ja_JP: AgentCore Memory マージ・分割
+  icon: icon.svg
+
+description:
+  human:
+    en_US: AgentCore Memory merge, split, and copy operations for data reorganization
+    zh_Hans: AgentCore 记忆合并、拆分和复制操作，用于数据重组
+    pt_BR: Operações de mesclagem, divisão e cópia de memória AgentCore para reorganização de dados
+    ja_JP: AgentCore のメモリーリソースのマージ・分割・コピー機能を提供し、データの再編成を実現します
+  llm: |
+    AGENTCORE MEMORY MERGE/SPLIT TOOL - Tool for memory reorganization operations.
+    
+    OPERATIONS:
+    1. **MERGE** - Merge multiple Memory resources into one
+    2. **SPLIT** - Split a Memory resource into multiple memories
+    3. **COPY_EVENTS** - Copy events from one Memory to another with filtering
+    
+    WHEN TO USE:
+    - Merge: Consolidate distributed data, combine user sessions, or aggregate memories
+    - Split: Separate data by actor, session, namespace, or time range
+    - Copy Events: Selective data migration, partial backups, or filtered replication
+    
+    **Functions**:
+    - Merge: Combines events from multiple memories with deduplication and conflict resolution
+    - Split: Divides memory by criteria (actor_id, session_id, namespace, time_range)
+    - Copy: Filters and copies events based on actor, session, time, or namespace
+    
+    All operations preserve timestamps and provide detailed results.
+
+parameters:
+  - name: operation
+    type: select
+    required: true
+    options:
+      - value: merge
+        label:
+          en_US: Merge Memories
+          zh_Hans: 合并记忆
+          pt_BR: Mesclar Memórias
+          ja_JP: メモリーをマージ
+      - value: split
+        label:
+          en_US: Split Memory
+          zh_Hans: 拆分记忆
+          pt_BR: Dividir Memória
+          ja_JP: メモリーを分割
+      - value: copy_events
+        label:
+          en_US: Copy Events
+          zh_Hans: 复制事件
+          pt_BR: Copiar Eventos
+          ja_JP: イベントをコピー
+    label:
+      en_US: Operation
+      zh_Hans: 操作
+      pt_BR: Operação
+      ja_JP: 操作
+    human_description:
+      en_US: Select the memory reorganization operation to perform
+      zh_Hans: 选择要执行的记忆重组操作
+      pt_BR: Selecione a operação de reorganização de memória a ser executada
+      ja_JP: 実行するメモリー再編成操作を選択します
+    llm_description: |
+      The type of memory reorganization operation to perform:
+      - "merge": Merge multiple Memory resources into one
+      - "split": Split a Memory resource into multiple memories
+      - "copy_events": Copy events from one Memory to another with filtering
+    form: llm
+
+  # Merge operation parameters
+  - name: source_memory_ids
+    type: string
+    required: false
+    label:
+      en_US: Source Memory IDs (comma-separated)
+      zh_Hans: 源记忆ID（逗号分隔）
+      pt_BR: IDs de Memória de Origem (separados por vírgula)
+      ja_JP: ソースメモリー ID（カンマ区切り）
+    human_description:
+      en_US: Comma-separated list of source Memory IDs for merge operation
+      zh_Hans: 用于合并操作的源记忆ID列表（逗号分隔）
+      pt_BR: Lista de IDs de memória de origem separados por vírgula para operação de mesclagem
+      ja_JP: マージ操作のソースメモリー ID のリスト（カンマ区切り）
+    llm_description: |
+      Comma-separated list of source Memory IDs to merge.
+      Required for "merge" operation.
+      Example: "mem-abc123,mem-def456,mem-ghi789"
+    form: llm
+
+  - name: target_memory_id
+    type: string
+    required: false
+    label:
+      en_US: Target Memory ID
+      zh_Hans: 目标记忆ID
+      pt_BR: ID da Memória de Destino
+      ja_JP: ターゲットメモリー ID
+    human_description:
+      en_US: Target Memory ID for merge or copy operation
+      zh_Hans: 用于合并或复制操作的目标记忆ID
+      pt_BR: ID da memória de destino para operação de mesclagem ou cópia
+      ja_JP: マージまたはコピー操作のターゲットメモリー ID
+    llm_description: |
+      Target Memory ID for merge or copy_events operation.
+      Required for "merge" and "copy_events" operations.
+    form: llm
+
+  - name: merge_conflict_resolution
+    type: select
+    required: false
+    default: keep_latest
+    options:
+      - value: keep_latest
+        label:
+          en_US: Keep Latest
+          zh_Hans: 保留最新
+          pt_BR: Manter Mais Recente
+          ja_JP: 最新を保持
+      - value: keep_oldest
+        label:
+          en_US: Keep Oldest
+          zh_Hans: 保留最旧
+          pt_BR: Manter Mais Antigo
+          ja_JP: 最古を保持
+      - value: merge_all
+        label:
+          en_US: Merge All
+          zh_Hans: 合并所有
+          pt_BR: Mesclar Todos
+          ja_JP: すべてマージ
+    label:
+      en_US: Merge Conflict Resolution
+      zh_Hans: 合并冲突解决
+      pt_BR: Resolução de Conflitos de Mesclagem
+      ja_JP: マージ競合解決戦略
+    human_description:
+      en_US: "Strategy for resolving conflicts during merge (default: keep_latest)"
+      zh_Hans: "合并期间解决冲突的策略（默认：keep_latest）"
+      pt_BR: "Estratégia para resolver conflitos durante a mesclagem (padrão: keep_latest)"
+      ja_JP: "マージ時の競合解決戦略（デフォルト：keep_latest）"
+    llm_description: |
+      Strategy for resolving conflicts when merging memories:
+      - "keep_latest": Keep events with the latest timestamp
+      - "keep_oldest": Keep events with the oldest timestamp
+      - "merge_all": Keep all events without deduplication
+      Only used for "merge" operation.
+    form: llm
+
+  - name: deduplicate
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Deduplicate Events
+      zh_Hans: 去重事件
+      pt_BR: Desduplicar Eventos
+      ja_JP: イベントの重複排除
+    human_description:
+      en_US: "Remove duplicate events during merge (default: true)"
+      zh_Hans: "在合并期间删除重复事件（默认：true）"
+      pt_BR: "Remover eventos duplicados durante a mesclagem (padrão: true)"
+      ja_JP: "マージ時に重複イベントを排除（デフォルト：true）"
+    llm_description: |
+      Whether to remove duplicate events during merge operation.
+      Duplicates are identified by event content hash.
+      Only used for "merge" operation.
+    form: llm
+
+  - name: merge_strategies
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Merge Strategies
+      zh_Hans: 合并策略
+      pt_BR: Mesclar Estratégias
+      ja_JP: 戦略をマージ
+    human_description:
+      en_US: "Merge memory strategies from source memories (default: true)"
+      zh_Hans: "从源记忆合并记忆策略（默认：true）"
+      pt_BR: "Mesclar estratégias de memória das memórias de origem (padrão: true)"
+      ja_JP: "ソースメモリーから戦略をマージ（デフォルト：true）"
+    llm_description: |
+      Whether to merge memory strategies from all source memories.
+      Only used for "merge" operation.
+    form: llm
+
+  # Split operation parameters
+  - name: source_memory_id
+    type: string
+    required: false
+    label:
+      en_US: Source Memory ID
+      zh_Hans: 源记忆ID
+      pt_BR: ID da Memória de Origem
+      ja_JP: ソースメモリー ID
+    human_description:
+      en_US: Source Memory ID for split or copy operation
+      zh_Hans: 用于拆分或复制操作的源记忆ID
+      pt_BR: ID da memória de origem para operação de divisão ou cópia
+      ja_JP: 分割またはコピー操作のソースメモリー ID
+    llm_description: |
+      Source Memory ID for split or copy_events operation.
+      Required for "split" and "copy_events" operations.
+    form: llm
+
+  - name: split_by
+    type: select
+    required: false
+    default: actor_id
+    options:
+      - value: actor_id
+        label:
+          en_US: Actor ID
+          zh_Hans: 参与者ID
+          pt_BR: ID do Ator
+          ja_JP: Actor ID
+      - value: session_id
+        label:
+          en_US: Session ID
+          zh_Hans: 会话ID
+          pt_BR: ID da Sessão
+          ja_JP: Session ID
+      - value: namespace
+        label:
+          en_US: Namespace
+          zh_Hans: 命名空间
+          pt_BR: Namespace
+          ja_JP: Namespace
+      - value: time_range
+        label:
+          en_US: Time Range
+          zh_Hans: 时间范围
+          pt_BR: Intervalo de Tempo
+          ja_JP: 時間範囲
+    label:
+      en_US: Split By
+      zh_Hans: 拆分依据
+      pt_BR: Dividir Por
+      ja_JP: 分割基準
+    human_description:
+      en_US: "Criteria for splitting memory (default: actor_id)"
+      zh_Hans: "拆分记忆的标准（默认：actor_id）"
+      pt_BR: "Critério para dividir a memória (padrão: actor_id)"
+      ja_JP: "メモリー分割の基準（デフォルト：actor_id）"
+    llm_description: |
+      Criteria for splitting the memory:
+      - "actor_id": Split by Actor ID (one memory per actor)
+      - "session_id": Split by Session ID (one memory per session)
+      - "namespace": Split by Namespace (one memory per namespace)
+      - "time_range": Split by time range (requires time_range_days parameter)
+      Only used for "split" operation.
+    form: llm
+
+  - name: target_memory_prefix
+    type: string
+    required: false
+    label:
+      en_US: Target Memory Prefix
+      zh_Hans: 目标记忆前缀
+      pt_BR: Prefixo da Memória de Destino
+      ja_JP: ターゲットメモリープレフィックス
+    human_description:
+      en_US: Prefix for target memory names during split operation
+      zh_Hans: 拆分操作期间目标记忆名称的前缀
+      pt_BR: Prefixo para nomes de memória de destino durante a operação de divisão
+      ja_JP: 分割操作時のターゲットメモリー名のプレフィックス
+    llm_description: |
+      Prefix for naming target memories created during split operation.
+      Example: "memory-actor-" will create "memory-actor-user001", "memory-actor-user002", etc.
+      Only used for "split" operation.
+    form: llm
+
+  - name: time_range_days
+    type: number
+    required: false
+    label:
+      en_US: Time Range (Days)
+      zh_Hans: 时间范围（天）
+      pt_BR: Intervalo de Tempo (Dias)
+      ja_JP: 時間範囲（日数）
+    human_description:
+      en_US: Number of days per split when using time_range split criteria
+      zh_Hans: 使用时间范围拆分标准时每个拆分的天数
+      pt_BR: Número de dias por divisão ao usar critério de divisão por intervalo de tempo
+      ja_JP: 時間範囲分割時の1分割あたりの日数
+    llm_description: |
+      Number of days per split when split_by is "time_range".
+      Example: 7 will create one memory per week.
+      Only used for "split" operation with split_by="time_range".
+    form: llm
+
+  - name: create_index
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Create Split Index
+      zh_Hans: 创建拆分索引
+      pt_BR: Criar Índice de Divisão
+      ja_JP: 分割インデックスを作成
+    human_description:
+      en_US: "Create mapping index for split memories (default: true)"
+      zh_Hans: "为拆分的记忆创建映射索引（默认：true）"
+      pt_BR: "Criar índice de mapeamento para memórias divididas (padrão: true)"
+      ja_JP: "分割されたメモリーのマッピングインデックスを作成（デフォルト：true）"
+    llm_description: |
+      Whether to create a mapping index between source and target memories.
+      The index contains information about which events went to which memory.
+      Only used for "split" operation.
+    form: llm
+
+  # Copy events operation parameters
+  - name: filter_actor_id
+    type: string
+    required: false
+    label:
+      en_US: Filter by Actor ID
+      zh_Hans: 按参与者ID筛选
+      pt_BR: Filtrar por ID do Ator
+      ja_JP: Actor ID でフィルター
+    human_description:
+      en_US: Filter events by Actor ID for copy operation
+      zh_Hans: 按参与者ID筛选复制操作的事件
+      pt_BR: Filtrar eventos por ID do ator para operação de cópia
+      ja_JP: コピー操作で Actor ID によりイベントをフィルター
+    llm_description: |
+      Filter events by Actor ID when copying.
+      Only events with this Actor ID will be copied.
+      Only used for "copy_events" operation.
+    form: llm
+
+  - name: filter_session_id
+    type: string
+    required: false
+    label:
+      en_US: Filter by Session ID
+      zh_Hans: 按会话ID筛选
+      pt_BR: Filtrar por ID da Sessão
+      ja_JP: Session ID でフィルター
+    human_description:
+      en_US: Filter events by Session ID for copy operation
+      zh_Hans: 按会话ID筛选复制操作的事件
+      pt_BR: Filtrar eventos por ID da sessão para operação de cópia
+      ja_JP: コピー操作で Session ID によりイベントをフィルター
+    llm_description: |
+      Filter events by Session ID when copying.
+      Only events with this Session ID will be copied.
+      Only used for "copy_events" operation.
+    form: llm
+
+  - name: filter_namespace
+    type: string
+    required: false
+    label:
+      en_US: Filter by Namespace
+      zh_Hans: 按命名空间筛选
+      pt_BR: Filtrar por Namespace
+      ja_JP: Namespace でフィルター
+    human_description:
+      en_US: Filter events by Namespace for copy operation
+      zh_Hans: 按命名空间筛选复制操作的事件
+      pt_BR: Filtrar eventos por namespace para operação de cópia
+      ja_JP: コピー操作で Namespace によりイベントをフィルター
+    llm_description: |
+      Filter events by Namespace when copying.
+      Only events with this Namespace will be copied.
+      Only used for "copy_events" operation.
+    form: llm
+
+  - name: filter_start_time
+    type: string
+    required: false
+    label:
+      en_US: Filter Start Time (ISO 8601)
+      zh_Hans: 筛选开始时间（ISO 8601）
+      pt_BR: Hora de Início do Filtro (ISO 8601)
+      ja_JP: フィルター開始時刻（ISO 8601）
+    human_description:
+      en_US: Filter events from this time onwards (ISO 8601 format)
+      zh_Hans: 从此时间开始筛选事件（ISO 8601格式）
+      pt_BR: Filtrar eventos a partir deste horário (formato ISO 8601)
+      ja_JP: この時刻以降のイベントをフィルター（ISO 8601 形式）
+    llm_description: |
+      Filter events from this time onwards (ISO 8601 format).
+      Example: "2025-01-01T00:00:00Z"
+      Only used for "copy_events" operation.
+    form: llm
+
+  - name: filter_end_time
+    type: string
+    required: false
+    label:
+      en_US: Filter End Time (ISO 8601)
+      zh_Hans: 筛选结束时间（ISO 8601）
+      pt_BR: Hora de Término do Filtro (ISO 8601)
+      ja_JP: フィルター終了時刻（ISO 8601）
+    human_description:
+      en_US: Filter events up to this time (ISO 8601 format)
+      zh_Hans: 筛选到此时间的事件（ISO 8601格式）
+      pt_BR: Filtrar eventos até este horário (formato ISO 8601)
+      ja_JP: この時刻までのイベントをフィルター（ISO 8601 形式）
+    llm_description: |
+      Filter events up to this time (ISO 8601 format).
+      Example: "2025-12-31T23:59:59Z"
+      Only used for "copy_events" operation.
+    form: llm
+
+  - name: preserve_timestamps
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Preserve Timestamps
+      zh_Hans: 保留时间戳
+      pt_BR: Preservar Timestamps
+      ja_JP: タイムスタンプを保持
+    human_description:
+      en_US: "Preserve original timestamps when copying events (default: true)"
+      zh_Hans: "复制事件时保留原始时间戳（默认：true）"
+      pt_BR: "Preservar timestamps originais ao copiar eventos (padrão: true)"
+      ja_JP: "イベントコピー時に元のタイムスタンプを保持（デフォルト：true）"
+    llm_description: |
+      Whether to preserve original timestamps when copying events.
+      If false, events will be created with current timestamps.
+      Only used for "copy_events" operation.
+    form: llm
+
+  # AWS authentication parameters
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      pt_BR: Região AWS
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for AgentCore services (optional)
+      zh_Hans: AgentCore服务的AWS区域（可选）
+      pt_BR: Região AWS para serviços AgentCore (opcional)
+      ja_JP: AgentCore サービスを利用する AWS リージョン（任意）
+    llm_description: AWS region for AgentCore Memory services.
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      pt_BR: ID da Chave de Acesso AWS
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      pt_BR: ID da chave de acesso AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS アクセスキー ID（任意）
+    llm_description: AWS access key ID for authentication.
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      pt_BR: Chave de Acesso Secreta AWS
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      pt_BR: Chave de acesso secreta AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS シークレットアクセスキー（任意）
+    llm_description: AWS secret access key for authentication.
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_memory_merge_split.py

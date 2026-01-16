@@ -1,0 +1,234 @@
+identity:
+  name: agentcore_observability
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Observability
+    zh_Hans: AgentCore 可观测性
+    pt_BR: AgentCore Observabilidade
+    ja_JP: AgentCore Observability
+description:
+  human:
+    en_US: Integrate and analyze AgentCore observability data including CloudWatch metrics, logs, and X-Ray traces for performance analysis and debugging.
+    zh_Hans: 集成和分析 AgentCore 可观测性数据，包括 CloudWatch 指标、日志和 X-Ray 跟踪，用于性能分析和调试。
+    pt_BR: Integre e analise dados de observabilidade do AgentCore, incluindo métricas do CloudWatch, logs e rastreamentos do X-Ray para análise de desempenho e depuração.
+    ja_JP: CloudWatch メトリクス、ログ、X-Ray トレースを含む AgentCore Observability のデータを統合・分析し、パフォーマンス分析とデバッグを効率化します。
+  llm: Integrate and analyze AgentCore observability data from CloudWatch metrics, logs, and X-Ray traces. Supports performance analysis, bottleneck detection, error analysis, and cost optimization with structured JSON results and actionable recommendations.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Region used when calling AWS services. Defaults to the provider setting or us-east-1.
+      ja_JP: AWS サービス呼び出しに使用する AWS リージョン。既定はプロバイダー設定または us-east-1 です。
+    form: form
+
+  - name: operation
+    type: string
+    required: true
+    label:
+      en_US: Operation
+      ja_JP: 操作
+    human_description:
+      en_US: |
+        Operation to perform:
+        - get_metrics: Retrieve CloudWatch metrics for AgentCore resources
+        - get_logs: Retrieve CloudWatch Logs for AgentCore resources
+        - get_traces: Retrieve X-Ray traces for AgentCore sessions
+        - analyze_performance: Analyze performance bottlenecks, errors, and costs
+      ja_JP: |
+        実行する操作:
+        - get_metrics: AgentCore リソースの CloudWatch メトリクスを取得
+        - get_logs: AgentCore リソースの CloudWatch Logs を取得
+        - get_traces: AgentCore セッションの X-Ray トレースを取得
+        - analyze_performance: パフォーマンスのボトルネック、エラー、コストを分析
+    form: form
+
+  - name: resource_type
+    type: string
+    required: false
+    label:
+      en_US: Resource Type
+      ja_JP: リソースタイプ
+    human_description:
+      en_US: |
+        Type of AgentCore resource (required for get_metrics, get_logs, analyze_performance):
+        - runtime: Agent runtime metrics (session count, latency, error rate, token usage)
+        - memory: Memory metrics (event count, storage size, read/write operations)
+        - code_interpreter: Code Interpreter metrics (execution count, execution time, error rate)
+      ja_JP: |
+        AgentCore リソースのタイプ（get_metrics、get_logs、analyze_performance で必須）:
+        - runtime: エージェントランタイムメトリクス（セッション数、レイテンシ、エラー率、トークン使用量）
+        - memory: Memory メトリクス（イベント数、ストレージサイズ、読み書き操作数）
+        - code_interpreter: Code Interpreter メトリクス（実行回数、実行時間、エラー率）
+    form: form
+
+  - name: resource_id
+    type: string
+    required: false
+    label:
+      en_US: Resource ID
+      ja_JP: リソース ID
+    human_description:
+      en_US: "ID of the AgentCore resource (required for get_metrics, get_logs, analyze_performance). Examples: agent runtime ID, memory ID, code interpreter ID."
+      ja_JP: "AgentCore リソースの ID（get_metrics、get_logs、analyze_performance で必須）。例: エージェントランタイム ID、Memory ID、Code Interpreter ID。"
+    form: form
+
+  - name: session_id
+    type: string
+    required: false
+    label:
+      en_US: Session ID
+      ja_JP: セッション ID
+    human_description:
+      en_US: "Session ID for filtering logs and traces (required for get_traces, optional for get_logs)."
+      ja_JP: "ログとトレースをフィルタリングするためのセッション ID（get_traces で必須、get_logs でオプション）。"
+    form: form
+
+  - name: time_range
+    type: string
+    required: false
+    label:
+      en_US: Time Range
+      ja_JP: 時間範囲
+    human_description:
+      en_US: |
+        Time range for data retrieval. Supports:
+        - Relative time: "1h" (1 hour), "6h", "24h", "7d" (7 days), "30d"
+        - Default: "1h" for get_metrics/get_logs/get_traces, "24h" for analyze_performance
+      ja_JP: |
+        データ取得の時間範囲。サポート形式:
+        - 相対時刻: "1h"（1時間）、"6h"、"24h"、"7d"（7日）、"30d"
+        - 既定値: get_metrics/get_logs/get_traces は "1h"、analyze_performance は "24h"
+    form: form
+
+  - name: metrics
+    type: string
+    required: false
+    label:
+      en_US: Metrics
+      ja_JP: メトリクス
+    human_description:
+      en_US: |
+        Comma-separated list of metrics to retrieve (optional for get_metrics).
+        Runtime: session_count, latency, error_rate, token_usage
+        Memory: event_count, storage_size, read_operations, write_operations
+        Code Interpreter: execution_count, execution_time, error_rate
+        If not specified, all available metrics for the resource type will be retrieved.
+      ja_JP: |
+        取得するメトリクスのカンマ区切りリスト（get_metrics でオプション）。
+        Runtime: session_count, latency, error_rate, token_usage
+        Memory: event_count, storage_size, read_operations, write_operations
+        Code Interpreter: execution_count, execution_time, error_rate
+        指定しない場合、リソースタイプの利用可能なすべてのメトリクスを取得します。
+    form: form
+
+  - name: statistics
+    type: string
+    required: false
+    label:
+      en_US: Statistics
+      ja_JP: 統計
+    human_description:
+      en_US: |
+        Comma-separated list of statistics to retrieve (optional for get_metrics).
+        Options: Average, Sum, Maximum, Minimum, SampleCount
+        Default: Average
+      ja_JP: |
+        取得する統計のカンマ区切りリスト（get_metrics でオプション）。
+        オプション: Average, Sum, Maximum, Minimum, SampleCount
+        既定値: Average
+    form: form
+
+  - name: filter_pattern
+    type: string
+    required: false
+    label:
+      en_US: Filter Pattern
+      ja_JP: フィルターパターン
+    human_description:
+      en_US: "Filter pattern for log entries (optional for get_logs). Examples: ERROR, Exception, timeout."
+      ja_JP: "ログエントリのフィルターパターン（get_logs でオプション）。例: ERROR、Exception、timeout。"
+    form: form
+
+  - name: max_results
+    type: number
+    required: false
+    label:
+      en_US: Max Results
+      ja_JP: 最大結果件数
+    human_description:
+      en_US: "Maximum number of log entries to return (optional for get_logs, 1-1000). Default: 100."
+      ja_JP: "取得するログエントリの最大件数（get_logs でオプション、1-1000）。既定値: 100。"
+    default: 100
+    form: form
+
+  - name: include_spans
+    type: boolean
+    required: false
+    label:
+      en_US: Include Spans
+      ja_JP: スパンを含める
+    human_description:
+      en_US: "Include span information in trace results (optional for get_traces). Default: true."
+      ja_JP: "トレース結果にスパン情報を含める（get_traces でオプション）。既定値: true。"
+    default: true
+    form: form
+
+  - name: filter_expression
+    type: string
+    required: false
+    label:
+      en_US: Filter Expression
+      ja_JP: フィルター式
+    human_description:
+      en_US: "X-Ray filter expression for traces (optional for get_traces). Example: service(\"agentcore\")."
+      ja_JP: "トレース用の X-Ray フィルター式（get_traces でオプション）。例: service(\"agentcore\")。"
+    form: form
+
+  - name: analysis_type
+    type: string
+    required: false
+    label:
+      en_US: Analysis Type
+      ja_JP: 分析タイプ
+    human_description:
+      en_US: |
+        Type of performance analysis (required for analyze_performance):
+        - bottleneck: Identify operations with highest latency
+        - error_analysis: Identify operations with highest error rate
+        - cost_analysis: Analyze token usage and storage costs
+      ja_JP: |
+        パフォーマンス分析のタイプ（analyze_performance で必須）:
+        - bottleneck: 最も高いレイテンシの操作を特定
+        - error_analysis: 最も高いエラー率の操作を特定
+        - cost_analysis: トークン使用量とストレージコストを分析
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_observability.py

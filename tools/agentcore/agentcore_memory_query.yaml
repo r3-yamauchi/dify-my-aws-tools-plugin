@@ -1,0 +1,461 @@
+identity:
+  name: agentcore_memory_query
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Memory Query Builder
+    zh_Hans: AgentCore 记忆查询构建器
+    pt_BR: Construtor de Consultas de Memória AgentCore
+    ja_JP: AgentCore Memory クエリビルダー
+  icon: icon.svg
+
+description:
+  human:
+    en_US: Build and execute complex search queries for AgentCore Memory with multiple conditions
+    zh_Hans: 为 AgentCore 记忆构建和执行具有多个条件的复杂搜索查询
+    pt_BR: Construa e execute consultas de pesquisa complexas para AgentCore Memory com múltiplas condições
+    ja_JP: 複数の条件を組み合わせた複雑な検索クエリを構築・実行する AgentCore ツールです
+  llm: |
+    AGENTCORE MEMORY QUERY BUILDER - Tool for building and executing complex search queries.
+    
+    OPERATIONS:
+    - **BUILD** - Construct a query with multiple conditions
+    - **EXECUTE** - Run a query against a Memory resource
+    - **SAVE** - Save a query for reuse
+    - **LOAD** - Load a saved query
+    - **LIST** - List all saved queries
+    - **DELETE** - Delete a saved query
+    - **UPDATE** - Update an existing query
+    - **EXPORT** - Export a query as JSON
+    - **IMPORT** - Import a query from JSON
+    
+    WHEN TO USE:
+    - Need to combine multiple search conditions (AND/OR/NOT)
+    - Want to save and reuse complex queries
+    - Need more precise search than simple text search
+    - Need regex pattern matching with case-insensitive or multiline options
+    - Want to highlight matched text in search results
+    
+    QUERY STRUCTURE:
+    {
+      "conditions": [
+        {
+          "type": "text",
+          "field": "content",
+          "value": "search term",
+          "operator": "contains"
+        },
+        {
+          "type": "regex",
+          "field": "content",
+          "pattern": "error|warning",
+          "case_insensitive": true,
+          "multiline": false,
+          "timeout": 5
+        }
+      ],
+      "operator": "AND"  // AND, OR, or NOT
+    }
+    
+    CONDITION TYPES:
+    1. TEXT - Simple text search with operators (contains, equals, starts_with, ends_with)
+    2. REGEX - Regular expression pattern matching with options:
+       - case_insensitive: Ignore case when matching (default: false)
+       - multiline: Enable multiline matching (default: false)
+       - timeout: Timeout in seconds (default: 5)
+    
+    EXAMPLES:
+    1. Build and execute a query with regex:
+       operation: "execute"
+       conditions: [{"type": "regex", "field": "content", "pattern": "error|warning", "case_insensitive": true}]
+       operator: "AND"
+       memory_id: "mem_12345"
+       enable_highlight: true
+    
+    2. Save a query for reuse:
+       operation: "save"
+       conditions: [...]
+       query_name: "Error Search"
+       query_description: "Search for error messages"
+    
+    3. Load and execute a saved query:
+       operation: "load"
+       query_id: "q_12345"
+
+parameters:
+  - name: operation
+    type: select
+    required: true
+    options:
+      - value: build
+        label:
+          en_US: Build Query
+          zh_Hans: 构建查询
+          pt_BR: Construir Consulta
+          ja_JP: クエリ構築
+      - value: execute
+        label:
+          en_US: Execute Query
+          zh_Hans: 执行查询
+          pt_BR: Executar Consulta
+          ja_JP: クエリ実行
+      - value: save
+        label:
+          en_US: Save Query
+          zh_Hans: 保存查询
+          pt_BR: Salvar Consulta
+          ja_JP: クエリ保存
+      - value: load
+        label:
+          en_US: Load Query
+          zh_Hans: 加载查询
+          pt_BR: Carregar Consulta
+          ja_JP: クエリ読み込み
+      - value: list
+        label:
+          en_US: List Queries
+          zh_Hans: 列出查询
+          pt_BR: Listar Consultas
+          ja_JP: クエリ一覧
+      - value: delete
+        label:
+          en_US: Delete Query
+          zh_Hans: 删除查询
+          pt_BR: Excluir Consulta
+          ja_JP: クエリ削除
+      - value: update
+        label:
+          en_US: Update Query
+          zh_Hans: 更新查询
+          pt_BR: Atualizar Consulta
+          ja_JP: クエリ更新
+      - value: export
+        label:
+          en_US: Export Query
+          zh_Hans: 导出查询
+          pt_BR: Exportar Consulta
+          ja_JP: クエリエクスポート
+      - value: import
+        label:
+          en_US: Import Query
+          zh_Hans: 导入查询
+          pt_BR: Importar Consulta
+          ja_JP: クエリインポート
+    default: build
+    label:
+      en_US: Operation
+      zh_Hans: 操作
+      pt_BR: Operação
+      ja_JP: 操作
+    human_description:
+      en_US: The operation to perform (build, execute, save, load, list, delete, update, export, import)
+      zh_Hans: 要执行的操作（构建、执行、保存、加载、列出、删除、更新、导出、导入）
+      pt_BR: A operação a ser executada (construir, executar, salvar, carregar, listar, excluir, atualizar, exportar, importar)
+      ja_JP: 実行する操作（構築、実行、保存、読み込み、一覧、削除、更新、エクスポート、インポート）
+    llm_description: The operation to perform on the query.
+    form: llm
+
+  - name: conditions
+    type: string
+    required: false
+    label:
+      en_US: Query Conditions
+      zh_Hans: 查询条件
+      pt_BR: Condições da Consulta
+      ja_JP: クエリ条件
+    human_description:
+      en_US: JSON array of search conditions (for build, execute, save operations)
+      zh_Hans: 搜索条件的JSON数组（用于构建、执行、保存操作）
+      pt_BR: Array JSON de condições de pesquisa (para operações de construir, executar, salvar)
+      ja_JP: 検索条件のJSON配列（構築、実行、保存操作用）
+    llm_description: |
+      JSON array of search conditions. Each condition should have:
+      
+      For TEXT conditions:
+      - type: "text"
+      - field: "content" (field to search)
+      - value: search term
+      - operator: "contains", "equals", "starts_with", "ends_with"
+      
+      For REGEX conditions:
+      - type: "regex"
+      - field: "content" (field to search)
+      - pattern: regular expression pattern
+      - case_insensitive: true/false (optional, default: false)
+      - multiline: true/false (optional, default: false)
+      - timeout: timeout in seconds (optional, default: 5)
+      
+      Example: [{"type": "regex", "field": "content", "pattern": "error|warning", "case_insensitive": true}]
+    form: llm
+
+  - name: operator
+    type: select
+    required: false
+    options:
+      - value: AND
+        label:
+          en_US: AND
+          zh_Hans: 与
+          pt_BR: E
+          ja_JP: AND
+      - value: OR
+        label:
+          en_US: OR
+          zh_Hans: 或
+          pt_BR: OU
+          ja_JP: OR
+      - value: NOT
+        label:
+          en_US: NOT
+          zh_Hans: 非
+          pt_BR: NÃO
+          ja_JP: NOT
+    default: AND
+    label:
+      en_US: Operator
+      zh_Hans: 运算符
+      pt_BR: Operador
+      ja_JP: 演算子
+    human_description:
+      en_US: How to combine conditions (AND, OR, NOT)
+      zh_Hans: 如何组合条件（与、或、非）
+      pt_BR: Como combinar condições (E, OU, NÃO)
+      ja_JP: 条件の結合方法（AND、OR、NOT）
+    llm_description: |
+      How to combine multiple conditions:
+      - AND: All conditions must be satisfied
+      - OR: At least one condition must be satisfied
+      - NOT: Negate the condition (only one condition allowed)
+    form: llm
+
+  - name: memory_id
+    type: string
+    required: false
+    label:
+      en_US: Memory ID
+      zh_Hans: 记忆ID
+      pt_BR: ID da Memória
+      ja_JP: メモリー ID
+    human_description:
+      en_US: ID of the memory resource (required for execute operation)
+      zh_Hans: 记忆资源ID（执行操作时必需）
+      pt_BR: ID do recurso de memória (obrigatório para operação de execução)
+      ja_JP: メモリーリソースの ID（実行操作時に必須）
+    llm_description: The memory resource ID from AWS Console AgentCore Memory service (required for execute operation).
+    form: llm
+
+  - name: namespace
+    type: string
+    required: false
+    default: /
+    label:
+      en_US: Namespace
+      zh_Hans: 命名空间
+      pt_BR: Namespace
+      ja_JP: ネームスペース
+    human_description:
+      en_US: Memory namespace (optional, use "/" for global search)
+      zh_Hans: 记忆命名空间（可选，使用"/"进行全局搜索）
+      pt_BR: Namespace da memória (opcional, use "/" para busca global)
+      ja_JP: メモリーネームスペース（任意、全体検索は "/"）
+    llm_description: The memory namespace for search operation. Use "/" for global search across all strategies.
+    form: llm
+
+  - name: max_results
+    type: number
+    required: false
+    default: 10
+    label:
+      en_US: Maximum Results
+      zh_Hans: 最大结果数
+      pt_BR: Máximo de Resultados
+      ja_JP: 最大取得件数
+    human_description:
+      en_US: Maximum number of memories to return (1-20, default=10)
+      zh_Hans: 返回的最大记忆数量（1-20，默认=10）
+      pt_BR: Número máximo de memórias a retornar (1-20, padrão=10)
+      ja_JP: 返却するメモリーの最大件数（1〜20、デフォルト 10）
+    llm_description: Maximum number of memories to return (1-20, default 10).
+    form: llm
+
+  - name: enable_highlight
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Enable Highlight
+      zh_Hans: 启用高亮
+      pt_BR: Ativar Destaque
+      ja_JP: ハイライト有効化
+    human_description:
+      en_US: Enable highlighting of matched text in search results (for execute operation)
+      zh_Hans: 在搜索结果中启用匹配文本的高亮显示（用于执行操作）
+      pt_BR: Ativar destaque de texto correspondente nos resultados da pesquisa (para operação de execução)
+      ja_JP: 検索結果でマッチしたテキストのハイライトを有効化（実行操作用）
+    llm_description: Enable highlighting of matched text in search results (for execute operation with regex conditions).
+    form: llm
+
+  - name: highlight_marker
+    type: string
+    required: false
+    default: <em>
+    label:
+      en_US: Highlight Marker
+      zh_Hans: 高亮标记
+      pt_BR: Marcador de Destaque
+      ja_JP: ハイライトマーカー
+    human_description:
+      en_US: HTML tag or marker for highlighting (default="<em>")
+      zh_Hans: 用于高亮显示的HTML标签或标记（默认="<em>"）
+      pt_BR: Tag HTML ou marcador para destaque (padrão="<em>")
+      ja_JP: ハイライト用のHTMLタグまたはマーカー（デフォルト="<em>"）
+    llm_description: HTML tag or marker for highlighting matched text (default="<em>").
+    form: llm
+
+  - name: query_id
+    type: string
+    required: false
+    label:
+      en_US: Query ID
+      zh_Hans: 查询ID
+      pt_BR: ID da Consulta
+      ja_JP: クエリ ID
+    human_description:
+      en_US: ID of the saved query (required for load, delete, update, export operations)
+      zh_Hans: 保存的查询ID（加载、删除、更新、导出操作时必需）
+      pt_BR: ID da consulta salva (obrigatório para operações de carregar, excluir, atualizar, exportar)
+      ja_JP: 保存されたクエリの ID（読み込み、削除、更新、エクスポート操作時に必須）
+    llm_description: The ID of the saved query (required for load, delete, update, export operations).
+    form: llm
+
+  - name: query_name
+    type: string
+    required: false
+    label:
+      en_US: Query Name
+      zh_Hans: 查询名称
+      pt_BR: Nome da Consulta
+      ja_JP: クエリ名
+    human_description:
+      en_US: Name for the query (required for save operation, optional for update)
+      zh_Hans: 查询的名称（保存操作时必需，更新时可选）
+      pt_BR: Nome para a consulta (obrigatório para operação de salvar, opcional para atualizar)
+      ja_JP: クエリの名前（保存操作時に必須、更新時は任意）
+    llm_description: Name for the query (required for save operation, optional for update).
+    form: llm
+
+  - name: query_description
+    type: string
+    required: false
+    label:
+      en_US: Query Description
+      zh_Hans: 查询描述
+      pt_BR: Descrição da Consulta
+      ja_JP: クエリの説明
+    human_description:
+      en_US: Description of the query (optional)
+      zh_Hans: 查询的描述（可选）
+      pt_BR: Descrição da consulta (opcional)
+      ja_JP: クエリの説明（任意）
+    llm_description: Description of the query (optional).
+    form: llm
+
+  - name: name_filter
+    type: string
+    required: false
+    label:
+      en_US: Name Filter
+      zh_Hans: 名称过滤器
+      pt_BR: Filtro de Nome
+      ja_JP: 名前フィルター
+    human_description:
+      en_US: Filter queries by name (partial match, for list operation)
+      zh_Hans: 按名称过滤查询（部分匹配，用于列出操作）
+      pt_BR: Filtrar consultas por nome (correspondência parcial, para operação de listar)
+      ja_JP: 名前でクエリをフィルター（部分一致、一覧操作用）
+    llm_description: Filter queries by name (partial match, for list operation).
+    form: llm
+
+  - name: query_data
+    type: string
+    required: false
+    label:
+      en_US: Query Data
+      zh_Hans: 查询数据
+      pt_BR: Dados da Consulta
+      ja_JP: クエリデータ
+    human_description:
+      en_US: JSON string of query data (required for import operation)
+      zh_Hans: 查询数据的JSON字符串（导入操作时必需）
+      pt_BR: String JSON dos dados da consulta (obrigatório para operação de importar)
+      ja_JP: クエリデータのJSON文字列（インポート操作時に必須）
+    llm_description: JSON string of query data (required for import operation).
+    form: llm
+
+  - name: overwrite
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Overwrite
+      zh_Hans: 覆盖
+      pt_BR: Sobrescrever
+      ja_JP: 上書き
+    human_description:
+      en_US: Whether to overwrite existing query (for import operation)
+      zh_Hans: 是否覆盖现有查询（用于导入操作）
+      pt_BR: Se deve sobrescrever consulta existente (para operação de importar)
+      ja_JP: 既存のクエリを上書きするかどうか（インポート操作用）
+    llm_description: Whether to overwrite existing query (for import operation).
+    form: llm
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      pt_BR: Região AWS
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for the AgentCore Memory service (optional)
+      zh_Hans: AgentCore Memory服务的AWS区域（可选）
+      pt_BR: Região AWS para o serviço AgentCore Memory (opcional)
+      ja_JP: AgentCore Memory サービスを利用する AWS リージョン（任意）
+    llm_description: AWS region for the AgentCore Memory service.
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      pt_BR: ID da Chave de Acesso AWS
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      pt_BR: ID da chave de acesso AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS アクセスキー ID（任意）
+    llm_description: AWS access key ID for authentication.
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      pt_BR: Chave de Acesso Secreta AWS
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      pt_BR: Chave de acesso secreta AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS シークレットアクセスキー（任意）
+    llm_description: AWS secret access key for authentication.
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_memory_query.py

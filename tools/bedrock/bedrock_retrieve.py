@@ -1,6 +1,6 @@
 """
 場所: tools/bedrock/bedrock_retrieve.py
-内容: AWS Bedrock Knowledge Base を検索し、Dify の知識検索フォーマットへ整形するツールの実装。
+内容: Amazon Bedrock Knowledge Base を検索し、Dify の知識検索フォーマットへ整形するツールの実装。
 目的: Workflow / Agent から追加サーバー不要で Bedrock KB を直接参照できるようにする。
 """
 

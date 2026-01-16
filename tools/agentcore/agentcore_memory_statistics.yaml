@@ -1,0 +1,374 @@
+identity:
+  name: agentcore_memory_statistics
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Memory Statistics
+    zh_Hans: AgentCore 记忆统计
+    pt_BR: Estatísticas de Memória AgentCore
+    ja_JP: AgentCore Memory 統計
+  icon: icon.svg
+
+description:
+  human:
+    en_US: AgentCore Memory Statistics tool for analyzing memory resource usage (event count, storage size, actor/session statistics, timeline)
+    zh_Hans: AgentCore 记忆统计工具，用于分析记忆资源使用情况（事件数、存储大小、参与者/会话统计、时间线）
+    pt_BR: Ferramenta de estatísticas de memória AgentCore para analisar o uso de recursos de memória (contagem de eventos, tamanho de armazenamento, estatísticas de ator/sessão, linha do tempo)
+    ja_JP: AgentCore のメモリーリソースの使用状況を分析するツールです（イベント数、ストレージサイズ、Actor/Session 統計、時系列推移）
+  llm: |
+    AGENTCORE MEMORY STATISTICS TOOL - Tool for analyzing Memory resource usage and activity.
+    
+    OPERATIONS:
+    1. **GET_STATISTICS** - Get basic statistics (event count, storage size, actor count, session count)
+    2. **GET_ACTOR_STATISTICS** - Get per-actor statistics (event count, session count, last activity)
+    3. **GET_SESSION_STATISTICS** - Get per-session statistics (event count, message count, duration)
+    4. **GET_TIMELINE** - Get time-series event count trends with specified granularity
+    
+    WHEN TO USE:
+    - Get Statistics: Need overview of memory usage (total events, storage, actors, sessions)
+    - Get Actor Statistics: Need to analyze user activity and engagement patterns
+    - Get Session Statistics: Need to understand conversation patterns and session lengths
+    - Get Timeline: Need to visualize event trends over time (hourly, daily, weekly, monthly)
+    
+    **Use Cases**:
+    - Cost Analysis: Monitor storage usage and event counts to estimate costs
+    - User Activity: Track active users and their engagement levels
+    - Session Analysis: Understand conversation patterns and session durations
+    - Trend Analysis: Identify usage patterns and peak activity times
+    
+    **Caching**:
+    - Statistics are cached for 5 minutes (300 seconds) by default
+    - Use "use_cache: false" to force fresh data retrieval
+    - Cache improves performance for frequently accessed statistics
+    
+    **Time Ranges**:
+    - Supports ISO 8601 format: "2025-01-01T00:00:00Z"
+    - Supports relative times: "1h", "24h", "7d", "30d"
+    - Granularity options: hour, day, week, month
+
+parameters:
+  - name: operation
+    type: select
+    required: true
+    options:
+      - value: get_statistics
+        label:
+          en_US: Get Statistics
+          zh_Hans: 获取统计信息
+          pt_BR: Obter Estatísticas
+          ja_JP: 統計情報取得
+      - value: get_actor_statistics
+        label:
+          en_US: Get Actor Statistics
+          zh_Hans: 获取参与者统计
+          pt_BR: Obter Estatísticas de Ator
+          ja_JP: Actor 別統計取得
+      - value: get_session_statistics
+        label:
+          en_US: Get Session Statistics
+          zh_Hans: 获取会话统计
+          pt_BR: Obter Estatísticas de Sessão
+          ja_JP: Session 別統計取得
+      - value: get_timeline
+        label:
+          en_US: Get Timeline
+          zh_Hans: 获取时间线
+          pt_BR: Obter Linha do Tempo
+          ja_JP: 時系列推移取得
+    label:
+      en_US: Operation
+      zh_Hans: 操作
+      pt_BR: Operação
+      ja_JP: 操作
+    human_description:
+      en_US: Select the statistics operation to perform
+      zh_Hans: 选择要执行的统计操作
+      pt_BR: Selecione a operação de estatísticas a ser executada
+      ja_JP: 実行する統計操作を選択します
+    llm_description: |
+      The type of statistics operation to perform:
+      - "get_statistics": Get basic memory statistics
+      - "get_actor_statistics": Get per-actor statistics
+      - "get_session_statistics": Get per-session statistics
+      - "get_timeline": Get time-series event trends
+    form: llm
+
+  - name: memory_id
+    type: string
+    required: true
+    label:
+      en_US: Memory ID
+      zh_Hans: 记忆ID
+      pt_BR: ID da Memória
+      ja_JP: メモリー ID
+    human_description:
+      en_US: ID of the memory resource to analyze
+      zh_Hans: 要分析的记忆资源ID
+      pt_BR: ID do recurso de memória a ser analisado
+      ja_JP: 分析対象のメモリーリソース ID
+    llm_description: |
+      The memory resource ID to analyze. Required for all operations.
+    form: llm
+
+  - name: metrics
+    type: string
+    required: false
+    label:
+      en_US: Metrics (comma-separated)
+      zh_Hans: 指标（逗号分隔）
+      pt_BR: Métricas (separadas por vírgula)
+      ja_JP: メトリクス（カンマ区切り）
+    human_description:
+      en_US: "Comma-separated list of metrics to retrieve (for get_statistics operation). Options: event_count, storage_size, actor_count, session_count"
+      zh_Hans: "要检索的指标列表（逗号分隔，用于get_statistics操作）。选项：event_count, storage_size, actor_count, session_count"
+      pt_BR: "Lista de métricas separadas por vírgula para recuperar (para operação get_statistics). Opções: event_count, storage_size, actor_count, session_count"
+      ja_JP: "取得するメトリクスのリスト（カンマ区切り、get_statistics 操作用）。オプション: event_count, storage_size, actor_count, session_count"
+    llm_description: |
+      Optional comma-separated list of metrics to retrieve for get_statistics operation.
+      Available metrics: event_count, storage_size, actor_count, session_count
+      If not specified, all metrics will be returned.
+    form: llm
+
+  - name: use_cache
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Use Cache
+      zh_Hans: 使用缓存
+      pt_BR: Usar Cache
+      ja_JP: キャッシュを使用
+    human_description:
+      en_US: "Whether to use cached statistics (default: true). Set to false to force fresh data retrieval."
+      zh_Hans: "是否使用缓存的统计信息（默认：true）。设置为false以强制检索新数据。"
+      pt_BR: "Se deve usar estatísticas em cache (padrão: true). Defina como false para forçar a recuperação de dados novos."
+      ja_JP: "キャッシュされた統計情報を使用するか（デフォルト: true）。false に設定すると最新データを取得します。"
+    llm_description: |
+      Whether to use cached statistics. Default is true.
+      Set to false to force fresh data retrieval.
+    form: llm
+
+  - name: top_n
+    type: number
+    required: false
+    default: 10
+    label:
+      en_US: Top N Results
+      zh_Hans: 前N个结果
+      pt_BR: Top N Resultados
+      ja_JP: 上位 N 件
+    human_description:
+      en_US: "Number of top results to return (for actor/session statistics, default: 10)"
+      zh_Hans: "返回的前N个结果数（用于参与者/会话统计，默认：10）"
+      pt_BR: "Número de resultados principais a retornar (para estatísticas de ator/sessão, padrão: 10)"
+      ja_JP: "返す上位結果の数（Actor/Session 統計用、デフォルト: 10）"
+    llm_description: |
+      Number of top results to return for actor/session statistics operations.
+      Default is 10. Maximum is 100.
+    form: llm
+
+  - name: sort_by
+    type: select
+    required: false
+    options:
+      - value: event_count
+        label:
+          en_US: Event Count
+          zh_Hans: 事件数
+          pt_BR: Contagem de Eventos
+          ja_JP: イベント数
+      - value: message_count
+        label:
+          en_US: Message Count
+          zh_Hans: 消息数
+          pt_BR: Contagem de Mensagens
+          ja_JP: メッセージ数
+      - value: last_activity
+        label:
+          en_US: Last Activity
+          zh_Hans: 最后活动
+          pt_BR: Última Atividade
+          ja_JP: 最終アクティビティ
+    label:
+      en_US: Sort By
+      zh_Hans: 排序依据
+      pt_BR: Ordenar Por
+      ja_JP: ソート基準
+    human_description:
+      en_US: "Sort order for actor/session statistics (default: event_count)"
+      zh_Hans: "参与者/会话统计的排序顺序（默认：event_count）"
+      pt_BR: "Ordem de classificação para estatísticas de ator/sessão (padrão: event_count)"
+      ja_JP: "Actor/Session 統計のソート順（デフォルト: event_count）"
+    llm_description: |
+      Sort order for actor/session statistics operations.
+      Options: event_count, message_count, last_activity
+      Default is event_count.
+    form: llm
+
+  - name: actor_id
+    type: string
+    required: false
+    label:
+      en_US: Actor ID
+      zh_Hans: 参与者ID
+      pt_BR: ID do Ator
+      ja_JP: Actor ID
+    human_description:
+      en_US: Filter by specific actor ID (optional for session statistics and timeline)
+      zh_Hans: 按特定参与者ID筛选（用于会话统计和时间线，可选）
+      pt_BR: Filtrar por ID de ator específico (opcional para estatísticas de sessão e linha do tempo)
+      ja_JP: 特定の Actor ID でフィルタリング（Session 統計と時系列推移で任意）
+    llm_description: |
+      Optional actor ID filter for session statistics and timeline operations.
+      Only data for the specified actor will be returned.
+    form: llm
+
+  - name: start_time
+    type: string
+    required: false
+    label:
+      en_US: Start Time
+      zh_Hans: 开始时间
+      pt_BR: Hora de Início
+      ja_JP: 開始時刻
+    human_description:
+      en_US: "Start time for time range filter (ISO 8601 format or relative time like \"1h\", \"24h\", \"7d\")"
+      zh_Hans: "时间范围筛选的开始时间（ISO 8601格式或相对时间如\"1h\"、\"24h\"、\"7d\"）"
+      pt_BR: "Hora de início para filtro de intervalo de tempo (formato ISO 8601 ou tempo relativo como \"1h\", \"24h\", \"7d\")"
+      ja_JP: "時間範囲フィルターの開始時刻（ISO 8601 形式または相対時間 \"1h\", \"24h\", \"7d\"）"
+    llm_description: |
+      Start time for time range filter. Supports ISO 8601 format or relative times.
+      Examples: "2025-01-01T00:00:00Z", "1h", "24h", "7d", "30d"
+    form: llm
+
+  - name: end_time
+    type: string
+    required: false
+    label:
+      en_US: End Time
+      zh_Hans: 结束时间
+      pt_BR: Hora de Término
+      ja_JP: 終了時刻
+    human_description:
+      en_US: "End time for time range filter (ISO 8601 format or relative time)"
+      zh_Hans: "时间范围筛选的结束时间（ISO 8601格式或相对时间）"
+      pt_BR: "Hora de término para filtro de intervalo de tempo (formato ISO 8601 ou tempo relativo)"
+      ja_JP: "時間範囲フィルターの終了時刻（ISO 8601 形式または相対時間）"
+    llm_description: |
+      End time for time range filter. Supports ISO 8601 format or relative times.
+      If not specified, current time is used.
+    form: llm
+
+  - name: granularity
+    type: select
+    required: false
+    options:
+      - value: hour
+        label:
+          en_US: Hour
+          zh_Hans: 小时
+          pt_BR: Hora
+          ja_JP: 時間
+      - value: day
+        label:
+          en_US: Day
+          zh_Hans: 天
+          pt_BR: Dia
+          ja_JP: 日
+      - value: week
+        label:
+          en_US: Week
+          zh_Hans: 周
+          pt_BR: Semana
+          ja_JP: 週
+      - value: month
+        label:
+          en_US: Month
+          zh_Hans: 月
+          pt_BR: Mês
+          ja_JP: 月
+    label:
+      en_US: Granularity
+      zh_Hans: 粒度
+      pt_BR: Granularidade
+      ja_JP: 粒度
+    human_description:
+      en_US: "Time granularity for timeline operation (hour, day, week, month)"
+      zh_Hans: "时间线操作的时间粒度（小时、天、周、月）"
+      pt_BR: "Granularidade de tempo para operação de linha do tempo (hora, dia, semana, mês)"
+      ja_JP: "時系列推移操作の時間粒度（時間、日、週、月）"
+    llm_description: |
+      Time granularity for timeline operation.
+      Options: hour, day, week, month
+      Required for get_timeline operation.
+    form: llm
+
+  - name: metric
+    type: string
+    required: false
+    default: event_count
+    label:
+      en_US: Metric
+      zh_Hans: 指标
+      pt_BR: Métrica
+      ja_JP: メトリクス
+    human_description:
+      en_US: "Metric to track in timeline (default: event_count)"
+      zh_Hans: "时间线中要跟踪的指标（默认：event_count）"
+      pt_BR: "Métrica a rastrear na linha do tempo (padrão: event_count)"
+      ja_JP: "時系列推移で追跡するメトリクス（デフォルト: event_count）"
+    llm_description: |
+      Metric to track in timeline operation. Default is event_count.
+      Used for get_timeline operation.
+    form: llm
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      pt_BR: Região AWS
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for the AgentCore Memory service (optional)
+      zh_Hans: AgentCore Memory服务的AWS区域（可选）
+      pt_BR: Região AWS para o serviço AgentCore Memory (opcional)
+      ja_JP: AgentCore Memory サービスを利用する AWS リージョン（任意）
+    llm_description: AWS region for the AgentCore Memory service.
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      pt_BR: ID da Chave de Acesso AWS
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      pt_BR: ID da chave de acesso AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS アクセスキー ID（任意）
+    llm_description: AWS access key ID for authentication.
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      pt_BR: Chave de Acesso Secreta AWS
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      pt_BR: Chave de acesso secreta AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS シークレットアクセスキー（任意）
+    llm_description: AWS secret access key for authentication.
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_memory_statistics.py

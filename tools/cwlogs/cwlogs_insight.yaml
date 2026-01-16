@@ -11,7 +11,7 @@ description:
     en_US: Execute advanced CloudWatch Logs Insight queries for log analysis, aggregation, and visualization with powerful query language support.
     zh_Hans: 执行高级 CloudWatch Logs Insight 查询，支持强大的查询语言进行日志分析、聚合和可视化。
     pt_BR: Execute consultas avançadas do CloudWatch Logs Insight para análise, agregação e visualização de logs com suporte a linguagem de consulta poderosa.
-    ja_JP: CloudWatch Logs Insightの強力なクエリ言語を使用して高度なログ分析、集計、可視化を実行します。
+    ja_JP: CloudWatch Logs Insight の強力なクエリ言語を使用して高度なログ分析、集計、可視化を実行します。
   llm: Execute CloudWatch Logs Insight queries using the powerful Logs Insight query language for advanced log analysis, filtering, aggregation, and statistical operations with structured JSON results and human-readable summaries.
 parameters:
   - name: aws_access_key_id

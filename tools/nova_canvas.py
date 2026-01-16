@@ -1,6 +1,6 @@
 """
 場所: tools/nova_canvas.py
-内容: AWS Bedrock Nova Canvas モデルを利用して画像生成・編集を行うツール。
+内容: Amazon Bedrock Nova Canvas モデルを利用して画像生成・編集を行うツール。
 目的: Dify からのテキスト/画像入力を Nova Canvas API に橋渡しし、S3 へ結果を保存する。
 """
 
@@ -33,7 +33,7 @@ class NovaCanvasTool(Tool):
         self, tool_parameters: dict[str, Any]
     ) -> Generator[ToolInvokeMessage]:
         """
-        Invoke AWS Bedrock Nova Canvas model for image generation
+        Invoke Amazon Bedrock Nova Canvas model for image generation
         """
         # 共通パラメータを取得
         prompt = tool_parameters.get("prompt", "")

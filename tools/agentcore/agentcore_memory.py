@@ -1,7 +1,7 @@
 """
 場所: tools/agentcore/agentcore_memory.py
 内容: Bedrock AgentCore Memory SDK を利用してメモリーリソースへ会話ログを記録/取得する Dify ツール。
-目的: Workflow から AgentCore メモリーを生成し、情報の記録(record)と履歴取得(retrieve)を安全に実行できるようにする。
+目的: Workflow から AgentCore Memoryを生成し、情報の記録(record)と履歴取得(retrieve)を安全に実行できるようにする。
 """
 
 import json

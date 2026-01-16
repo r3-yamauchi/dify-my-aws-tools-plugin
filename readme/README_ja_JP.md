@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.8  
+**Version:** 1.0.9  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -46,8 +46,19 @@
 - CloudWatch Logs Get Events
 - CloudWatch Logs Insight
 - Agentcore Code Interpreter
+- Agentcore Code Interpreter Files
 - Agentcore Memory
 - Agentcore Memory Search
+- Agentcore Memory Search Advanced
+- Agentcore Memory Backup
+- Agentcore Memory Merge/Split
+- Agentcore Memory Manager
+- Agentcore Memory Query
+- Agentcore Memory Statistics
+- Agentcore Memory Template
+- Agentcore Event Manager
+- Agentcore Runtime
+- Agentcore Observability
 
 ## ライセンスとクレジット
 
@@ -338,7 +349,263 @@ yaml_content: |
 }
 ```
 
-### エージェントコア連携
+### Amazon Bedrock AgentCore連携
+
+- **AgentCore Runtime**: Runtime エージェントの起動、呼び出し、ステータス確認を行います。同期・非同期の両方の呼び出しモードをサポートし、セッション管理や実行結果の取得が可能です。
+
+```json
+{
+  "operation": "invoke",
+  "agent_id": "agent-abc123",
+  "input_text": "データ分析を実行してください",
+  "session_id": "session-001",
+  "enable_trace": true,
+  "end_session": false
+}
+```
+
+- **AgentCore Memory Manager**: Memory リソースのライフサイクル管理を行います。Memory の一覧取得、詳細情報の取得、作成、削除が可能で、フィルタリングやソート機能も提供します。
+
+```json
+{
+  "operation": "list",
+  "max_results": 50,
+  "filter_name_prefix": "prod-",
+  "sort_by": "createdAt",
+  "sort_order": "desc"
+}
+```
+
+```json
+{
+  "operation": "create",
+  "memory_name": "customer-support-memory",
+  "description": "カスタマーサポート用のメモリー",
+  "tags": {
+    "Environment": "production",
+    "Team": "support"
+  }
+}
+```
+
+- **AgentCore Event Manager**: Memory イベントの詳細管理を行います。イベントの一覧取得、詳細取得、削除（個別・バッチ）、エクスポート（JSON、CSV）が可能で、時間範囲や Actor ID、Session ID でのフィルタリングをサポートします。
+
+```json
+{
+  "operation": "list",
+  "memory_id": "mem-abc123",
+  "start_time": "2025-01-01T00:00:00Z",
+  "end_time": "2025-01-31T23:59:59Z",
+  "filter_actor_id": "user001",
+  "max_results": 100
+}
+```
+
+```json
+{
+  "operation": "export",
+  "memory_id": "mem-abc123",
+  "format": "csv",
+  "output_location": "s3://my-bucket/exports/events.csv",
+  "start_time": "1w"
+}
+```
+
+- **AgentCore Memory Statistics**: Memory の使用状況を分析します。Memory リソースの統計情報、Actor 別のイベント数集計、Session 別のイベント数集計、時系列でのイベント数推移を取得できます。
+
+```json
+{
+  "operation": "memory_stats",
+  "memory_id": "mem-abc123"
+}
+```
+
+```json
+{
+  "operation": "actor_stats",
+  "memory_id": "mem-abc123",
+  "start_time": "7d",
+  "top_n": 10
+}
+```
+
+```json
+{
+  "operation": "timeline",
+  "memory_id": "mem-abc123",
+  "start_time": "2025-01-01T00:00:00Z",
+  "end_time": "2025-01-31T23:59:59Z",
+  "interval": "1h"
+}
+```
+
+- **AgentCore Observability**: AgentCore Observability のデータを統合的に取得します。セッション・トレース・スパンのメトリクス、CloudWatch Logs からのログ取得、X-Ray トレースデータの取得、パフォーマンス分析とボトルネック特定が可能です。
+
+```json
+{
+  "operation": "get_session_metrics",
+  "session_id": "session-abc123",
+  "metric_types": "duration,token_count,error_rate"
+}
+```
+
+```json
+{
+  "operation": "get_logs",
+  "log_group_name": "/aws/bedrock/agentcore",
+  "start_time": "1h",
+  "filter_pattern": "ERROR",
+  "max_events": 100
+}
+```
+
+```json
+{
+  "operation": "analyze_performance",
+  "trace_id": "trace-abc123",
+  "include_bottlenecks": true
+}
+```
+
+- **AgentCore Memory Backup**: Memory リソースの完全なバックアップ・リストア機能を提供します。ディザスタリカバリや環境間のデータ移行に使用できます。バックアップは S3 に保存され、オプションで圧縮・暗号化が可能です。
+
+```json
+{
+  "operation": "backup",
+  "memory_id": "mem-abc123",
+  "backup_location": "s3://my-backup-bucket/backups/",
+  "include_events": true,
+  "include_strategies": true,
+  "compression": "gzip",
+  "encryption": true
+}
+```
+
+```json
+{
+  "operation": "restore",
+  "backup_location": "s3://my-backup-bucket/backups/mem-abc123-20250115.json.gz",
+  "target_memory_id": "mem-new123",
+  "conflict_resolution": "skip"
+}
+```
+
+- **AgentCore Memory Merge/Split**: Memory リソースのマージ・分割・イベントコピー機能を提供します。複数の Memory を統合したり、1つの Memory を Actor や Session ごとに分割したり、特定の条件に一致するイベントのみをコピーできます。
+
+```json
+{
+  "operation": "merge",
+  "source_memory_ids": "mem-abc123,mem-def456,mem-ghi789",
+  "target_memory_id": "mem-merged",
+  "merge_conflict_resolution": "keep_latest",
+  "deduplicate": true,
+  "merge_strategies": true
+}
+```
+
+```json
+{
+  "operation": "split",
+  "source_memory_id": "mem-abc123",
+  "split_by": "actor_id",
+  "target_memory_prefix": "memory-actor-",
+  "create_index": true
+}
+```
+
+- **AgentCore Memory Query**: 複雑な検索条件を構築して Memory を検索します。複数条件の組み合わせ（AND/OR/NOT）、正規表現検索、類似度検索（ベクトル検索）、クエリの保存と再利用が可能です。
+
+```json
+{
+  "operation": "search",
+  "memory_id": "mem-abc123",
+  "query": {
+    "and": [
+      {"field": "actor_id", "operator": "equals", "value": "user001"},
+      {"field": "timestamp", "operator": "greater_than", "value": "2025-01-01T00:00:00Z"}
+    ]
+  },
+  "max_results": 50
+}
+```
+
+```json
+{
+  "operation": "similarity_search",
+  "memory_id": "mem-abc123",
+  "query_text": "エラーの原因を調査",
+  "top_k": 10,
+  "similarity_threshold": 0.7
+}
+```
+
+- **AgentCore Memory Template**: Memory 設定のテンプレート化を行います。Memory 設定テンプレートの作成、テンプレートからの Memory 作成、テンプレートの共有とインポート、バージョン管理が可能です。
+
+```json
+{
+  "operation": "create_template",
+  "template_name": "customer-support-template",
+  "description": "カスタマーサポート用の標準テンプレート",
+  "memory_config": {
+    "retention_days": 90,
+    "max_events": 10000,
+    "enable_search": true
+  },
+  "tags": {
+    "Type": "support",
+    "Version": "1.0"
+  }
+}
+```
+
+```json
+{
+  "operation": "create_from_template",
+  "template_id": "template-abc123",
+  "memory_name": "support-team-a-memory",
+  "override_config": {
+    "retention_days": 180
+  }
+}
+```
+
+- **AgentCore Code Interpreter Files**: Code Interpreter のファイル管理を行います。ファイルアップロード（ローカル/Base64）、実行結果のファイル取得、ファイル一覧取得（フィルター、ソート）、ファイル削除（単一/一括）が可能で、ファイルサイズ制限（100MB）とセキュリティチェックを実装しています。
+
+```json
+{
+  "operation": "upload",
+  "session_id": "session-abc123",
+  "file_path": "/path/to/data.csv",
+  "file_name": "data.csv",
+  "description": "分析用データ"
+}
+```
+
+```json
+{
+  "operation": "list",
+  "session_id": "session-abc123",
+  "filter_extension": ".csv",
+  "sort_by": "upload_time",
+  "sort_order": "desc"
+}
+```
+
+- **AgentCore Memory Search Advanced**: Memory Search の機能を拡張します。フィルター条件の追加（時間範囲、Actor ID、Session ID、Namespace）、ソート順の指定（関連度、タイムスタンプ）、ページネーション（最大100件/ページ）、ハイライト機能（カスタマイズ可能）、コンテキスト抽出が可能です。
+
+```json
+{
+  "memory_id": "mem-abc123",
+  "query": "エラー処理",
+  "filter_actor_id": "user001",
+  "filter_start_time": "2025-01-01T00:00:00Z",
+  "filter_end_time": "2025-01-31T23:59:59Z",
+  "sort_by": "relevance",
+  "page_size": 50,
+  "enable_highlight": true,
+  "context_size": 100
+}
+```
 
 - **Agentcore Code Interpreter**: Code Interpreter セッションを作成/利用してコマンドやコードを実行します。
 

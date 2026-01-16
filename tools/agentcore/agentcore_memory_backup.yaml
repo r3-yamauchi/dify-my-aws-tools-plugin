@@ -1,0 +1,328 @@
+identity:
+  name: agentcore_memory_backup
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Memory Backup
+    zh_Hans: AgentCore 记忆备份
+    pt_BR: Backup de Memória AgentCore
+    ja_JP: AgentCore Memory バックアップ
+  icon: icon.svg
+
+description:
+  human:
+    en_US: AgentCore Memory backup and restore tool for disaster recovery and data migration
+    zh_Hans: AgentCore 记忆备份和恢复工具，用于灾难恢复和数据迁移
+    pt_BR: Ferramenta de backup e restauração de memória AgentCore para recuperação de desastres e migração de dados
+    ja_JP: AgentCore のメモリーリソースのバックアップ・リストア機能を提供し、ディザスタリカバリとデータ移行を実現します
+  llm: |
+    AGENTCORE MEMORY BACKUP TOOL - Tool for memory backup, restore, and management operations.
+    
+    OPERATIONS:
+    1. **BACKUP** - Create a complete backup of a Memory resource to S3
+    2. **RESTORE** - Restore a Memory resource from a backup file
+    3. **LIST_BACKUPS** - List all backups in a specified S3 location
+    4. **VERIFY_BACKUP** - Verify the integrity of a backup file
+    
+    WHEN TO USE:
+    - Backup: Before major changes, for disaster recovery, or scheduled backups
+    - Restore: After data loss, for environment migration, or testing
+    - List Backups: To find available backups for restore
+    - Verify Backup: To check backup integrity before restore
+    
+    **Functions**:
+    - Backup: Creates JSON backup with events, strategies, and metadata
+    - Restore: Restores from backup with conflict resolution strategies
+    - List: Enumerates backups with filtering by Memory ID
+    - Verify: Validates backup structure and data consistency
+    
+    All backups are stored in S3 with optional compression and encryption.
+
+parameters:
+  - name: operation
+    type: select
+    required: true
+    options:
+      - value: backup
+        label:
+          en_US: Backup Memory
+          zh_Hans: 备份记忆
+          pt_BR: Backup de Memória
+          ja_JP: メモリーをバックアップ
+      - value: restore
+        label:
+          en_US: Restore Memory
+          zh_Hans: 恢复记忆
+          pt_BR: Restaurar Memória
+          ja_JP: メモリーをリストア
+      - value: list_backups
+        label:
+          en_US: List Backups
+          zh_Hans: 列出备份
+          pt_BR: Listar Backups
+          ja_JP: バックアップ一覧
+      - value: verify_backup
+        label:
+          en_US: Verify Backup
+          zh_Hans: 验证备份
+          pt_BR: Verificar Backup
+          ja_JP: バックアップを検証
+    label:
+      en_US: Operation
+      zh_Hans: 操作
+      pt_BR: Operação
+      ja_JP: 操作
+    human_description:
+      en_US: Select the backup operation to perform
+      zh_Hans: 选择要执行的备份操作
+      pt_BR: Selecione a operação de backup a ser executada
+      ja_JP: 実行するバックアップ操作を選択します
+    llm_description: |
+      The type of backup operation to perform:
+      - "backup": Create a complete backup of a Memory resource
+      - "restore": Restore a Memory resource from a backup file
+      - "list_backups": List all available backups
+      - "verify_backup": Verify backup file integrity
+    form: llm
+
+  - name: memory_id
+    type: string
+    required: false
+    label:
+      en_US: Memory ID
+      zh_Hans: 记忆ID
+      pt_BR: ID da Memória
+      ja_JP: メモリー ID
+    human_description:
+      en_US: ID of the memory resource (required for backup operation)
+      zh_Hans: 记忆资源ID（备份操作必需）
+      pt_BR: ID do recurso de memória (obrigatório para operação de backup)
+      ja_JP: バックアップ対象のメモリーリソース ID（backup 操作時は必須）
+    llm_description: |
+      The memory resource ID from AWS Console AgentCore Memory service.
+      Required for "backup" operation.
+      Optional for "list_backups" operation (used as filter).
+    form: llm
+
+  - name: backup_location
+    type: string
+    required: false
+    label:
+      en_US: Backup Location (S3 URI)
+      zh_Hans: 备份位置（S3 URI）
+      pt_BR: Local do Backup (S3 URI)
+      ja_JP: バックアップ保存先（S3 URI）
+    human_description:
+      en_US: "S3 URI for backup file (e.g., s3://bucket/path/backup.json)"
+      zh_Hans: "备份文件的S3 URI（例如：s3://bucket/path/backup.json）"
+      pt_BR: "URI S3 para arquivo de backup (ex: s3://bucket/path/backup.json)"
+      ja_JP: "バックアップファイルの S3 URI（例：s3://bucket/path/backup.json）"
+    llm_description: |
+      S3 URI for the backup file location.
+      - For "backup": Destination path (file will be auto-named if only prefix provided)
+      - For "restore" and "verify_backup": Source backup file path
+      - For "list_backups": S3 prefix to list backups from
+      Format: s3://bucket-name/path/to/file.json
+    form: llm
+
+  - name: target_memory_id
+    type: string
+    required: false
+    label:
+      en_US: Target Memory ID
+      zh_Hans: 目标记忆ID
+      pt_BR: ID da Memória de Destino
+      ja_JP: リストア先メモリー ID
+    human_description:
+      en_US: Target Memory ID for restore (optional, creates new if not provided)
+      zh_Hans: 恢复的目标记忆ID（可选，如果未提供则创建新的）
+      pt_BR: ID da memória de destino para restauração (opcional, cria nova se não fornecido)
+      ja_JP: リストア先のメモリー ID（未指定の場合は新規作成）
+    llm_description: |
+      Target Memory ID for restore operation.
+      If not provided, a new Memory resource will be created.
+      Only used for "restore" operation.
+    form: llm
+
+  - name: include_events
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Include Events
+      zh_Hans: 包含事件
+      pt_BR: Incluir Eventos
+      ja_JP: イベントを含める
+    human_description:
+      en_US: "Include events in backup (default: true)"
+      zh_Hans: "在备份中包含事件（默认：true）"
+      pt_BR: "Incluir eventos no backup (padrão: true)"
+      ja_JP: "バックアップにイベントを含めるか（デフォルト：true）"
+    llm_description: |
+      Whether to include events in the backup.
+      Only used for "backup" operation.
+    form: llm
+
+  - name: include_strategies
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Include Strategies
+      zh_Hans: 包含策略
+      pt_BR: Incluir Estratégias
+      ja_JP: 戦略を含める
+    human_description:
+      en_US: "Include memory strategies in backup (default: true)"
+      zh_Hans: "在备份中包含记忆策略（默认：true）"
+      pt_BR: "Incluir estratégias de memória no backup (padrão: true)"
+      ja_JP: "バックアップにメモリー戦略を含めるか（デフォルト：true）"
+    llm_description: |
+      Whether to include memory strategies in the backup.
+      Only used for "backup" operation.
+    form: llm
+
+  - name: compression
+    type: select
+    required: false
+    default: gzip
+    options:
+      - value: gzip
+        label:
+          en_US: GZIP Compression
+          zh_Hans: GZIP 压缩
+          pt_BR: Compressão GZIP
+          ja_JP: GZIP 圧縮
+      - value: none
+        label:
+          en_US: No Compression
+          zh_Hans: 不压缩
+          pt_BR: Sem Compressão
+          ja_JP: 圧縮なし
+    label:
+      en_US: Compression
+      zh_Hans: 压缩
+      pt_BR: Compressão
+      ja_JP: 圧縮形式
+    human_description:
+      en_US: "Compression format for backup file (default: gzip)"
+      zh_Hans: "备份文件的压缩格式（默认：gzip）"
+      pt_BR: "Formato de compressão para arquivo de backup (padrão: gzip)"
+      ja_JP: "バックアップファイルの圧縮形式（デフォルト：gzip）"
+    llm_description: |
+      Compression format for the backup file.
+      - "gzip": Compress with gzip (recommended for large backups)
+      - "none": No compression
+      Only used for "backup" operation.
+    form: llm
+
+  - name: encryption
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Enable Encryption
+      zh_Hans: 启用加密
+      pt_BR: Habilitar Criptografia
+      ja_JP: 暗号化を有効化
+    human_description:
+      en_US: "Enable S3 server-side encryption (default: true)"
+      zh_Hans: "启用S3服务器端加密（默认：true）"
+      pt_BR: "Habilitar criptografia do lado do servidor S3 (padrão: true)"
+      ja_JP: "S3 サーバーサイド暗号化を有効化（デフォルト：true）"
+    llm_description: |
+      Whether to enable S3 server-side encryption (SSE-S3).
+      Only used for "backup" operation.
+    form: llm
+
+  - name: conflict_resolution
+    type: select
+    required: false
+    default: skip
+    options:
+      - value: skip
+        label:
+          en_US: Skip Existing
+          zh_Hans: 跳过现有
+          pt_BR: Pular Existentes
+          ja_JP: 既存をスキップ
+      - value: overwrite
+        label:
+          en_US: Overwrite Existing
+          zh_Hans: 覆盖现有
+          pt_BR: Sobrescrever Existentes
+          ja_JP: 既存を上書き
+      - value: merge
+        label:
+          en_US: Merge Events
+          zh_Hans: 合并事件
+          pt_BR: Mesclar Eventos
+          ja_JP: イベントをマージ
+    label:
+      en_US: Conflict Resolution
+      zh_Hans: 冲突解决
+      pt_BR: Resolução de Conflitos
+      ja_JP: 競合解決戦略
+    human_description:
+      en_US: "Strategy for handling existing events during restore (default: skip)"
+      zh_Hans: "恢复期间处理现有事件的策略（默认：skip）"
+      pt_BR: "Estratégia para lidar com eventos existentes durante a restauração (padrão: skip)"
+      ja_JP: "リストア時の既存イベントの処理方法（デフォルト：skip）"
+    llm_description: |
+      Strategy for handling conflicts when restoring to an existing Memory:
+      - "skip": Skip events that already exist
+      - "overwrite": Overwrite existing events
+      - "merge": Merge events from both sources
+      Only used for "restore" operation.
+    form: llm
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      pt_BR: Região AWS
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for AgentCore and S3 services (optional)
+      zh_Hans: AgentCore和S3服务的AWS区域（可选）
+      pt_BR: Região AWS para serviços AgentCore e S3 (opcional)
+      ja_JP: AgentCore と S3 サービスを利用する AWS リージョン（任意）
+    llm_description: AWS region for AgentCore Memory and S3 services.
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      pt_BR: ID da Chave de Acesso AWS
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      pt_BR: ID da chave de acesso AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS アクセスキー ID（任意）
+    llm_description: AWS access key ID for authentication.
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      pt_BR: Chave de Acesso Secreta AWS
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      pt_BR: Chave de acesso secreta AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS シークレットアクセスキー（任意）
+    llm_description: AWS secret access key for authentication.
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_memory_backup.py

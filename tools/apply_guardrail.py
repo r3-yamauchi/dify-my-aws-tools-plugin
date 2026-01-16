@@ -105,7 +105,7 @@ class ApplyGuardrailTool(Tool):
 
             # 👉 応答が空ならユーザーに知らせる
             if not response:
-                yield self.create_text_message(text="Received empty response from AWS Bedrock.")
+                yield self.create_text_message(text="Received empty response from Amazon Bedrock.")
 
             # 👉 代表的なフィールドを取り出して人が読めるテキストに整形
             action = response.get("action", "No action specified")

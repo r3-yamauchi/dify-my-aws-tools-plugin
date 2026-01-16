@@ -1,0 +1,567 @@
+identity:
+  name: agentcore_memory_template
+  author: r3-yamauchi
+  label:
+    en_US: AgentCore Memory Template Manager
+    zh_Hans: AgentCore 记忆模板管理器
+    pt_BR: Gerenciador de Modelos de Memória AgentCore
+    ja_JP: AgentCore Memory テンプレート管理
+  icon: icon.svg
+
+description:
+  human:
+    en_US: Create, manage, and apply Memory configuration templates for efficient Memory resource creation
+    zh_Hans: 创建、管理和应用记忆配置模板以实现高效的记忆资源创建
+    pt_BR: Crie, gerencie e aplique modelos de configuração de memória para criação eficiente de recursos de memória
+    ja_JP: Memory 設定テンプレートを作成・管理・適用して、Memory リソースの作成を効率化します
+  llm: |
+    AGENTCORE MEMORY TEMPLATE MANAGER - Tool for creating, managing, and applying Memory configuration templates.
+    
+    OPERATIONS:
+    - **CREATE** - Create a new template with strategies and namespaces
+    - **CREATE_FROM_MEMORY** - Extract template from existing Memory resource
+    - **APPLY** - Create new Memory from template with parameter substitution
+    - **EXPORT** - Export template as JSON (local or S3)
+    - **IMPORT** - Import template from JSON (local or S3)
+    - **LIST** - List all saved templates with optional filters
+    - **DELETE** - Delete a template
+    - **VERSIONS** - Get version history of a template
+    - **COMPARE** - Compare two versions of a template
+    - **REVERT** - Revert template to a specific version
+    
+    WHEN TO USE:
+    - Need to create multiple Memories with similar configurations
+    - Want to standardize Memory settings across team
+    - Need to version control Memory configurations
+    - Want to share Memory configurations with others
+    - Need to quickly recreate Memory with same settings
+    
+    TEMPLATE STRUCTURE:
+    {
+      "strategies": [
+        {
+          "semanticMemoryStrategy": {
+            "name": "semanticMemory",
+            "namespaces": ["/semantic/{actorId}/{sessionId}"]
+          }
+        }
+      ],
+      "namespaces": ["/semantic/{actorId}/{sessionId}"],
+      "tags": ["conversation", "standard"],
+      "metadata": {
+        "author": "admin",
+        "category": "general"
+      }
+    }
+    
+    NAMESPACE VARIABLES:
+    Templates support variable substitution in namespace patterns:
+    - {actorId} - Actor identifier
+    - {sessionId} - Session identifier
+    - {userId} - User identifier
+    - Any custom variable name
+    
+    EXAMPLES:
+    1. Create template from scratch:
+       operation: "create"
+       template_name: "Standard Conversation"
+       strategies: [{"semanticMemoryStrategy": {"name": "semanticMemory", "namespaces": ["/semantic/{actorId}"]}}]
+       tags: ["conversation"]
+    
+    2. Create template from existing Memory:
+       operation: "create_from_memory"
+       memory_id: "mem_12345"
+       template_name: "Production Template"
+    
+    3. Apply template to create new Memory:
+       operation: "apply"
+       template_id: "tmpl_12345"
+       params: {"actorId": "user_001", "sessionId": "session_001"}
+       memory_name: "User Conversation Memory"
+    
+    4. Export template to S3:
+       operation: "export"
+       template_id: "tmpl_12345"
+       destination: "s3://my-bucket/templates/standard.json"
+
+parameters:
+  - name: operation
+    type: select
+    required: true
+    options:
+      - value: create
+        label:
+          en_US: Create Template
+          zh_Hans: 创建模板
+          pt_BR: Criar Modelo
+          ja_JP: テンプレート作成
+      - value: create_from_memory
+        label:
+          en_US: Create from Memory
+          zh_Hans: 从记忆创建
+          pt_BR: Criar da Memória
+          ja_JP: Memory から作成
+      - value: apply
+        label:
+          en_US: Apply Template
+          zh_Hans: 应用模板
+          pt_BR: Aplicar Modelo
+          ja_JP: テンプレート適用
+      - value: export
+        label:
+          en_US: Export Template
+          zh_Hans: 导出模板
+          pt_BR: Exportar Modelo
+          ja_JP: テンプレートエクスポート
+      - value: import
+        label:
+          en_US: Import Template
+          zh_Hans: 导入模板
+          pt_BR: Importar Modelo
+          ja_JP: テンプレートインポート
+      - value: list
+        label:
+          en_US: List Templates
+          zh_Hans: 列出模板
+          pt_BR: Listar Modelos
+          ja_JP: テンプレート一覧
+      - value: delete
+        label:
+          en_US: Delete Template
+          zh_Hans: 删除模板
+          pt_BR: Excluir Modelo
+          ja_JP: テンプレート削除
+      - value: versions
+        label:
+          en_US: Version History
+          zh_Hans: 版本历史
+          pt_BR: Histórico de Versões
+          ja_JP: バージョン履歴
+      - value: compare
+        label:
+          en_US: Compare Versions
+          zh_Hans: 比较版本
+          pt_BR: Comparar Versões
+          ja_JP: バージョン比較
+      - value: revert
+        label:
+          en_US: Revert Version
+          zh_Hans: 恢复版本
+          pt_BR: Reverter Versão
+          ja_JP: バージョン復元
+    default: create
+    label:
+      en_US: Operation
+      zh_Hans: 操作
+      pt_BR: Operação
+      ja_JP: 操作
+    human_description:
+      en_US: The operation to perform on templates
+      zh_Hans: 对模板执行的操作
+      pt_BR: A operação a ser executada nos modelos
+      ja_JP: テンプレートに対して実行する操作
+    llm_description: The operation to perform on templates.
+    form: llm
+
+  - name: template_name
+    type: string
+    required: false
+    label:
+      en_US: Template Name
+      zh_Hans: 模板名称
+      pt_BR: Nome do Modelo
+      ja_JP: テンプレート名
+    human_description:
+      en_US: Name for the template (required for create operations)
+      zh_Hans: 模板的名称（创建操作时必需）
+      pt_BR: Nome para o modelo (obrigatório para operações de criação)
+      ja_JP: テンプレートの名前（作成操作時に必須）
+    llm_description: Name for the template (required for create and create_from_memory operations).
+    form: llm
+
+  - name: template_description
+    type: string
+    required: false
+    label:
+      en_US: Template Description
+      zh_Hans: 模板描述
+      pt_BR: Descrição do Modelo
+      ja_JP: テンプレートの説明
+    human_description:
+      en_US: Description of the template (optional)
+      zh_Hans: 模板的描述（可选）
+      pt_BR: Descrição do modelo (opcional)
+      ja_JP: テンプレートの説明（任意）
+    llm_description: Description of the template (optional).
+    form: llm
+
+  - name: strategies
+    type: string
+    required: false
+    label:
+      en_US: Memory Strategies
+      zh_Hans: 记忆策略
+      pt_BR: Estratégias de Memória
+      ja_JP: メモリー戦略
+    human_description:
+      en_US: JSON array of memory strategies (for create operation)
+      zh_Hans: 记忆策略的JSON数组（用于创建操作）
+      pt_BR: Array JSON de estratégias de memória (para operação de criação)
+      ja_JP: メモリー戦略のJSON配列（作成操作用）
+    llm_description: |
+      JSON array of memory strategies. Each strategy should specify:
+      - semanticMemoryStrategy: For semantic search
+      - summaryMemoryStrategy: For conversation summaries
+      - userPreferenceMemoryStrategy: For user preferences
+      
+      Example: [{"semanticMemoryStrategy": {"name": "semanticMemory", "namespaces": ["/semantic/{actorId}"]}}]
+    form: llm
+
+  - name: namespaces
+    type: string
+    required: false
+    label:
+      en_US: Namespaces
+      zh_Hans: 命名空间
+      pt_BR: Namespaces
+      ja_JP: ネームスペース
+    human_description:
+      en_US: JSON array of namespace patterns with variables (for create operation)
+      zh_Hans: 带变量的命名空间模式的JSON数组（用于创建操作）
+      pt_BR: Array JSON de padrões de namespace com variáveis (para operação de criação)
+      ja_JP: 変数を含むネームスペースパターンのJSON配列（作成操作用）
+    llm_description: |
+      JSON array of namespace patterns. Use {variableName} for substitution.
+      
+      Example: ["/semantic/{actorId}/{sessionId}", "/summaries/{actorId}"]
+    form: llm
+
+  - name: tags
+    type: string
+    required: false
+    label:
+      en_US: Tags
+      zh_Hans: 标签
+      pt_BR: Tags
+      ja_JP: タグ
+    human_description:
+      en_US: JSON array or comma-separated tags (optional)
+      zh_Hans: JSON数组或逗号分隔的标签（可选）
+      pt_BR: Array JSON ou tags separadas por vírgula (opcional)
+      ja_JP: JSON配列またはカンマ区切りのタグ（任意）
+    llm_description: JSON array or comma-separated tags for categorizing templates.
+    form: llm
+
+  - name: metadata
+    type: string
+    required: false
+    label:
+      en_US: Metadata
+      zh_Hans: 元数据
+      pt_BR: Metadados
+      ja_JP: メタデータ
+    human_description:
+      en_US: JSON object with additional metadata (optional)
+      zh_Hans: 包含附加元数据的JSON对象（可选）
+      pt_BR: Objeto JSON com metadados adicionais (opcional)
+      ja_JP: 追加メタデータを含むJSONオブジェクト（任意）
+    llm_description: "JSON object with additional metadata (e.g., {\"author\": \"admin\", \"category\": \"general\"})."
+    form: llm
+
+  - name: memory_id
+    type: string
+    required: false
+    label:
+      en_US: Memory ID
+      zh_Hans: 记忆ID
+      pt_BR: ID da Memória
+      ja_JP: メモリー ID
+    human_description:
+      en_US: ID of the memory resource (required for create_from_memory operation)
+      zh_Hans: 记忆资源ID（从记忆创建操作时必需）
+      pt_BR: ID do recurso de memória (obrigatório para operação create_from_memory)
+      ja_JP: メモリーリソースの ID（Memory から作成操作時に必須）
+    llm_description: The memory resource ID to extract template from (required for create_from_memory operation).
+    form: llm
+
+  - name: template_id
+    type: string
+    required: false
+    label:
+      en_US: Template ID
+      zh_Hans: 模板ID
+      pt_BR: ID do Modelo
+      ja_JP: テンプレート ID
+    human_description:
+      en_US: ID of the template (required for apply, export, delete, versions, compare, revert operations)
+      zh_Hans: 模板ID（应用、导出、删除、版本、比较、恢复操作时必需）
+      pt_BR: ID do modelo (obrigatório para operações apply, export, delete, versions, compare, revert)
+      ja_JP: テンプレートの ID（適用、エクスポート、削除、バージョン、比較、復元操作時に必須）
+    llm_description: The template ID (required for apply, export, delete, versions, compare, revert operations).
+    form: llm
+
+  - name: params
+    type: string
+    required: false
+    label:
+      en_US: Parameters
+      zh_Hans: 参数
+      pt_BR: Parâmetros
+      ja_JP: パラメータ
+    human_description:
+      en_US: JSON object with variable substitution parameters (for apply operation)
+      zh_Hans: 包含变量替换参数的JSON对象（用于应用操作）
+      pt_BR: Objeto JSON com parâmetros de substituição de variáveis (para operação apply)
+      ja_JP: 変数置換パラメータを含むJSONオブジェクト（適用操作用）
+    llm_description: |
+      JSON object with variable substitution parameters for namespace patterns.
+      
+      Example: {"actorId": "user_001", "sessionId": "session_001"}
+    form: llm
+
+  - name: memory_name
+    type: string
+    required: false
+    label:
+      en_US: Memory Name
+      zh_Hans: 记忆名称
+      pt_BR: Nome da Memória
+      ja_JP: メモリー名
+    human_description:
+      en_US: Name for the new memory (optional for apply operation, auto-generated if not specified)
+      zh_Hans: 新记忆的名称（应用操作时可选，如果未指定则自动生成）
+      pt_BR: Nome para a nova memória (opcional para operação apply, gerado automaticamente se não especificado)
+      ja_JP: 新しいメモリーの名前（適用操作時は任意、指定しない場合は自動生成）
+    llm_description: Name for the new memory created from template (optional, auto-generated if not specified).
+    form: llm
+
+  - name: destination
+    type: string
+    required: false
+    label:
+      en_US: Destination
+      zh_Hans: 目标
+      pt_BR: Destino
+      ja_JP: エクスポート先
+    human_description:
+      en_US: Export destination ("local" or "s3://bucket/key", for export operation)
+      zh_Hans: 导出目标（"local"或"s3://bucket/key"，用于导出操作）
+      pt_BR: Destino de exportação ("local" ou "s3://bucket/key", para operação export)
+      ja_JP: エクスポート先（"local" または "s3://bucket/key"、エクスポート操作用）
+    llm_description: Export destination - use "local" for local file or "s3://bucket/key" for S3 (for export operation).
+    form: llm
+
+  - name: source
+    type: string
+    required: false
+    label:
+      en_US: Source
+      zh_Hans: 来源
+      pt_BR: Origem
+      ja_JP: インポート元
+    human_description:
+      en_US: Import source (file path or "s3://bucket/key", for import operation)
+      zh_Hans: 导入来源（文件路径或"s3://bucket/key"，用于导入操作）
+      pt_BR: Origem de importação (caminho do arquivo ou "s3://bucket/key", para operação import)
+      ja_JP: インポート元（ファイルパスまたは "s3://bucket/key"、インポート操作用）
+    llm_description: Import source - file path or "s3://bucket/key" for S3 (required for import operation).
+    form: llm
+
+  - name: overwrite
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Overwrite
+      zh_Hans: 覆盖
+      pt_BR: Sobrescrever
+      ja_JP: 上書き
+    human_description:
+      en_US: Whether to overwrite existing template (for import operation)
+      zh_Hans: 是否覆盖现有模板（用于导入操作）
+      pt_BR: Se deve sobrescrever modelo existente (para operação import)
+      ja_JP: 既存のテンプレートを上書きするかどうか（インポート操作用）
+    llm_description: Whether to overwrite existing template with same name (for import operation).
+    form: llm
+
+  - name: filters
+    type: string
+    required: false
+    label:
+      en_US: Filters
+      zh_Hans: 过滤器
+      pt_BR: Filtros
+      ja_JP: フィルター
+    human_description:
+      en_US: JSON object with filter conditions (for list operation)
+      zh_Hans: 包含过滤条件的JSON对象（用于列出操作）
+      pt_BR: Objeto JSON com condições de filtro (para operação list)
+      ja_JP: フィルター条件を含むJSONオブジェクト（一覧操作用）
+    llm_description: |
+      JSON object with filter conditions for listing templates.
+      
+      Example: {"tags": ["conversation"], "author": "admin"}
+    form: llm
+
+  - name: version1
+    type: string
+    required: false
+    label:
+      en_US: Version 1
+      zh_Hans: 版本1
+      pt_BR: Versão 1
+      ja_JP: バージョン1
+    human_description:
+      en_US: First version for comparison (required for compare operation)
+      zh_Hans: 用于比较的第一个版本（比较操作时必需）
+      pt_BR: Primeira versão para comparação (obrigatório para operação compare)
+      ja_JP: 比較する最初のバージョン（比較操作時に必須）
+    llm_description: First version identifier for comparison (required for compare operation).
+    form: llm
+
+  - name: version2
+    type: string
+    required: false
+    label:
+      en_US: Version 2
+      zh_Hans: 版本2
+      pt_BR: Versão 2
+      ja_JP: バージョン2
+    human_description:
+      en_US: Second version for comparison (required for compare operation)
+      zh_Hans: 用于比较的第二个版本（比较操作时必需）
+      pt_BR: Segunda versão para comparação (obrigatório para operação compare)
+      ja_JP: 比較する2番目のバージョン（比較操作時に必須）
+    llm_description: Second version identifier for comparison (required for compare operation).
+    form: llm
+
+  - name: version
+    type: string
+    required: false
+    label:
+      en_US: Version
+      zh_Hans: 版本
+      pt_BR: Versão
+      ja_JP: バージョン
+    human_description:
+      en_US: Version to revert to (required for revert operation)
+      zh_Hans: 要恢复到的版本（恢复操作时必需）
+      pt_BR: Versão para reverter (obrigatório para operação revert)
+      ja_JP: 復元するバージョン（復元操作時に必須）
+    llm_description: Version identifier to revert to (required for revert operation).
+    form: llm
+
+  - name: storage_type
+    type: select
+    required: false
+    options:
+      - value: local
+        label:
+          en_US: Local Storage
+          zh_Hans: 本地存储
+          pt_BR: Armazenamento Local
+          ja_JP: ローカルストレージ
+      - value: s3
+        label:
+          en_US: S3 Storage
+          zh_Hans: S3存储
+          pt_BR: Armazenamento S3
+          ja_JP: S3 ストレージ
+    default: local
+    label:
+      en_US: Storage Type
+      zh_Hans: 存储类型
+      pt_BR: Tipo de Armazenamento
+      ja_JP: ストレージタイプ
+    human_description:
+      en_US: Storage backend for templates (local or S3)
+      zh_Hans: 模板的存储后端（本地或S3）
+      pt_BR: Backend de armazenamento para modelos (local ou S3)
+      ja_JP: テンプレートのストレージバックエンド（ローカルまたはS3）
+    llm_description: Storage backend for templates - "local" for local filesystem or "s3" for S3 bucket.
+    form: llm
+
+  - name: s3_bucket
+    type: string
+    required: false
+    label:
+      en_US: S3 Bucket
+      zh_Hans: S3存储桶
+      pt_BR: Bucket S3
+      ja_JP: S3 バケット
+    human_description:
+      en_US: S3 bucket name (required when storage_type is "s3")
+      zh_Hans: S3存储桶名称（当storage_type为"s3"时必需）
+      pt_BR: Nome do bucket S3 (obrigatório quando storage_type é "s3")
+      ja_JP: S3 バケット名（storage_type が "s3" の場合に必須）
+    llm_description: S3 bucket name for template storage (required when storage_type is "s3").
+    form: llm
+
+  - name: s3_prefix
+    type: string
+    required: false
+    default: agentcore/templates/
+    label:
+      en_US: S3 Prefix
+      zh_Hans: S3前缀
+      pt_BR: Prefixo S3
+      ja_JP: S3 プレフィックス
+    human_description:
+      en_US: S3 key prefix for templates (optional, default="agentcore/templates/")
+      zh_Hans: 模板的S3键前缀（可选，默认="agentcore/templates/"）
+      pt_BR: Prefixo de chave S3 para modelos (opcional, padrão="agentcore/templates/")
+      ja_JP: テンプレート用のS3キープレフィックス（任意、デフォルト="agentcore/templates/"）
+    llm_description: S3 key prefix for template storage (optional, default="agentcore/templates/").
+    form: llm
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      zh_Hans: AWS区域
+      pt_BR: Região AWS
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: AWS region for the AgentCore Memory service (optional)
+      zh_Hans: AgentCore Memory服务的AWS区域（可选）
+      pt_BR: Região AWS para o serviço AgentCore Memory (opcional)
+      ja_JP: AgentCore Memory サービスを利用する AWS リージョン（任意）
+    llm_description: AWS region for the AgentCore Memory service.
+    form: form
+
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      zh_Hans: AWS访问密钥ID
+      pt_BR: ID da Chave de Acesso AWS
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: AWS access key ID for authentication (optional)
+      zh_Hans: 用于身份验证的AWS访问密钥ID（可选）
+      pt_BR: ID da chave de acesso AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS アクセスキー ID（任意）
+    llm_description: AWS access key ID for authentication.
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      zh_Hans: AWS秘密访问密钥
+      pt_BR: Chave de Acesso Secreta AWS
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: AWS secret access key for authentication (optional)
+      zh_Hans: 用于身份验证的AWS秘密访问密钥（可选）
+      pt_BR: Chave de acesso secreta AWS para autenticação (opcional)
+      ja_JP: 認証に使用する AWS シークレットアクセスキー（任意）
+    llm_description: AWS secret access key for authentication.
+    form: form
+
+extra:
+  python:
+    source: tools/agentcore/agentcore_memory_template.py

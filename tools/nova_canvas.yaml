@@ -2,16 +2,16 @@ identity:
   name: nova_canvas
   author: r3-yamauchi
   label:
-    en_US: AWS Bedrock Nova Canvas
-    zh_Hans: AWS Bedrock Nova Canvas
-    ja_JP: AWS Bedrock Nova Canvas
+    en_US: Amazon Bedrock Nova Canvas
+    zh_Hans: Amazon Bedrock Nova Canvas
+    ja_JP: Amazon Bedrock Nova Canvas
   icon: icon.svg
 description:
   human:
-    en_US: A tool for generating and modifying images using AWS Bedrock's Nova Canvas model. Supports text-to-image, color-guided generation, image variation, inpainting, outpainting, and background removal. Input parameters reference https://docs.aws.amazon.com/nova/latest/userguide/image-gen-req-resp-structure.html
-    zh_Hans: 使用 AWS Bedrock 的 Nova Canvas 模型生成和修改图像的工具。支持文生图、颜色引导生成、图像变体、内补绘制、外补绘制和背景移除功能, 输入参数参考 https://docs.aws.amazon.com/nova/latest/userguide/image-gen-req-resp-structure.html。
-    ja_JP: AWS Bedrock Nova Canvas モデルで画像を生成・編集するツールです。テキスト生成、カラーガイド、バリエーション、インペインティング、アウトペインティング、背景除去に対応し、パラメータ仕様は https://docs.aws.amazon.com/nova/latest/userguide/image-gen-req-resp-structure.html を参照します。
-  llm: Generate or modify images using AWS Bedrock's Nova Canvas model with multiple task types including text-to-image, color-guided generation, image variation, inpainting, outpainting, and background removal.
+    en_US: A tool for generating and modifying images using Amazon Bedrock's Nova Canvas model. Supports text-to-image, color-guided generation, image variation, inpainting, outpainting, and background removal. Input parameters reference https://docs.aws.amazon.com/nova/latest/userguide/image-gen-req-resp-structure.html
+    zh_Hans: 使用 Amazon Bedrock 的 Nova Canvas 模型生成和修改图像的工具。支持文生图、颜色引导生成、图像变体、内补绘制、外补绘制和背景移除功能, 输入参数参考 https://docs.aws.amazon.com/nova/latest/userguide/image-gen-req-resp-structure.html。
+    ja_JP: Amazon Bedrock Nova Canvas モデルで画像を生成・編集するツールです。テキスト生成、カラーガイド、バリエーション、インペインティング、アウトペインティング、背景除去に対応し、パラメータ仕様は https://docs.aws.amazon.com/nova/latest/userguide/image-gen-req-resp-structure.html を参照します。
+  llm: Generate or modify images using Amazon Bedrock's Nova Canvas model with multiple task types including text-to-image, color-guided generation, image variation, inpainting, outpainting, and background removal.
 parameters:
   - name: aws_access_key_id
     type: string
