@@ -229,6 +229,17 @@ parameters:
       ja_JP: 認証に使う AWS シークレットアクセスキー（任意）
     form: form
 
+  - name: aws_session_token
+    type: string
+    required: false
+    label:
+      en_US: AWS Session Token
+      ja_JP: AWS セッショントークン
+    human_description:
+      en_US: AWS session token for temporary credentials (STS). Only supported in tool parameters, not at provider level.
+      ja_JP: 一時的な認証情報（STS）用のセッショントークン。ツールパラメータのみでサポートされ、プロバイダーレベルではサポートされません。
+    form: form
+
 extra:
   python:
     source: tools/bedrock/bedrock_retrieve.py

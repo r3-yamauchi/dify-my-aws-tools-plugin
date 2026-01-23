@@ -1,0 +1,141 @@
+identity:
+  name: sts_assume_role
+  author: r3-yamauchi
+  label:
+    en_US: AWS STS AssumeRole
+    ja_JP: AWS STS AssumeRole
+description:
+  human:
+    en_US: Assume an IAM role using AWS STS and retrieve temporary credentials compatible with get_credentials tool format.
+    ja_JP: AWS STS を使用して IAM ロールを引き受け、一時的な認証情報を get_credentials ツールと互換性のある形式で取得します。
+  llm: Assume an AWS IAM role to obtain temporary security credentials (access key, secret key, session token) for cross-account access or elevated permissions.
+parameters:
+  - name: aws_access_key_id
+    type: string
+    required: false
+    label:
+      en_US: AWS Access Key ID
+      ja_JP: AWS アクセスキー ID
+    human_description:
+      en_US: Override the provider Access Key ID for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きする Access Key ID。
+    form: form
+
+  - name: aws_secret_access_key
+    type: string
+    required: false
+    label:
+      en_US: AWS Secret Access Key
+      ja_JP: AWS シークレットアクセスキー
+    human_description:
+      en_US: Override the provider Secret Access Key for this request if needed.
+      ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
+    form: form
+
+  - name: aws_session_token
+    type: string
+    required: false
+    label:
+      en_US: AWS Session Token
+      ja_JP: AWS セッショントークン
+    human_description:
+      en_US: AWS session token for temporary credentials (STS). Only supported in tool parameters, not at provider level.
+      ja_JP: 一時的な認証情報（STS）用のセッショントークン。ツールパラメータのみでサポートされ、プロバイダーレベルではサポートされません。
+    form: form
+
+  - name: aws_region
+    type: string
+    required: false
+    label:
+      en_US: AWS Region
+      ja_JP: AWS リージョン
+    human_description:
+      en_US: Choose the AWS region to use when calling STS.
+      ja_JP: STS を呼び出す際に使用する AWS リージョン。
+    form: form
+
+  - name: role_arn
+    type: string
+    required: true
+    label:
+      en_US: Role ARN
+      ja_JP: ロール ARN
+    human_description:
+      en_US: "The Amazon Resource Name (ARN) of the role to assume (e.g., arn:aws:iam::123456789012:role/MyRole)."
+      ja_JP: "引き受ける IAM ロールの ARN（例: arn:aws:iam::123456789012:role/MyRole）。"
+    placeholder: "arn:aws:iam::123456789012:role/MyRole"
+    form: form
+
+  - name: role_session_name
+    type: string
+    required: false
+    label:
+      en_US: Role Session Name
+      ja_JP: ロールセッション名
+    human_description:
+      en_US: "An identifier for the assumed role session. If not specified, defaults to \"DifySession\"."
+      ja_JP: "引き受けたロールセッションの識別子。指定しない場合は \"DifySession\" がデフォルトです。"
+    placeholder: DifySession
+    default: DifySession
+    form: form
+
+  - name: duration_seconds
+    type: number
+    required: false
+    label:
+      en_US: Duration Seconds
+      ja_JP: 有効期間（秒）
+    human_description:
+      en_US: "The duration, in seconds, of the role session. Value can range from 900 seconds (15 minutes) to the maximum session duration set for the role."
+      ja_JP: "ロールセッションの有効期間（秒単位）。900秒（15分）からロールに設定された最大セッション期間までの値を指定できます。"
+    placeholder: 3600
+    form: form
+
+  - name: external_id
+    type: string
+    required: false
+    label:
+      en_US: External ID
+      ja_JP: 外部 ID
+    human_description:
+      en_US: A unique identifier that might be required when you assume a role in another account.
+      ja_JP: 別のアカウントのロールを引き受ける際に必要となる可能性がある一意の識別子。
+    form: form
+
+  - name: serial_number
+    type: string
+    required: false
+    label:
+      en_US: MFA Serial Number
+      ja_JP: MFA シリアル番号
+    human_description:
+      en_US: The identification number of the MFA device that is associated with the user making the call.
+      ja_JP: 呼び出しを行うユーザーに関連付けられた MFA デバイスの識別番号。
+    placeholder: "arn:aws:iam::123456789012:mfa/user"
+    form: form
+
+  - name: token_code
+    type: string
+    required: false
+    label:
+      en_US: MFA Token Code
+      ja_JP: MFA トークンコード
+    human_description:
+      en_US: The value provided by the MFA device. Required if serial_number is specified.
+      ja_JP: MFA デバイスから提供される値。serial_number を指定した場合は必須です。
+    placeholder: "123456"
+    form: form
+
+  - name: policy
+    type: string
+    required: false
+    label:
+      en_US: Session Policy
+      ja_JP: セッションポリシー
+    human_description:
+      en_US: An IAM policy in JSON format to further restrict the permissions for the session.
+      ja_JP: セッションの権限をさらに制限するための JSON 形式の IAM ポリシー。
+    form: form
+extra:
+  python:
+    source: tools/sts_assume_role.py

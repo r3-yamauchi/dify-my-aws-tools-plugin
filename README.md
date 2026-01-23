@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.9  
+**Version:** 1.0.10 
 **Type:** tool
 
 English | [Japanese](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin/blob/main/readme/README_ja_JP.md)
@@ -59,6 +59,8 @@ Included tools:
 - Agentcore Event Manager
 - Agentcore Runtime
 - Agentcore Observability
+- Get Credentials
+- STS AssumeRole
 
 The source code of this plugin is available in the [GitHub repository](https://github.com/r3-yamauchi/dify-my-aws-tools-plugin).
 
@@ -664,6 +666,40 @@ yaml_content: |
   "state_machine_arn": "arn:aws:states:us-east-1:111122223333:stateMachine:MyFlow",
   "input_json": {"task": "sync"},
   "name": "run-001"
+}
+```
+
+- **Get Credentials**: Retrieves AWS credentials from boto3.Session. Returns access key, secret key, and session token in JSON format using the specified profile and region. If `profile_name` or `region_name` is not specified, it uses the AWS Credential Provider Chain (environment variables, ~/.aws/credentials, IAM roles, etc.) to obtain default credentials. When running on EC2 instances or ECS tasks, it can automatically retrieve temporary credentials from instance profiles or task roles.
+
+```json
+{
+  "profile_name": "development",
+  "region_name": "ap-northeast-1"
+}
+```
+
+```json
+{}
+```
+(Retrieve default credentials without parameters)
+
+- **STS AssumeRole**: Uses AWS STS to assume an IAM role and retrieve temporary credentials. Use this for cross-account access or privilege escalation. Supports advanced configurations such as MFA authentication, external ID, and session policies. The retrieved credentials are returned in a format compatible with the Get Credentials tool.
+
+```json
+{
+  "role_arn": "arn:aws:iam::123456789012:role/MyRole",
+  "role_session_name": "DifySession",
+  "duration_seconds": 3600
+}
+```
+
+```json
+{
+  "role_arn": "arn:aws:iam::123456789012:role/CrossAccountRole",
+  "role_session_name": "CrossAccountSession",
+  "external_id": "unique-external-id-123",
+  "serial_number": "arn:aws:iam::123456789012:mfa/user",
+  "token_code": "123456"
 }
 ```
 

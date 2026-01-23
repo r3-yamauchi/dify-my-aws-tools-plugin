@@ -1,7 +1,7 @@
 # my_aws_tools
 
 **Author:** r3-yamauchi  
-**Version:** 1.0.9  
+**Version:** 1.0.10  
 **Type:** tool
 
 英語版ドキュメントはリポジトリ直下の `README.md` を参照してください。
@@ -59,6 +59,8 @@
 - Agentcore Event Manager
 - Agentcore Runtime
 - Agentcore Observability
+- Get Credentials
+- STS AssumeRole
 
 ## ライセンスとクレジット
 
@@ -660,5 +662,39 @@ yaml_content: |
   "state_machine_arn": "arn:aws:states:us-east-1:111122223333:stateMachine:MyFlow",
   "input_json": {"task": "sync"},
   "name": "run-001"
+}
+```
+
+- **Get Credentials**: boto3.Session から AWS 認証情報を取得します。指定したプロファイルとリージョンを使用して、アクセスキー、シークレットキー、セッショントークンを JSON 形式で返却します。`profile_name` や `region_name` を指定しない場合は、AWS Credential Provider Chain（環境変数、~/.aws/credentials、IAM ロールなど）を使用してデフォルトの認証情報を取得します。EC2 インスタンスや ECS タスクで実行する場合は、インスタンスプロファイルやタスクロールから一時的な認証情報を自動的に取得できます。
+
+```json
+{
+  "profile_name": "development",
+  "region_name": "ap-northeast-1"
+}
+```
+
+```json
+{}
+```
+（パラメータなしでデフォルト認証情報を取得）
+
+- **STS AssumeRole**: AWS STS を使用して IAM ロールを引き受け、一時的な認証情報を取得します。クロスアカウントアクセスや権限昇格が必要な場合に使用します。MFA 認証、外部 ID、セッションポリシーなどの高度な設定にも対応しています。取得した認証情報は Get Credentials ツールと互換性のある形式で返却されます。
+
+```json
+{
+  "role_arn": "arn:aws:iam::123456789012:role/MyRole",
+  "role_session_name": "DifySession",
+  "duration_seconds": 3600
+}
+```
+
+```json
+{
+  "role_arn": "arn:aws:iam::123456789012:role/CrossAccountRole",
+  "role_session_name": "CrossAccountSession",
+  "external_id": "unique-external-id-123",
+  "serial_number": "arn:aws:iam::123456789012:mfa/user",
+  "token_code": "123456"
 }
 ```

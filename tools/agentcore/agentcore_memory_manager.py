@@ -22,10 +22,9 @@ try:
     from bedrock_agentcore.memory import MemoryClient
 
     AGENTCORE_SDK_AVAILABLE = True
-except ImportError as exc:  # pragma: no cover - SDK 未導入環境に備える
+except ImportError:  # pragma: no cover - SDK 未導入環境に備える
     MemoryClient = None
     AGENTCORE_SDK_AVAILABLE = False
-    print(f"Warning: bedrock-agentcore SDK import failed: {exc}")
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +39,9 @@ class AgentCoreMemoryManagerTool(Tool):
     # ------------------------------------------------------------------
     def _initialize_memory_client(self, tool_parameters: dict[str, Any]) -> bool:
         """
-        AWS 資格情報から MemoryClient を構築する。
+        AWS 資格情報から MemoryClient を構築する
+        
+        標準的な認証情報取得パターンを使用し、boto3の認証チェーンに委譲する
         
         Args:
             tool_parameters: ツールパラメータ（認証情報を含む）
@@ -55,22 +56,15 @@ class AgentCoreMemoryManagerTool(Tool):
             return False
 
         try:
-            # 既存の認証情報解決機構を使用（要件 4.1）
+            # 標準的な認証情報解決パターンを使用（要件 4.1）
             credentials = resolve_aws_credentials(self, tool_parameters)
             
             # デフォルトリージョンの設定（要件 4.4）
             aws_region = credentials.get("aws_region") or "us-east-1"
-            aws_access_key_id = credentials.get("aws_access_key_id")
-            aws_secret_access_key = credentials.get("aws_secret_access_key")
-
-            # 明示的な AK/SK が渡された場合は環境変数経由で設定
-            # ツールパラメータの認証情報を優先（要件 4.3）
-            if aws_access_key_id and aws_secret_access_key:
-                os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id
-                os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_access_key
-                os.environ["AWS_REGION"] = aws_region
-
-            # MemoryClient を初期化
+            
+            # MemoryClient は内部で boto3 を使用するため、
+            # boto3 の標準認証チェーン（環境変数、~/.aws/credentials、IAMロールなど）が自動的に使用される
+            # ツールパラメータの認証情報は resolve_aws_credentials で解決済み（要件 4.3）
             self.memory_client = MemoryClient(region_name=aws_region)
             logger.info("AgentCore Memory client initialized successfully")
             return True

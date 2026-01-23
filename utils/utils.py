@@ -18,6 +18,7 @@ class ParameterStoreManager:
         region_name: str = 'us-east-1',
         aws_access_key_id: Optional[str] = None,
         aws_secret_access_key: Optional[str] = None,
+        aws_session_token: Optional[str] = None,
     ):
         """
         Parameter Store マネージャーを初期化する
@@ -26,11 +27,14 @@ class ParameterStoreManager:
             region_name: AWS リージョン名（デフォルト: us-east-1）
             aws_access_key_id: AWS アクセスキー ID（オプション）
             aws_secret_access_key: AWS シークレットアクセスキー（オプション）
+            aws_session_token: AWS セッショントークン（オプション、一時的な認証情報用）
         """
         client_kwargs: Dict[str, Any] = {'region_name': region_name}
         if aws_access_key_id and aws_secret_access_key:
             client_kwargs['aws_access_key_id'] = aws_access_key_id
             client_kwargs['aws_secret_access_key'] = aws_secret_access_key
+            if aws_session_token:
+                client_kwargs['aws_session_token'] = aws_session_token
         self.ssm_client = boto3.client('ssm', **client_kwargs)
     
     def get_parameter(self, name: str, decrypt: bool = True, as_dict: bool = False) -> Optional[Union[str, Dict]]:
@@ -113,29 +117,35 @@ class ParameterStoreManager:
 
 
 # 認証情報の署名を表すタプル型（キャッシュ無効化用）
-CredentialSignature = Tuple[Optional[str], Optional[str], Optional[str]]
+# (aws_access_key_id, aws_secret_access_key, aws_session_token, aws_region)
+CredentialSignature = Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]
 
 
 def resolve_aws_credentials(tool: Any, tool_parameters: Dict[str, Any]) -> Dict[str, Optional[str]]:
     """
     プロバイダーレベルの認証情報とツールパラメータをマージし、ツール固有の入力を優先する
     
+    注意: aws_session_token はツールパラメータのみでサポートされ、プロバイダーレベルではサポートされません
+    
     Args:
         tool: ツールインスタンス
         tool_parameters: ツールパラメータ辞書
         
     Returns:
-        マージされた認証情報辞書
+        マージされた認証情報辞書（aws_session_token はツールパラメータから取得）
     """
     runtime_credentials = getattr(getattr(tool, 'runtime', None), 'credentials', {}) or {}
 
     aws_access_key_id = tool_parameters.get('aws_access_key_id') or runtime_credentials.get('aws_access_key_id')
     aws_secret_access_key = tool_parameters.get('aws_secret_access_key') or runtime_credentials.get('aws_secret_access_key')
+    # aws_session_token はツールパラメータのみから取得（プロバイダーレベルではサポートしない）
+    aws_session_token = tool_parameters.get('aws_session_token')
     aws_region = tool_parameters.get('aws_region') or runtime_credentials.get('aws_region') or 'us-east-1'
 
     return {
         'aws_access_key_id': aws_access_key_id,
         'aws_secret_access_key': aws_secret_access_key,
+        'aws_session_token': aws_session_token,
         'aws_region': aws_region,
     }
 
@@ -156,6 +166,9 @@ def build_boto3_client_kwargs(credentials: Dict[str, Optional[str]]) -> Dict[str
     if credentials.get('aws_access_key_id') and credentials.get('aws_secret_access_key'):
         kwargs['aws_access_key_id'] = credentials['aws_access_key_id']
         kwargs['aws_secret_access_key'] = credentials['aws_secret_access_key']
+        # セッショントークンは、アクセスキーとシークレットキーが両方ある場合のみ設定
+        if credentials.get('aws_session_token'):
+            kwargs['aws_session_token'] = credentials['aws_session_token']
     return kwargs
 
 
@@ -167,11 +180,14 @@ def build_credential_signature(credentials: Dict[str, Optional[str]]) -> Credent
         credentials: 認証情報辞書
         
     Returns:
-        認証情報を識別するタプル（アクセスキー、シークレットキー、リージョン）
+        認証情報を識別するタプル（アクセスキー、シークレットキー、セッショントークン、リージョン）
+    
+    注意: セッショントークンの変更も検知するため、タプルに含める
     """
     return (
         credentials.get('aws_access_key_id'),
         credentials.get('aws_secret_access_key'),
+        credentials.get('aws_session_token'),
         credentials.get('aws_region'),
     )
 

@@ -20,10 +20,9 @@ try:
     from bedrock_agentcore.memory import MemoryClient
 
     AGENTCORE_SDK_AVAILABLE = True
-except ImportError as exc:  # pragma: no cover - SDK 未導入環境に備える
+except ImportError:  # pragma: no cover - SDK 未導入環境に備える
     MemoryClient = None
     AGENTCORE_SDK_AVAILABLE = False
-    print(f"Warning: bedrock-agentcore SDK import failed: {exc}")
 
 try:
     from utils.utils import (
@@ -74,11 +73,9 @@ class AgentCoreMemoryBackupTool(Tool):
             return False
 
         try:
-            # AWS 認証情報の解決
+            # 標準的な認証情報解決パターンを使用
             credentials = resolve_aws_credentials(self, tool_parameters)
             aws_region = credentials.get("aws_region") or "us-east-1"
-            aws_access_key_id = credentials.get("aws_access_key_id")
-            aws_secret_access_key = credentials.get("aws_secret_access_key")
 
             # 認証情報が変更された場合、クライアントをリセット
             reset_clients_on_credential_change(
@@ -87,12 +84,8 @@ class AgentCoreMemoryBackupTool(Tool):
 
             # Memory Client の初期化
             if not self.memory_client:
-                # 明示的な AK/SK が渡された場合は環境変数経由で設定
-                if aws_access_key_id and aws_secret_access_key:
-                    os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id
-                    os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_access_key
-                    os.environ["AWS_REGION"] = aws_region
-
+                # MemoryClient は内部で boto3 を使用するため、
+                # boto3 の標準認証チェーン（環境変数、~/.aws/credentials、IAMロールなど）が自動的に使用される
                 self.memory_client = MemoryClient(region_name=aws_region)
                 logger.info("AgentCore Memory client initialized")
 

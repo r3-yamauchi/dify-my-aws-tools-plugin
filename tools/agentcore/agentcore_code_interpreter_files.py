@@ -25,12 +25,11 @@ except ModuleNotFoundError:  # pragma: no cover
     from my_aws_tools.utils.utils import resolve_aws_credentials
 
 try:
-    from bedrock_agentcore.code_interpreter import CodeInterpreterClient
+    from bedrock_agentcore.tools.code_interpreter_client import CodeInterpreter as CodeInterpreterClient
     AGENTCORE_SDK_AVAILABLE = True
-except ImportError as exc:  # pragma: no cover
+except ImportError:  # pragma: no cover
     CodeInterpreterClient = None
     AGENTCORE_SDK_AVAILABLE = False
-    print(f"Warning: bedrock-agentcore SDK import failed: {exc}")
 
 try:
     import boto3
@@ -66,6 +65,8 @@ class AgentCoreCodeInterpreterFilesTool(Tool):
         """
         Code Interpreter Client と S3 Client を初期化する
         
+        標準的な認証情報取得パターンを使用
+        
         Args:
             tool_parameters: ツールパラメータ
             
@@ -75,20 +76,13 @@ class AgentCoreCodeInterpreterFilesTool(Tool):
         要件: 17.1, 17.2, 17.3, 17.4
         """
         try:
-            # AWS 認証情報を解決
+            # 標準的な認証情報解決パターンを使用
             credentials = resolve_aws_credentials(self, tool_parameters)
             aws_region = credentials.get("aws_region") or 'us-east-1'
-            aws_access_key_id = credentials.get("aws_access_key_id")
-            aws_secret_access_key = credentials.get("aws_secret_access_key")
 
             if AGENTCORE_SDK_AVAILABLE:
-                # AK/SK が両方ある場合は環境変数経由で渡す
-                if aws_access_key_id and aws_secret_access_key:
-                    os.environ['AWS_ACCESS_KEY_ID'] = aws_access_key_id
-                    os.environ['AWS_SECRET_ACCESS_KEY'] = aws_secret_access_key
-                    os.environ['AWS_REGION'] = aws_region
-                
-                # CodeInterpreterClient を生成
+                # CodeInterpreterClient は内部で boto3 を使用するため、
+                # boto3 の標準認証チェーン（環境変数、~/.aws/credentials、IAMロールなど）が自動的に使用される
                 self.code_interpreter_client = CodeInterpreterClient(region_name=aws_region)
                 logger.info(f"Code Interpreter client initialized for region: {aws_region}")
             else:
@@ -97,15 +91,8 @@ class AgentCoreCodeInterpreterFilesTool(Tool):
             
             # S3 Client を初期化
             if BOTO3_AVAILABLE:
-                if aws_access_key_id and aws_secret_access_key:
-                    self.s3_client = boto3.client(
-                        's3',
-                        region_name=aws_region,
-                        aws_access_key_id=aws_access_key_id,
-                        aws_secret_access_key=aws_secret_access_key
-                    )
-                else:
-                    self.s3_client = boto3.client('s3', region_name=aws_region)
+                client_kwargs = build_boto3_client_kwargs(credentials)
+                self.s3_client = boto3.client('s3', **client_kwargs)
                 logger.info("S3 client initialized")
             
             return True

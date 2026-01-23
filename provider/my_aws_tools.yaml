@@ -83,6 +83,8 @@ tools:
   - tools/agentcore/agentcore_observability.yaml
   - tools/agentcore/agentcore_code_interpreter.yaml
   - tools/agentcore/agentcore_code_interpreter_files.yaml
+  - tools/get_credentials.yaml
+  - tools/sts_assume_role.yaml
 extra:
   python:
     source: provider/my_aws_tools.py

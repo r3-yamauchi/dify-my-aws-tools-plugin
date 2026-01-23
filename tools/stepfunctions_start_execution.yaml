@@ -33,6 +33,17 @@ parameters:
       ja_JP: 必要に応じてプロバイダー設定を上書きするシークレットキー。
     form: form
 
+  - name: aws_session_token
+    type: string
+    required: false
+    label:
+      en_US: AWS Session Token
+      ja_JP: AWS セッショントークン
+    human_description:
+      en_US: AWS session token for temporary credentials (STS). Only supported in tool parameters, not at provider level.
+      ja_JP: 一時的な認証情報（STS）用のセッショントークン。ツールパラメータのみでサポートされ、プロバイダーレベルではサポートされません。
+    form: form
+
   - name: aws_region
     type: string
     required: false
